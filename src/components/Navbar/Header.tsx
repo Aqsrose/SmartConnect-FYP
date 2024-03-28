@@ -2,7 +2,7 @@ import React from "react";
 import Logo from "../landingpage/Logo";
 function Header() {
   return (
-    <header className="fixed  inset-x-0  mx-auto py-3 lg:py-3 px-4 sm:px-6 lg:px-8 bg-white border border-[#f4f2f2]">
+    <header className="fixed  inset-x-0  mx-auto py-3 lg:py-3 px-4 sm:px-6 lg:px-8 bg-white border border-[#f4f2f2] z-50">
     
         <Logo />
         <div className="flex-row">

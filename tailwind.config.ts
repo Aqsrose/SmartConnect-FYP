@@ -72,9 +72,18 @@ const config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      screens: {
+        sb: "292px",
+        sbb: "356px",
+        tb: "407px",
+        tbbb: "510px",
+        tbb: "650px",
+        mdd: "1024px",
+      },
       backgroundImage: {
-        "gradient-primary":
-          "linear-gradient(90deg, #40777A 22.17%, #37C9D0 74.29%)",
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        "gradient-conic":
+          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
     },
   },

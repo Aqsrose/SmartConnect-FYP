@@ -190,6 +190,7 @@ model Group {
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz()
   adminId       String   @map("admin_id")
   coverImageUrl String?  @map("cover_image_url")
+  isPublic      Boolean
 
   groupUsers GroupUsers[]
   posts      Post[]

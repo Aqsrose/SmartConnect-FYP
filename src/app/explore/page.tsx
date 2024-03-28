@@ -1,5 +1,6 @@
 import React from "react"
 import Layoutpage from "@/components/Navbar/Layout"
+import PostReel from "@/components/PostReel"
 function Explore() {
   return (
     <Layoutpage>
@@ -8,9 +9,7 @@ function Explore() {
           <div className="bg-whitep-4">
             <div className=" h-32 rounded-md mb-4"></div>
             <div className="text-center mt-4">
-              <p className="text-sm text-gray-700 mt-2">
-                Start Exploing..........
-              </p>
+              <PostReel />
             </div>
           </div>
         </div>

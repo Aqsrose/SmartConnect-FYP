@@ -1,11 +1,13 @@
-import type { User } from "@clerk/clerk-sdk-node"
-export const filterUserForClient = (user: User) => {
+import type { EmailAddress, User } from "@clerk/clerk-sdk-node"
+
+export const filterUserForClient = (user: User)=> {
   return {
     id: user.id,
-    username: user.username,
+    username: user.username!,
     imageUrl: user.imageUrl,
     emailAddresses: user.emailAddresses,
-    fullname: user.firstName + " " + user.lastName
+    fullname: user.firstName + " " + user.lastName,
+    bio: user.publicMetadata.bio ?? ""
   }
 }
 

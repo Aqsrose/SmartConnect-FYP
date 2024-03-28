@@ -12,15 +12,19 @@ import {
   User,
   LogOut,
 } from "lucide-react"
+import { useUser } from "@clerk/nextjs"
 
 function Navbar() {
+
+  const {user} = useUser()
+
   const pathname = usePathname()
   const isActive = (path: string) => pathname === path
   const activeLinkClass = "text-[#10676B]"
   const linkClass =
     "flex items-center px-2 py-1 sb:px-2 sb:ml-1 sbb:px-2 sbb:ml-3 tb:px-4 tb:py-2 tb:mr-5 md:ml-0 md:mr-3 rounded md:px-4 md:py-2  lg:px-4 lg:py-2 lg:mr-3  hover:text-[#85b3b6] hover:bg-[#F2F2F2]"
   return (
-    <nav className="fixed bottom-0 shadow-md tb:mt-20 md:mt-24 lg:mt-24 md:inset-y-0 tb:inset-y-0 left-0 w-full pt-3 pb-3 tb:w-24 tb:pt-5 md:pt-5  md:w-48 lg:pt-5  lg:w-48 bg-white border border-[#e0e0e0]">
+    <nav className="fixed bottom-0 shadow-md tb:mt-20 md:mt-24 lg:mt-24 md:inset-y-0 tb:inset-y-0 left-0 w-full pt-3 pb-3 tb:w-24 tb:pt-5 md:pt-5  md:w-48 lg:pt-5  lg:w-48 bg-white border border-[#e0e0e0] z-50">
       <ul className="flex flex-row md:flex-col tb:flex-col tb:ml-1 md:ml-5 lg:ml-5 md:space-x-0 tb:space-x-0 md:space-y-4  tb:space-y-4 ml-1">
         <li>
           <Link href="/home">
@@ -110,10 +114,10 @@ function Navbar() {
         </li>
 
         <li>
-          <Link href="/ProfilePage">
+          <Link href={`/profile/${user?.id}`}>
             <div
               className={`${linkClass} ${
-                isActive("/ProfilePage") ? activeLinkClass : ""
+                isActive("/profile") ? activeLinkClass : ""
               }`}
             >
               <User />

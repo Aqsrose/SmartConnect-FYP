@@ -10,10 +10,11 @@ export const groupRouter = router({
       z.object({
         name: z.string(),
         description: z.string(),
+        privacy: z.string()
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { name, description } = input
+      const { name, description, privacy } = input
 
       let group
       try {
@@ -22,6 +23,7 @@ export const groupRouter = router({
             name,
             description,
             adminId: ctx.user.id,
+            isPublic: privacy === "public" ? true: false,
             groupUsers: {
               create: {
                 userId: ctx.user.id,
@@ -88,6 +90,13 @@ export const groupRouter = router({
           where: {
             id: groupId,
           },
+          include: {
+            _count: {
+              select: {
+                groupUsers: true
+              }
+            }
+          }
         })
       } catch (error) {
         console.log("🔴 Prisma Error: ", error)

@@ -8,12 +8,14 @@ import { useInView } from "react-intersection-observer"
 import { useEffect, useRef } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
-import { Loader2 } from "lucide-react"
+import { Camera, Loader2, Pencil } from "lucide-react"
 import useNFTMarketplace from "@/web3/useMarketplace"
 import NFTCard from "@/components/marketpalce/NFTCard"
 import { Button } from "@/components/ui/button"
 import getSignedUrls from "@/app/actions/getSignedUrls"
 import { toast } from "@/components/ui/use-toast"
+import Layoutpage from "@/components/Navbar/Layout"
+import { useState } from "react"
 
 interface PageProps {
   params: {
@@ -137,6 +139,34 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
     return hashHex
   }
 
+  const [coverPhoto, setCoverPhoto] = useState(null)
+  const [profilePhoto, setProfilePhoto] = useState(null)
+  const coverPhotoInputRef = useRef(null)
+  const profilePhotoInputRef = useRef(null)
+
+  const handleCoverPhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const file = event.target.files[0]
+      if (file) {
+        setCoverPhoto(URL.createObjectURL(file))
+      }
+    }
+  }
+  const handleProfilePhotoChange = (event) => {
+    const file = event.target.files[0]
+    if (file) {
+      const fileURL = URL.createObjectURL(file)
+      setProfilePhoto(fileURL)
+      localStorage.setItem("profilePhoto", fileURL)
+    }
+  }
+
+  const triggerFileInput = (inputRef) => {
+    if (inputRef && inputRef.current) {
+      inputRef.current.click()
+    }
+  }
+
   if (!user) {
     return (
       <div className="flex flex-col w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-sm shadow-lg p-6 gap-6 animate-pulse">
@@ -179,203 +209,67 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
     )
   }
 
+  console.log("user: ", userFromBackend)
+
   return (
-    <div>
-      <header className="flex flex-col gap-1">
-        <Navbar />
-        <div className="w-full relative flex flex-col gap-2 px-2">
-          <img
-            className="w-full h-full object-cover rounded-md"
-            height="144"
-            src={coverImageResponse?.coverImage.url ?? "/placeholder.svg"}
-            style={{
-              aspectRatio: "1024/144",
-              objectFit: "cover",
-            }}
-            width="1024"
-          />
-          {userId === user.id && (
-            <div>
-              <Button
-                className="absolute z-50 bottom-32 left-10 bg-black opacity-50 rounded-md p-1 hover:opacity-95"
-                onClick={() => coverImageElement.current?.click()}
-                disabled={updatingCoverImage}
-              >
-                {updatingCoverImage ? "updating..." : "Edit Cover Image"}
-              </Button>
-              <input
-                ref={coverImageElement}
-                className="hidden"
-                type="file"
-                accept="image/*"
-                onChange={handleCoverImageUpload}
-              />
-            </div>
-          )}
-          {userId !== user.id &&
-          friends?.friends.some(
-            (friend) => friend.friendId === user.id || friend.userId === user.id
-          ) ? (
-            <Button>Unfriend</Button>
-          ) : (
-            <Button
-              onClick={() => {
-                sendFriendRequest({ receiverId: userId })
-              }}
-            >
-              {sendingRequest ? "sending..." : "Send Friend Request"}
-            </Button>
-          )}
-          <div className="flex items-center gap-6 justify-center">
+    <Layoutpage>
+      <div className="bg-white -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3 md:pl-64 md:pr-20">
+        <div className="w-full h-72 rounded-md  relative bg-gray-100">
+          {coverImageResponse?.coverImage && (
             <img
-              className="w-20 h-20 rounded-full"
-              height="80"
-              src={userFromBackend?.user.imageUrl}
-              style={{
-                aspectRatio: "80/80",
-                objectFit: "cover",
-              }}
-              width="80"
+              src={coverImageResponse?.coverImage.url}
+              alt="Cover"
+              className="w-full h-72 object-cover rounded-md"
             />
-            <div className="flex flex-col ">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-white">
-                {userFromBackend?.user.fullname ??
-                  userFromBackend?.user.emailAddresses[0].emailAddress.split(
-                    "@"
-                  )[0]}
-              </h2>
-              {userFromBackend?.user.username && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                  @{userFromBackend?.user.username}
-                </p>
-              )}
-              <p className="text-gray-600 dark:text-gray-400 mt-4">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-                nisl eros, pulvinar facilisis justo mollis, auctor consequat
-                urna.
-              </p>
-            </div>
+          )}
+          <div className="absolute right-0 bottom-0 p-1 border-4 border-white rounded-full bg-gray-50">
+            <Camera
+              className="cursor-pointer"
+              onClick={() => triggerFileInput(coverPhotoInputRef)}
+            />
           </div>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleCoverPhotoChange}
+            ref={coverPhotoInputRef}
+            className="hidden"
+          />
         </div>
-      </header>
-      <div className="mt-3 w-full">
-        <Tabs defaultValue="posts" className="w-full">
-          <TabsList className="w-full">
-            <TabsTrigger value="posts" className="text-lg" id="0">
-              Posts
-            </TabsTrigger>
-            <TabsTrigger value="nfts" className="text-lg" id="1">
-              NFTs
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent
-            value="posts"
-            className="flex flex-col max-w-full mx-auto w-[512px]"
-          >
-            {isLoading ? (
-              <Skeleton className="flex flex-col w-full max-w-[512px] bg-gray-200 border rounded-sm shadow-sm p-4 gap-4">
-                <div className="flex items-center gap-4">
-                  <Skeleton className="w-16 h-16 rounded-full" />
-                  <div className="flex flex-col">
-                    <Skeleton className="w-32 h-4" />
-                    <Skeleton className="w-20 h-2 mt-1" />
-                  </div>
-                </div>
-                <Skeleton className="w-full h-4" />
-                <Skeleton className="w-full h-64 relative" />
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <Skeleton className="w-8 h-8" />
-                    <Skeleton className="w-16 h-4" />
-                  </div>
-                  <div className="flex justify-between w-full items-center gap-2">
-                    <Skeleton className="w-8 h-8" />
-                    <div className="flex flex-col">
-                      <Skeleton className="w-24 h-4" />
-                      <Skeleton className="w-8 h-4 mt-1" />
-                    </div>
-                  </div>
-                </div>
-              </Skeleton>
-            ) : (
-              data?.pages.map((response) =>
-                response.posts.map((post) => {
-                  return (
-                    <Post
-                      key={post?.post.id}
-                      id={post?.post.id || ""}
-                      caption={post?.post.caption || ""}
-                      createdAt={post?.post.createdAt || ""}
-                      likes={post?.post._count.postLikes || 0}
-                      commentCount={post?.post._count.comments || 0}
-                      userImageUrl={post?.user?.imageUrl || ""}
-                      userDisplayName={
-                        (post?.user?.username ??
-                          post?.user?.emailAddresses[0].emailAddress.split(
-                            "@"
-                          )[0]) ||
-                        ""
-                      }
-                      media={post!.post.media}
-                      postLikes={post!.post.postLikes}
-                      userId={post.user.id}
-                      isLikedByUser={post.post.isLikedByUser ?? false}
-                    />
-                  )
-                })
-              )
-            )}
-            <div
-              ref={ref}
-              className={cn(
-                isFetchingNextPage || hasNextPage ? "block" : "hidden"
-              )}
-            >
-              {<Loader2 className="animate-spin mx-auto text-gray-400 mt-3" />}
-            </div>
-            <div
-              className={cn(
-                "mt-3 mb-3 text-gray-800 font-lg text-center hidden",
-                {
-                  block: !hasNextPage && !isFetchingNextPage,
-                }
-              )}
-            >
-              You&apos;re all caught with your posts!
-            </div>
-          </TabsContent>
-          <TabsContent value="nfts">
-            {!ownedNfts ? (
-              <div className="flex justify-center flex-wrap gap-2 p-3">
-                {new Array(2).fill(null).map((_, index) => (
-                  <Skeleton
-                    key={index}
-                    className="flex flex-col w-64 bg-gray-200 border rounded-sm shadow-sm"
-                  >
-                    <div className="h-48 relative">
-                      <Skeleton className="w-full h-full object-cover object-center rounded-sm" />
-                    </div>
-                    <div className="bg-gray-200 px-2 py-1 flex flex-col gap-1">
-                      <Skeleton className="w-full h-6 bg-gray-300 rounded-md" />
-                      <Skeleton className="w-full h-6 bg-gray-300 rounded-md" />
-                      <div className="flex items-center gap-1">
-                        <Skeleton className="w-8 h-8" />
-                        <Skeleton className="w-8 h-8" />
-                        <Skeleton className="w-8 h-8" />
-                      </div>
-                    </div>
-                  </Skeleton>
-                ))}
-              </div>
-            ) : ownedNfts.length === 0 ? (
-              <div>no owned nfts</div>
-            ) : (
-              ownedNfts?.map((nft) => <NFTCard key={nft.id} nft={nft} />)
-            )}
-          </TabsContent>
-        </Tabs>
+
+        <div className="w-32 h-32 bg-gray-100 rounded-full ml-8 -mt-16 border-4 border-white relative">
+          <img
+            src={userFromBackend?.user.imageUrl}
+            alt="Profile"
+            className="w-full h-full object-cover rounded-full border border-black"
+          />
+          <div className="absolute right-0 bottom-0 p-1 border-4 border-white rounded-full bg-gray-50">
+            <Pencil
+              className="cursor-pointer"
+              onClick={() => triggerFileInput(profilePhotoInputRef)}
+            />
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleProfilePhotoChange}
+            ref={profilePhotoInputRef}
+            className="hidden"
+          />
+        </div>
+        <div className="-mt-14">
+          <h2 className="text-xl font-bold ml-40">
+            {userFromBackend?.user.fullname}
+          </h2>
+          <p className="text-gray-500 ml-40">
+            {`@${userFromBackend?.user.username}`}
+          </p>
+          <p className="text-sm text-gray-700 mt-2 ml-32">
+            {userFromBackend?.user.bio + ""}
+          </p>
+        </div>
       </div>
-    </div>
+    </Layoutpage>
   )
 }
 
