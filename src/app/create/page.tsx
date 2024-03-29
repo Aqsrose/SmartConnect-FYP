@@ -1,239 +1,266 @@
 "use client"
-import React, { useState, useRef, useEffect } from "react"
+import { Textarea } from "@/components/ui/textarea"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { ImagePlus, Loader2, Trash2 } from "lucide-react"
+import Image from "next/image"
+import { ChangeEvent, useState } from "react"
+import { Button } from "@/components/ui/button"
+import getSignedUrls from "../actions/getSignedUrls"
+import { useUser } from "@clerk/nextjs"
+import { trpc } from "@/server/trpc/client"
+import { useToast } from "@/components/ui/use-toast"
 import Layoutpage from "@/components/Navbar/Layout"
-import CommentSection from "@/components/Comments/Comments"
-import {
-  Image,
-  MoreVertical,
-  Heart,
-  MessageCircle,
-  Bookmark,
-  Repeat,
-  Files,
-  Trash2,
-  ChevronLeftCircle,
-  ChevronRightCircle,
-} from "lucide-react"
 
-function Create() {
-  const [files, setFiles] = useState([])
-  const [filePreviews, setFilePreviews] = useState([])
-  const fileInputRef = useRef(null)
-  const [postText, setPostText] = useState("")
-  const [postedContent, setPostedContent] = useState([])
-  const [profilePhoto, setProfilePhoto] = useState("")
+const CreatePost = () => {
+  const { toast } = useToast()
+  const utils = trpc.useUtils()
+  const { mutate, isLoading } = trpc.postRouter.createPost.useMutation()
 
-  useEffect(() => {
-    const savedProfilePhoto = localStorage.getItem("profilePhoto")
-    if (savedProfilePhoto) {
-      setProfilePhoto(savedProfilePhoto)
+  const [loading, setLoading] = useState<boolean>(false)
+
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [fileTypes, setFileType] = useState<string[]>([])
+  const [fileSizes, setFileSize] = useState<number[]>([])
+  const [fileChecksums, setFileChecksum] = useState<string[]>([])
+
+  const [caption, setCaption] = useState<string>("")
+
+  const user = useUser()
+
+  const computeSHA256 = async (file: File) => {
+    //do this for media array
+    const buffer = await file.arrayBuffer()
+    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    const hashHex = hashArray
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("")
+    return hashHex
+  }
+
+  const handleCaption = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setCaption(event.target.value)
+  }
+  const extractHashtags = (caption: string) => {
+    const regex = /(\#[a-zA-Z0-9_]+)/g
+    return caption.match(regex) || []
+  }
+
+  const handleImageUploads = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const fileArray = Array.from(event.target.files)
+
+      if (fileArray.length > 0) {
+        setSelectedFiles((prev) => [...prev, ...fileArray])
+        setFileType((prev) => [...prev, ...fileArray.map((file) => file.type)])
+        setFileSize((prev) => [...prev, ...fileArray.map((file) => file.size)])
+        const checksums = await Promise.all(
+          fileArray.map(async (file) => await computeSHA256(file))
+        )
+
+        setFileChecksum((prev) => [...prev, ...checksums])
+      }
     }
-  }, [])
-
-  const handleSlideChange = (postId, direction) => {
-    setPostedContent((currentPosts) =>
-      currentPosts.map((post) => {
-        if (post.id === postId) {
-          let newSlide = post.currentSlide
-          if (direction === "next") {
-            newSlide = (newSlide + 1) % post.files.length // Loop back to the first slide after the last
-          } else if (direction === "prev") {
-            newSlide = (newSlide - 1 + post.files.length) % post.files.length // Loop to the last slide if going back from the first
-          }
-          return { ...post, currentSlide: newSlide }
-        }
-        return post
-      })
-    )
-  }
-  const handleFileChange = (event) => {
-    const newFiles = Array.from(event.target.files)
-    const newFilePreviews = newFiles.map((file) => URL.createObjectURL(file))
-
-    setFiles((prev) => [...prev, ...newFiles])
-    setFilePreviews((prev) => [...prev, ...newFilePreviews])
   }
 
-  const triggerFileInput = () => {
-    fileInputRef.current.click()
-  }
-
-  const handleRemoveFile = (indexToRemove) => {
-    setFiles(files.filter((_, index) => index !== indexToRemove))
-    setFilePreviews(filePreviews.filter((_, index) => index !== indexToRemove))
-  }
-
-  const handlePost = (asNFT = false) => {
-    if (asNFT && !file && !postText.trim()) {
-      alert("Failed to post,select an image/video to post as NFT.")
+  const uploadPost = async (e: any) => {
+    let error = false
+    setLoading(true)
+    e.preventDefault()
+    if (!caption && selectedFiles.length === 0) {
+      console.log("Cannot post bro...")
+      setLoading(false)
       return
     }
-    const newPosts = {
-      id: Date.now(),
-      text: postText,
-      files: filePreviews,
-      asNFT,
-      currentSlide: 0,
+    let response
+    try {
+      response = await getSignedUrls(
+        fileTypes,
+        fileSizes,
+        fileChecksums,
+        user?.user!.id
+      )
+    } catch (error: any) {
+      if (error.cause.fileType) {
+        toast({
+          variant: "destructive",
+          title: "Invalid file type.",
+          description: `Invalid file type ${error.cause.fileType} at position ${error.cause.index}`,
+        })
+      } else if (error.cause.fileSize) {
+        toast({
+          variant: "destructive",
+          title: "File size exceeded 50MB.",
+          description: `Too large file size ${error.cause.fileSize} at position ${error.cause.index}`,
+        })
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong",
+          description: `An internal server error occurred. Please try again later.`,
+        })
+      }
     }
-    // const newPosts = files.map((file, index) => ({
-    //   id: Date.now(),
-    //   text: postText,
-    //   file: filePreviews[index],
-    //   type: file ? file.type : "",
-    //   asNFT,
-    //   currentSlide: 0,
-    // }));
 
-    setPostedContent(postedContent.concat(newPosts))
-    setPostText("")
-    setFiles([])
-    setFilePreviews([])
+    let mediaUrls: string[] = []
+    if (response) {
+      for (const [index, url] of response.signedUrls.entries()) {
+        mediaUrls.push(url.split("?")[0])
+        const res = await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": selectedFiles[index].type,
+          },
+          body: selectedFiles[index],
+        })
+        if (!res.ok) {
+          console.log("Res: ", res)
+          toast({
+            variant: "destructive",
+            title: "Error uploading media.",
+            description: `An internal server error occurred. Please try again later.`,
+          })
+          setLoading(false)
+          error = true
+          return //--> this should return from main uploadPost function
+          //show error toast and delete files from s3 (maybe make another server action to do that!)
+          //send the media urls array other than the index that errored out
+        }
+      }
+    }
+    console.log("Media urls: ", mediaUrls)
+
+    //finally insert in database
+
+    const hashTags = extractHashtags(caption)
+    mutate(
+      { caption, mediaUrls, fileTypes, hashTags },
+      {
+        onSuccess: () => {
+          toast({
+            color: "green",
+            title: "Post created.",
+            description: "Your post was created successfully.",
+          })
+          utils.postRouter.fetchAllPosts.invalidate()
+
+          setSelectedFiles([])
+          setFileType([])
+          setFileSize([])
+          setFileChecksum([])
+          setCaption("")
+          setLoading(false)
+        },
+        onError: () => {
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong",
+            description: `An internal server error occurred. Please try again later.`,
+          })
+          setLoading(false)
+        },
+      }
+    )
   }
 
   return (
+
     <Layoutpage>
-      <div className="flex flex-col items-center justify-center -mt-4 pl-5 pr-5 md:pl-[200px] md:pr-[200px] tb:pl-32 tbb:pl-[300px] tbb:pr-[250px]">
-        <div className="w-[270px] sbb:w-[300px] tb:w-[300px] tbb:w-[400px] md:w-[500px] lg:w-[600px] max-w-2xl bg-white rounded-lg shadow p-4">
-          <div className="flex space-x-2 overflow-auto">
-            {filePreviews.map((preview, index) => (
-              <div key={index} className="relative">
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="h-24 w-24 object-cover"
-                />
-                <Trash2
-                  className="absolute top-0 right-0 text-red-500  p-1"
-                  onClick={() => handleRemoveFile(index)}
-                />
-              </div>
-            ))}
-          </div>
-          <textarea
+      <div className="bg-white p-8 rounded-lg shadow-md mb-3 w-full max-w-lg mx-auto">
+        <div className="w-full">
+          <Textarea
+            className="resize-none"
             placeholder="Share your thoughts..."
-            className="w-full border rounded-lg p-4 h-16 resize-none mt-3"
-            value={postText}
-            onChange={(e) => setPostText(e.target.value)}
-          ></textarea>
-          <div className="flex justify-between items-center mt-4">
-            <Image
-              onClick={triggerFileInput}
-              className="text-green-500 cursor-pointer"
-            />
-            <div>
-              <button
-                onClick={() => handlePost()}
-                className="bg-gradient-to-r  bg-[#349E8D] hover:from-[#2EC7AB] hover:to-[#349E8D] px-4 py-2  text-white rounded transition duration-200 mr-2"
-              >
-                Post
-              </button>
-              <button
-                onClick={() => handlePost(true)}
-                className="bg-gradient-to-r  from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-white px-4 py-2 rounded transition duration-200"
-              >
-                Post as NFT
-              </button>
-            </div>
-          </div>
-
-          <input
-            type="file"
-            ref={fileInputRef}
-            multiple
-            className="hidden"
-            accept="image/*, video/*"
-            onChange={handleFileChange}
+            value={caption}
+            onChange={handleCaption}
           />
-        </div>
-        {postedContent.map((content, index) => (
-          <div
-            key={index}
-            className="w-[270px] sbb:w-[300px] tb:w-[300px] tbb:w-[400px] md:w-[500px] lg:w-[600px] rounded-lg shadow p-2 mt-4 flex flex-col items-center mb-2"
-          >
-            <div className="shadow-sm h-20 w-full">
-              <div className="w-16 h-16 rounded-full overflow-hidden ml-3">
-                <img
-                  src={profilePhoto || "/Images/landing-image.png"}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="ml-[90px] -mt-14 mr-8">
-                <h4 className="text-1xl text-gray-800">Angela</h4>
-                <p className="text-sm text-gray-700">2 min ago</p>
-              </div>
-              <div className="ml-[220px] sb:ml-[220px] sbb:ml-[250px] tb:ml-[250px] tbb:ml-[340px] md:ml-[430px] lg:ml-[540px] -mt-10">
-                <MoreVertical />
-              </div>
+          <div className="mt-3">
+            <div className=" h-full w-full">
+              <ScrollArea className="w-full whitespace-nowrap">
+                <div className="flex gap-2 rounded-md border w-full">
+                  {selectedFiles?.map((file, index) => {
+                    const url = URL.createObjectURL(file)
+                    return (
+                      <div key={index} className="shrink-0 relative">
+                        {file.type.startsWith("image") ? (
+                          <Image
+                            width={130}
+                            height={130}
+                            src={url}
+                            alt="post"
+                            className="relative aspect-square object-cover rounded-md shadow-md"
+                            onLoad={() => URL.revokeObjectURL(url)}
+                          />
+                        ) : (
+                          <video
+                            src={URL.createObjectURL(file)}
+                            width={130}
+                            height={130}
+                            controls
+                            onLoad={() => URL.revokeObjectURL(url)}
+                            className="relative aspect-square object-cover rounded-md shadow-md"
+                          />
+                        )}
+                        <button
+                          onClick={() => {
+                            const updatedFiles = selectedFiles.filter(
+                              (_, i) => i !== index
+                            )
+                            setSelectedFiles(updatedFiles)
+                          }}
+                          disabled={loading === true}
+                          title="remove media"
+                          aria-label="remove media"
+                          className="absolute z-50 bottom-2 left-2 bg-black opacity-50 rounded-md p-1 hover:opacity-95"
+                        >
+                          <Trash2
+                            aria-label="hidden"
+                            className="h-4 w-4 text-white"
+                          />
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
             </div>
-            {content.files.map((file, fileIndex) => (
-              <img
-                key={fileIndex}
-                src={file}
-                alt={`Slide ${fileIndex}`}
-                className={`w-full object-cover ${
-                  fileIndex === content.currentSlide ? "block" : "hidden"
-                }`}
-                style={{ height: "500px" }}
-              />
-            ))}
-            {content.files.length > 1 && (
-              <>
-                <button
-                  onClick={() => handleSlideChange(content.id, "prev")}
-                  className="absolute top-[700px] mr-[500px] transform bg-black bg-opacity-50 text-white p-1 rounded-full"
-                >
-                  <ChevronLeftCircle size="24" />
-                </button>
-                <button
-                  onClick={() => handleSlideChange(content.id, "next")}
-                  className="absolute top-[700px] -mr-[500px] transform bg-black bg-opacity-50 text-white p-1 rounded-full"
-                >
-                  <ChevronRightCircle size="24" />
-                </button>
-              </>
-            )}
-
-            {content.asNFT && (
-              <span className="mt-2 px-3 py-1 bg-purple-200 text-purple-800 rounded-full text-sm">
-                NFT
-              </span>
-            )}
-
-            {content.text && (
-              <div className="w-full h-full border border-gray-50 mt-2 ">
-                <p className="mt-2">{content.text}</p>
-              </div>
-            )}
-            <div className="w-full mt-2 ml-4 mb-2">
-              <div className="flex flex-row space-x-5 text-green-700">
-                <div className="flex space-x-2">
-                  <Heart />
-                  <p>0</p>
-                </div>
-                <div className="flex space-x-2">
-                  <MessageCircle />
-                  <p>0</p>
-                  <p className="hidden  md:block mdd:block xl:block">
-                    Comment(s)
-                  </p>
-                </div>
-              </div>
-              <div className="ml-[220px] sb:ml-[220px] sbb:ml-[250px] tb:ml-[250px] tbb:ml-[250px] md:ml-[350px] lg:ml-[450px] -mt-6 text-green-700">
-                <div className="flex space-x-2">
-                  <p className="hidden  md:block mdd:block xl:block">
-                    Share post
-                  </p>
-                  <Repeat />
-                </div>
-              </div>
-            </div>
-            <CommentSection />
           </div>
-        ))}
+          <div className="mt-2 flex w-full justify-between">
+            <label
+              htmlFor="mediaInput"
+              title="Add media"
+              className="cursor-pointer hover:cursor-pointer"
+            >
+              <ImagePlus className="text-gray-700" />
+              <input
+                id="mediaInput"
+                type="file"
+                className="hidden"
+                multiple
+                accept="image/*,video/mp4,video/webm"
+                onChange={handleImageUploads}
+                value=""
+              />
+            </label>
+            <Button
+              size="sm"
+              onClick={uploadPost}
+              disabled={
+                loading || isLoading || (!caption && selectedFiles.length === 0)
+              }
+            >
+              {loading || isLoading ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                "Create Post"
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
     </Layoutpage>
   )
 }
 
-export default Create
+export default CreatePost
