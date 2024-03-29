@@ -1,6 +1,6 @@
 "use client"
 import { cn, formatRelativeTime } from "@/lib/utils"
-import { Bookmark, Heart, Repeat, Trash2 } from "lucide-react"
+import { Bookmark, Heart, Repeat, Trash2, Users } from "lucide-react"
 import React, { useEffect, useRef, useState } from "react"
 import {
   Carousel,
@@ -50,6 +50,7 @@ interface PostProps {
   postLikes?: PostLikes[]
   userId: string
   isLikedByUser: boolean
+  groupId: string
 }
 
 const Post = ({
@@ -64,6 +65,7 @@ const Post = ({
   postLikes,
   userId,
   isLikedByUser,
+  groupId,
 }: PostProps) => {
   const { user } = useUser()
 
@@ -179,7 +181,6 @@ const Post = ({
   }
 
   const parseCaption = (caption: string) => {
-    
     const regex = /(\#[a-zA-Z0-9_]+)/g
     return caption
       .split(regex)
@@ -214,13 +215,27 @@ const Post = ({
             <div>
               <Link
                 href={`/profile/${userId}`}
-                className="hover:underline underline-offset-2"
+                className="hover:underline underline-offset-2 text-left"
               >
                 <p className="text-gray-800 font-semibold">{userDisplayName}</p>
               </Link>
-              <p className="text-gray-500 text-sm hover:underline-none">
-                {formatRelativeTime(createdAt)}
-              </p>
+              <div className="flex gap-1">
+                <p className="text-gray-500 text-sm hover:underline-none">
+                  {formatRelativeTime(createdAt)}
+                </p>
+                {!!groupId && (
+                  <>
+                    <span className="-mt-[5px]">.</span>
+                    <Link
+                      href={`/groups/${groupId}`}
+                      className="text-gray-600"
+                      title="group post"
+                    >
+                      <Users className="h-4 w-4 inline -mt-[7px]" />
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
           </div>
           <div className="text-gray-500 cursor-pointer">
@@ -315,7 +330,7 @@ const Post = ({
         </div>
         {/* <!-- Message --> */}
         <div className="mb-4">
-          <p className="text-gray-800">{parseCaption(caption)}</p>
+          <p className="text-gray-800 text-left">{parseCaption(caption)}</p>
         </div>
         {media && (
           <div className="mb-4">

@@ -85,6 +85,7 @@ const PostReel = () => {
               postLikes={post!.post.postLikes}
               isLikedByUser={post.post.isLikedByUser ?? false}
               userId={post.user.id}
+              groupId={post.post.groupId || ""}
             />
           )
         })

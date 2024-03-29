@@ -132,6 +132,87 @@ export const postRouter = router({
       return { success: true, posts, nextCursor }
     }),
 
+  fetchFriendPosts: privateProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(50).nullish(),
+        cursor: z.string().uuid().nullish(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const limit = input.limit ?? 50
+      const { cursor } = input
+
+      let rawPosts: PostWithRelations[]
+      try {
+        const userFriends = await ctx.prisma.friend.findMany({
+          where: {
+            OR: [{ userId: ctx.user.id }, { friendId: ctx.user.id }],
+          },
+          select: {
+            userId: true,
+            friendId: true,
+          },
+        })
+
+        const friendIds = userFriends.map((friend) =>
+          friend.userId !== ctx.user.id ? friend.userId : friend.friendId
+        )
+
+        rawPosts = await ctx.prisma.post.findMany({
+          take: limit + 1,
+          cursor: cursor ? { id: cursor } : undefined,
+          orderBy: [
+            {
+              createdAt: "desc",
+            },
+            {
+              likes: "desc",
+            },
+          ],
+          where: {
+            userId: {
+              in: friendIds,
+            },
+          },
+          include: {
+            _count: {
+              select: {
+                comments: true,
+                postLikes: true,
+              },
+            },
+            postLikes: true,
+            media: true,
+          },
+        })
+      } catch (error) {
+        console.log("🔴 Prisma Error: ", error)
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" })
+      }
+
+      let posts = await addUserDataToPosts(rawPosts)
+
+      posts = posts.map((post) => {
+        if (!ctx.user)
+          return { ...post, post: { ...post.post, isLikedByUser: false } }
+        const isLikedByUser = post.post.postLikes.some(
+          (like) => like.userId === ctx.user?.id
+        )
+        return { ...post, post: { ...post.post, isLikedByUser } }
+      })
+
+      let nextCursor: typeof cursor | undefined = undefined
+
+      //it means there still are posts to retrieve
+      if (posts.length > limit) {
+        const nextItem = posts.pop()
+        nextCursor = nextItem!.post.id
+      }
+
+      return { success: true, posts, nextCursor }
+    }),
+
   fetchPost: publicProcedure
     .input(
       z.object({
@@ -264,11 +345,11 @@ export const postRouter = router({
             },
             hashTags: {
               createMany: {
-                data: hashTags!.map((tag)=>({
-                  name: tag
-                }))
-              }
-            }
+                data: hashTags!.map((tag) => ({
+                  name: tag,
+                })),
+              },
+            },
           },
         })
       } catch (error) {
@@ -277,7 +358,6 @@ export const postRouter = router({
       }
 
       ctx.ee.emit("onPostCreated", post)
-
 
       //for now I am just gonna add the notification logic here, which can later be
       //changed to be handled by a background worker process
