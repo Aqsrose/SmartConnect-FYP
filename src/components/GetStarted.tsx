@@ -23,7 +23,7 @@ function GetStarted() {
         </div>
         <div>
           <img
-            src="/landing-image.png"
+            src="/images/landing-image.png"
             alt="landing image"
             className="rounded-lg min-w-[40%] h-96 ml-10 mr-20 md:pr-0 md:ml-20 md:w-80 md:mr-40 md:max-w-[70%] md:mt-20 lg:mr-20 lg:ml-32 xl:ml-60 "
           />

@@ -166,10 +166,10 @@ const CreatePost = () => {
   return (
 
     <Layoutpage>
-      <div className="bg-white p-8 rounded-lg shadow-md mb-3 w-full max-w-lg mx-auto">
-        <div className="w-full">
+     <div className="flex flex-col items-center justify-center -mt-4 pl-5 pr-5 md:pl-[200px] md:pr-[200px] tb:pl-32 tbb:pl-[300px] tbb:pr-[250px]">
+     <div className="w-[270px] sbb:w-[300px] tb:w-[300px] tbb:w-[400px] md:w-[500px] lg:w-[600px] max-w-2xl bg-white rounded-lg shadow p-4">
           <Textarea
-            className="resize-none"
+            className="w-full border rounded-lg p-4 h-16 resize-none mt-3"
             placeholder="Share your thoughts..."
             value={caption}
             onChange={handleCaption}
@@ -232,7 +232,8 @@ const CreatePost = () => {
               title="Add media"
               className="cursor-pointer hover:cursor-pointer"
             >
-              <ImagePlus className="text-gray-700" />
+                <div className="flex justify-between items-center mt-4">
+              <ImagePlus className="text-green-500 cursor-pointer"/></div>
               <input
                 id="mediaInput"
                 type="file"
@@ -243,19 +244,19 @@ const CreatePost = () => {
                 value=""
               />
             </label>
-            <Button
-              size="sm"
+            <button
               onClick={uploadPost}
               disabled={
                 loading || isLoading || (!caption && selectedFiles.length === 0)
               }
-            >
+              className="bg-gradient-to-r  bg-[#349E8D] hover:from-[#2EC7AB] hover:to-[#349E8D] px-4 py-2  text-white rounded transition duration-200 mr-2"
+              >
               {loading || isLoading ? (
                 <Loader2 className="animate-spin" />
               ) : (
                 "Create Post"
               )}
-            </Button>
+            </button>
           </div>
         </div>
       </div>
