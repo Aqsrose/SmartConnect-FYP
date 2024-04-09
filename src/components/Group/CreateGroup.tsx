@@ -33,7 +33,7 @@ function CreateGroup() {
       </div>
 
       {isModalOpen && <CreateGroupModal onClose={() => setModalOpen(false)} />}
-      <div className="mt-10 w-full max-w-3xl ml-72">
+      <div className="  ">
         {data?.groups.map((group, index) => (
           <JoinGroup
             key={index}

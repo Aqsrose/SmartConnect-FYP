@@ -8,7 +8,7 @@ import { useInView } from "react-intersection-observer"
 import { useEffect, useRef } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
-import { Camera, Loader2, Pencil } from "lucide-react"
+import { Camera, Loader2, Pencil,ChevronDown } from "lucide-react"
 import useNFTMarketplace from "@/web3/useMarketplace"
 import NFTCard from "@/components/marketpalce/NFTCard"
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,7 @@ import getSignedUrls from "@/app/actions/getSignedUrls"
 import { toast } from "@/components/ui/use-toast"
 import Layoutpage from "@/components/Navbar/Layout"
 import { useState } from "react"
+import ProfilePageLinks from "../profilePageLinks/page"
 
 interface PageProps {
   params: {
@@ -213,6 +214,7 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
 
   return (
     <Layoutpage>
+
       <div className="bg-white -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3 md:pl-64 md:pr-20">
         <div className="w-full h-72 rounded-md  relative bg-gray-100">
           {coverImageResponse?.coverImage && (
@@ -237,7 +239,7 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
           />
         </div>
 
-        <div className="w-32 h-32 bg-gray-100 rounded-full ml-8 -mt-16 border-4 border-white relative">
+        <div className="w-32 h-32 bg-gray-100 rounded-full ml-2 tb:ml-4 -mt-10 border-4 border-white relative">
           <img
             src={userFromBackend?.user.imageUrl}
             alt="Profile"
@@ -257,18 +259,43 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
             className="hidden"
           />
         </div>
-        <div className="-mt-14">
-          <h2 className="text-xl font-bold ml-40">
+        <div className="-mt-20 -ml-6 tb:-ml-6">
+          <h2 className="text-xl font-bold ml-[170px]">
             {userFromBackend?.user.fullname}
           </h2>
-          <p className="text-gray-500 ml-40">
+          <p className="text-gray-500 ml-[170px]">
             {`@${userFromBackend?.user.username}`}
           </p>
           <p className="text-sm text-gray-700 mt-2 ml-32">
             {userFromBackend?.user.bio + ""}
           </p>
         </div>
+        <div className="text-sm text-gray-700 mt-7 tb:ml-[65px] ml-12">
+          <p> 0 friends </p>
+        </div>
+        <div className="mt-3 ml-[45px]">
+        <div className="absolute right-0 mr-2 sbb:-mt-1 -mt-1  tb:mt-1 tbb:-mt-9 mdd:-mt-10 md:-mt-1 md:mr-20 tbb:mr-4 xd:-mt-20 xd:mr-20 flex ">
+          <button
+            className="bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500  px-0 py-2 sb:px-2 sbb:py-2 sbb:px-2 sb:py-2 tb:px-4 tb:py-2  text-white rounded transition duration-200 mr-2"
+          >
+           Request +
+          </button>
+          <button
+            className="bg-gradient-to-r bg-gray-500 hover:from-gray-600 hover:to-gray-600  text-white px-4 py-2 rounded transition duration-200"
+          >
+            Edit profile
+          </button>
+          <div className="ml-2">
+          <button
+            className="bg-gradient-to-r bg-gray-400 hover:from-gray-500 hover:to-gray-500  text-white px-4 py-2 rounded transition duration-200 "
+          >
+            <ChevronDown />
+          </button></div>
+        </div>
+        </div>
+        <div className="border-t border-gray-400 my-4 mt-16 tbb:mt-12 md:mt-16 mdd:mt-10"></div>
       </div>
+      <ProfilePageLinks/>
     </Layoutpage>
   )
 }

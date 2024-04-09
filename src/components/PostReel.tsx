@@ -64,7 +64,8 @@ const PostReel = () => {
   }
 
   return (
-    <div className="flex flex-col max-w-full mx-auto w-[512px]">
+    <div className="flex flex-col max-w-full mx-auto w-[512px] items-center">
+   
       {data?.pages.map((response) =>
         response.posts.map((post) => {
           return (
@@ -97,9 +98,10 @@ const PostReel = () => {
         {<Loader2 className="animate-spin mx-auto text-gray-400 mt-3" />}
       </div>
       <div
-        className={cn("mt-3 mb-3 text-gray-800 font-lg text-center hidden", {
+        className={cn("mt-3 mb-3 tb:ml-28 text-gray-800 font-lg text-center hidden", {
           block: !hasNextPage && !isFetchingNextPage,
         })}
+        
       >
         You&apos;ve reached the end. Maybe take a break? 🤔
       </div>

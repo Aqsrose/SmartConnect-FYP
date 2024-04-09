@@ -69,7 +69,7 @@ function SignUppage() {
           </div>
 
           <div className="mb-4 flex items-center justify-between pl-[45px] md:pl-[70px] mt-24">
-            <Link href="/Home">
+            <Link href="/home">
               <button
                 className="bg-gradient-to-r  from-[#95EEE0] to-[#2EC7AB] hover:from-[#2EC7AB] hover:to-[#349E8D] text-white  py-2 px-6 rounded"
                 type="button"
