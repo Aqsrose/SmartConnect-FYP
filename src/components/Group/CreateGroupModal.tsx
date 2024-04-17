@@ -47,8 +47,8 @@ function CreateGroupModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+    <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md tb:ml-24">
         <h2 className="text-xl font-semibold mb-4">Create a New Group</h2>
         <form onSubmit={handleSubmit(handleCreateGroup)}>
           <div className="mb-4">
@@ -61,21 +61,21 @@ function CreateGroupModal({ onClose }: { onClose: () => void }) {
             <input
               id="groupName"
               type="text"
-              className="form-input w-full"
+              className="form-input w-full border border-gray-100"
               required
               {...register("name")}
             />
           </div>
           <div className="mb-4">
             <label
-              className="block text-sm font-medium mb-1"
+              className="block text-sm font-medium mb-1 "
               htmlFor="groupDescription"
             >
               Description
             </label>
             <textarea
               id="groupDescription"
-              className="form-textarea w-full"
+              className="form-textarea w-full border border-gray-100"
               rows={3}
               required
               {...register("description")}

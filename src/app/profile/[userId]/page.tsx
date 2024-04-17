@@ -16,7 +16,8 @@ import getSignedUrls from "@/app/actions/getSignedUrls"
 import { toast } from "@/components/ui/use-toast"
 import Layoutpage from "@/components/Navbar/Layout"
 import { useState } from "react"
-import ProfilePageLinks from "../profilePageLinks/page"
+import ProfilePageLinks from "@/components/Profile/profilePageLinks"
+import ProfileDetails from "@/components/Profile/profileDetails"
 
 interface PageProps {
   params: {
@@ -293,9 +294,10 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
           </button></div>
         </div>
         </div>
-        <div className="border-t border-gray-400 my-4 mt-16 tbb:mt-12 md:mt-16 mdd:mt-10"></div>
+        <div className="border-t border-gray-400  my-4 mt-16 tbb:mt-12 md:mt-16 mdd:mt-10"></div>
       </div>
       <ProfilePageLinks/>
+      <ProfileDetails/>
     </Layoutpage>
   )
 }

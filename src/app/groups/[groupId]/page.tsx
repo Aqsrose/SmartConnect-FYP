@@ -33,7 +33,7 @@ const page = ({ params: { groupId } }: PageProps) => {
   // console.log("group posts: ", groupPosts)
   return (
     <Layoutpage>
-      <div className="bg-white -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3 md:pl-64 md:pr-20">
+      <div className="bg-white h-full -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3 md:pl-64 md:pr-20">
         <div className="w-full h-72 rounded-md  relative bg-gray-100">
           {data?.group?.coverImageUrl && (
             <img
@@ -104,6 +104,7 @@ const page = ({ params: { groupId } }: PageProps) => {
           </button>
         </div>
       </div>
+      
       {!isLoading &&
         groupPosts?.pages.map((response) =>
           response.posts.map((post) => {
