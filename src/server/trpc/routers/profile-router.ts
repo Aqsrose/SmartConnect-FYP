@@ -2,9 +2,43 @@ import { z } from "zod"
 import { privateProcedure, publicProcedure, router } from "../trpc"
 import { TRPCError } from "@trpc/server"
 import clerk from "@clerk/clerk-sdk-node"
-import { filterUserForClient } from "../../helpers/filterUserForClient"
+import { filterUserForClient, filterUsersForClient } from "../../helpers/filterUserForClient"
 
 export const profileRouter = router({
+  fetchFriendsForChat: privateProcedure
+    .input(
+      z.object({
+        key: z.string(),
+      })
+    )
+    .query(async ({ ctx, input: { key } }) => {
+      // first we check which user is sending the search request
+      const user = ctx.user
+
+      // then we fetch the user's friends from our database
+      const friends = await ctx.prisma.friend.findMany({
+        where: {
+          OR: [{ userId: user.id }, { friendId: user.id }],
+        },
+      })
+
+      // get all the userIds into a flat array and then take all except the user that's making the request
+      const userIds = friends
+        .map((friend) => [friend.userId, friend.friendId])
+        .flat()
+        .filter((id) => id !== user.id)
+
+      // this will get users by matching this key with userId, emailAddress, phoneNumber, username, web3Wallet, firstName and lastName
+      const users = await clerk.users.getUserList({
+        userId: userIds,
+        query: key,
+      })
+
+      // so now, we technically should have the users that we want to return
+      const filteredUsers = filterUsersForClient(users)
+
+      return {success: true, users: filteredUsers}
+    }),
   fetchUserInfo: publicProcedure
     .input(
       z.object({

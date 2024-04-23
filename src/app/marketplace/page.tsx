@@ -1,10 +1,14 @@
+"use client"
 import React from "react"
 import Layoutpage from "@/components/Navbar/Layout"
 import { Heart,Clock,MoreHorizontal} from "lucide-react"
 import Createpart from "@/components/Comments/marketplacedesign/createpart"
 import NftCards from "@/components/Comments/marketplacedesign/nftcard"
+import useNFTMarketplace from "@/web3/useMarketplace"
 
 function NFTpage() {
+  const { allNfts } = useNFTMarketplace()
+  console.log("Owned nfts: ", allNfts)
   return (
     <Layoutpage>
       <section id="NFTMarketplace">

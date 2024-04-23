@@ -155,6 +155,39 @@ model CommentLikes {
   @@map("comment_likes")
 }
 
+model Chat {
+  id String @id @default(uuid()) @db.Uuid
+
+  message         Message[]
+  chatParticipant ChatParticipant[]
+
+  @@map("chat")
+}
+
+// read it as ChatParticipant for the sake of semanticness, singular
+model ChatParticipant {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @map("user_id")
+
+  Chat   Chat?   @relation(fields: [chatId], references: [id])
+  chatId String? @map("chat_id") @db.Uuid
+
+  @@map("chat_participants")
+}
+
+model Message {
+  id        String   @id @default(uuid()) @db.Uuid
+  from      String //clerk userId
+  to        String
+  text      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  chatId    String?  @map("chat_id") @db.Uuid
+
+  Chat Chat? @relation(fields: [chatId], references: [id])
+
+  @@map("message")
+}
+
 model Event {
   id          String    @id @default(uuid()) @db.Uuid
   name        String
