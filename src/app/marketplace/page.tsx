@@ -8,12 +8,14 @@ import useNFTMarketplace from "@/web3/useMarketplace"
 
 function NFTpage() {
   const { allNfts } = useNFTMarketplace()
-  console.log("Owned nfts: ", allNfts)
+  console.log("All Nfts: ", allNfts)
   return (
     <Layoutpage>
       <section id="NFTMarketplace">
       <div className="-mt-14 bg-gray-50">
         <Createpart/>
+        <NftCards />
+        <NftCards />
         <NftCards />
         </div>
       </section>

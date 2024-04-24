@@ -25,7 +25,7 @@ const nftSchema = z.object({
 
 type NftSchemaType = z.infer<typeof nftSchema>
 
-const CreateNFT = () => {
+const CreateNFTForm = () => {
   const { createNft } = useNFTMarketplace()
   const { connectWallet, address, loading } = useSigner()
   const [showModal, setShowModal] = useState(false)
@@ -45,39 +45,32 @@ const CreateNFT = () => {
 
   return (
     <>
-      <Button onClick={() => setShowModal(true)}>Create NFT</Button>
-      <Modal isOpen={showModal} close={() => setShowModal(false)}>
-        <Button onClick={connectWallet} className="ml-60 mt-6">
-          {loading
-            ? "Connecting..."
-            : !address
-            ? "Connect Wallet"
-            : "Connected"}
+      <Button onClick={connectWallet} className="ml-60 mt-6">
+        {loading ? "Connecting..." : !address ? "Connect Wallet" : "Connected"}
+      </Button>
+      <form onSubmit={handleSubmit(postNft)} className="m-5">
+        <Input type="text" placeholder="name" {...register("name")} />
+        <Textarea
+          placeholder="description"
+          {...register("description")}
+          className="mt-2"
+        />
+        <Input
+          className="mt-2"
+          type="file"
+          accept="image/*"
+          multiple={false}
+          {...register("nft")}
+        />
+        <Button
+          type="submit"
+          className="mt-4 bg-gradient-to-r  bg-[#349E8D] hover:from-[#2EC7AB] hover:to-[#349E8D] px-4 py-2  text-white rounded transition duration-200 mr-2"
+        >
+          Post NFT
         </Button>
-        <form onSubmit={handleSubmit(postNft)} className="m-5">
-          <Input type="text" placeholder="name" {...register("name")} />
-          <Textarea
-            placeholder="description"
-            {...register("description")}
-            className="mt-2"
-          />
-          <Input
-            className="mt-2"
-            type="file"
-            accept="image/*"
-            multiple={false}
-            {...register("nft")}
-          />
-          <Button
-            type="submit"
-            className="mt-4 bg-gradient-to-r  bg-[#349E8D] hover:from-[#2EC7AB] hover:to-[#349E8D] px-4 py-2  text-white rounded transition duration-200 mr-2"
-          >
-            Post NFT
-          </Button>
-        </form>
-      </Modal>
+      </form>
     </>
   )
 }
 
-export default CreateNFT
+export default CreateNFTForm
