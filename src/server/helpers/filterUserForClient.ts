@@ -11,3 +11,15 @@ export const filterUserForClient = (user: User)=> {
   }
 }
 
+export const filterUsersForClient = (users: User[]) => {
+  return users.map((user) => ({
+    id: user.id,
+    username: user.username!,
+    imageUrl: user.imageUrl,
+    emailAddresses: user.emailAddresses,
+    fullname: user.firstName + " " + user.lastName,
+    bio: user.publicMetadata.bio ?? "",
+  }))
+}
+
+
