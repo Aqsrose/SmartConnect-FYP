@@ -6,7 +6,7 @@ import { trpc } from "@/server/trpc/client"
 import { cn } from "@/lib/utils"
 import { Skeleton } from "./ui/skeleton"
 import { useInView } from "react-intersection-observer"
-import { Loader2 } from "lucide-react"
+import { Loader2 ,MoreVertical} from "lucide-react"
 
 const PostReel = () => {
   // fetch all posts here
@@ -36,28 +36,27 @@ const PostReel = () => {
 
   if (isLoading) {
     return (
-      <Skeleton className="flex flex-col w-full max-w-[512px] bg-gray-200 border rounded-sm shadow-sm p-4 gap-4">
-        <div className="flex items-center gap-4">
-          <Skeleton className="w-16 h-16 rounded-full" />
+      <Skeleton className="flex flex-col max-w-full mx-auto w-[450px] h-[550px] items-center bg-gray-200 border rounded-sm shadow-sm  gap-4 ">
+        <div className="flex items-center gap-4 ml-[200px] mt-3">
+          <Skeleton className="w-16 h-16 rounded-full -ml-[200px]" />
           <div className="flex flex-col">
             <Skeleton className="w-32 h-4" />
             <Skeleton className="w-20 h-2 mt-1" />
           </div>
+          <Skeleton className="right-0 hover:bg-gray-20 rounded-full p-1 ml-[100px]">
+            <MoreVertical className="text-gray-200"/>
+            </Skeleton>
         </div>
-        <Skeleton className="w-full h-4" />
-        <Skeleton className="w-full h-64 relative" />
+        
+        <Skeleton className="w-full h-[400px] relative" />
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Skeleton className="w-8 h-8" />
-            <Skeleton className="w-16 h-4" />
+          <div className="flex items-center gap-4">
+            <Skeleton className="w-32 h-6" />
+            <Skeleton className="w-32 h-6" />
+            <Skeleton className="w-32 h-6" />
+            
           </div>
-          <div className="flex justify-between w-full items-center gap-2">
-            <Skeleton className="w-8 h-8" />
-            <div className="flex flex-col">
-              <Skeleton className="w-24 h-4" />
-              <Skeleton className="w-8 h-4 mt-1" />
-            </div>
-          </div>
+          
         </div>
       </Skeleton>
     )

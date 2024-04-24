@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { trpc } from "@/server/trpc/client"
 import Post from "@/components/Post"
 import { useInView } from "react-intersection-observer"
-import { useEffect, useRef } from "react"
+import { useEffect} from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 import { Camera, Loader2, Pencil,ChevronDown } from "lucide-react"
@@ -15,8 +15,8 @@ import { Button } from "@/components/ui/button"
 import getSignedUrls from "@/app/actions/getSignedUrls"
 import { toast } from "@/components/ui/use-toast"
 import Layoutpage from "@/components/Navbar/Layout"
-import { useState } from "react"
-import ProfilePageLinks from "@/components/Profile/profilePageLinks"
+import React, { useState, useRef, ChangeEvent } from "react";
+import ProfilePageLinks from '@/components/Profile/profilePageLinks';
 import ProfileDetails from "@/components/Profile/profileDetails"
 
 interface PageProps {
@@ -27,13 +27,14 @@ interface PageProps {
 
 const UserProfilePage = ({ params: { userId } }: PageProps) => {
   const { user } = useUser()
+  const [activeLink, setActiveLink] = useState<string>('');
 
   const coverImageElement = useRef<HTMLInputElement | null>(null)
 
   const { data: userFromBackend } = trpc.profileRouter.fetchUserInfo.useQuery({
     userId,
   })
-
+  
   const { data: friends } = trpc.profileRouter.fetchFriends.useQuery({ userId })
 
   console.log("friends: ", friends)
@@ -140,34 +141,31 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
       .join("")
     return hashHex
   }
-
-  const [coverPhoto, setCoverPhoto] = useState(null)
-  const [profilePhoto, setProfilePhoto] = useState(null)
-  const coverPhotoInputRef = useRef(null)
-  const profilePhotoInputRef = useRef(null)
+  const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const coverPhotoInputRef = useRef<HTMLInputElement>(null);
+  const profilePhotoInputRef = useRef<HTMLInputElement>(null);
 
   const handleCoverPhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      const file = event.target.files[0]
-      if (file) {
-        setCoverPhoto(URL.createObjectURL(file))
-      }
-    }
-  }
-  const handleProfilePhotoChange = (event) => {
-    const file = event.target.files[0]
+    const file = event.target.files?.[0];
     if (file) {
-      const fileURL = URL.createObjectURL(file)
-      setProfilePhoto(fileURL)
-      localStorage.setItem("profilePhoto", fileURL)
+      setCoverPhoto(URL.createObjectURL(file));
     }
-  }
+  };
 
-  const triggerFileInput = (inputRef) => {
-    if (inputRef && inputRef.current) {
-      inputRef.current.click()
+  const handleProfilePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const fileURL = URL.createObjectURL(file);
+      setProfilePhoto(fileURL);
+      localStorage.setItem('profilePhoto', fileURL);
     }
-  }
+  };
+
+  const triggerFileInput = (inputRef: React.RefObject<HTMLInputElement>) => {
+    inputRef.current?.click();
+  };
+
 
   if (!user) {
     return (
@@ -296,8 +294,8 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
         </div>
         <div className="border-t border-gray-400  my-4 mt-16 tbb:mt-12 md:mt-16 mdd:mt-10"></div>
       </div>
-      <ProfilePageLinks/>
-      <ProfileDetails/>
+      <ProfilePageLinks setActiveLink={setActiveLink}/>
+      <ProfileDetails activeLink={activeLink} />
     </Layoutpage>
   )
 }

@@ -130,14 +130,14 @@ function Navbar() {
       </ul>
 
       <div className="hidden lg:block md:block tb:mt-32 md:mt-32 lg:mt-32 tb:ml-2 md:ml-8 lg:ml-8">
-        <Link href="/landingpage">
+        <Link href="/">
           <button className="bg-red-500 text-white px-4 py-2 rounded">
             Logout
           </button>
         </Link>
       </div>
       <div className="md:hidden lg:hidden hidden sb:hidden sbb:hidden tbbb:block tbb:block tb:block tb:mt-32 md:mt-32 lg:mt-32 tb:ml-3 md:ml-5 lg:ml-5">
-        <Link href="/landingpage">
+        <Link href="/">
           <button className="bg-red-500 text-white px-4 py-2 rounded">
             <LogOut />
           </button>
