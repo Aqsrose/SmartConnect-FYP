@@ -16,7 +16,7 @@ function GetStarted() {
             Take matters into your own hands
           </h1>
           <div className="buttons ml-10 mt-6 md:ml-14 md:mt-8 lg:ml-5">
-            <Link href="/SignUpPage">
+            <Link href="/sign-up">
               <Button>Get Started --&gt;</Button>
             </Link>
           </div>

@@ -102,7 +102,7 @@ function Landingpage_nav(props: LandingPageNavProps) {
                 About us
               </li>
               <p className=" md:hidden xl:hidden tbb:hidden">|</p>
-              <Link href="/SignInpage">
+              <Link href="/sign-in">
                 <li className="cursor-pointer hover:text-[#85b3b6] rounded-xl hover:scale-110 duration-300 mr-2 tb:mr-2">
                   Sign In
                 </li>

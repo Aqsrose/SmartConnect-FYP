@@ -8,7 +8,9 @@ import { SignUp } from '@clerk/nextjs'
 
 const SignUpPage = () => {
   return (
-    <SignUp/>
+    <section className="ml-4 mt-20 tbbb:ml-12 tbb:ml-32 md:ml-52 mdd:ml-[500px]">
+      <SignUp />
+    </section>
   )
 }
 
