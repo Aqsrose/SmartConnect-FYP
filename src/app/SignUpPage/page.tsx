@@ -89,7 +89,7 @@ function SignUppage() {
               Sign Up with Metamask
             </button>
           </div>
-          <Link href="/signInpage">
+          <Link href="/SignInPage">
             <p className="inline-block align-baseline  text-[10px] md:text-[12px] text-blue-500 hover:text-blue-800 pl-6 md:pl-10">
               Already have an account? Sign In
             </p>

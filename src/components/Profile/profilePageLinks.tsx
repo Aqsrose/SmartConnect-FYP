@@ -1,63 +1,36 @@
-"use client";
 import React from "react";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
 
 
-function ProfilePageLinks() {
+interface ProfilePageLinksProps {
+  setActiveLink: (link: string) => void;
+}
+
+const ProfilePageLinks: React.FC<ProfilePageLinksProps> = ({ setActiveLink }) => {
   const pathname = usePathname();
-  const isActive = (path:string) => pathname === path;
+  const isActive = (path: string): boolean => pathname === `/ProfilePageLinks/${path}`;
+
   const activeLinkClass = "text-[#10676B]";
-  const linkClass = "flex items-center px-2 py-1 sb:px-2  sbb:px-2  tb:py-2  rounded md:px-4 md:py-2  lg:px-4 lg:py-2  hover:text-[#85b3b6] hover:bg-[#F2F2F2]";
+  const linkClass = "flex items-center px-1 py-1 sm:px-2 sm:py-2 md:px-3 md:py-2 lg:px-4 lg:py-2 hover:text-[#85b3b6] hover:bg-[#F2F2F2] rounded";
+
   return (
-    <section className="flex -mt-5 ml-2 sb:ml-8 sbb:ml-10 tb:ml-32 tbbb:ml-60  w-[1120px] shadow-sm">
-      <div className="">
-    <nav className=" justify-center ">
-       <ul className="flex space-x-1 sb:space-x-2 sbb:space-x-3">
-        <li>
-          <Link href="/posts">
-            <div className={`${linkClass} ${isActive('/Posts') ? activeLinkClass : ''}`}>
-              <span className="" >
-                Posts
-              </span>
-            </div>
-          </Link>
-        </li>
-
-        <li>
-          <Link href="/about">
-            <div className={`${linkClass} ${isActive('/about') ? activeLinkClass : ''}`}>
-              <span className="">
-                About
-              </span>
-            </div>
-          </Link>
-        </li>
-
-        <li>
-          <Link href="/friends">
-            <div className={`${linkClass} ${isActive('friends') ? activeLinkClass : ''}`}>
-              <span className="">
-                Friends
-              </span>
-            </div>
-          </Link>
-        </li>
-        <li>
-          <Link href="/media">
-            <div className={`${linkClass} ${isActive('/media') ? activeLinkClass : ''}`}>
-              <span className="">
-               Media
-              </span>
-            </div>
-          </Link>
-        </li>
-       
-          </ul>
-    </nav>
-    </div>
-     
-     </section>
+    <section className="flex flex-col sm:flex-row justify-between items-center mt-3 w-full shadow-sm bg-white px-4 py-2">
+      <nav>
+        <ul className="flex justify-around w-full text-sm  tbb:mt-7 border border-gray-100 p-3 tb:ml-20 tb:pr-10 tbb:ml-24 md:ml-[220px] md:p-0">
+          {['Posts', 'About', 'Friends', 'Media'].map((link) => (
+            <li key={link}>
+              <div 
+                className={`${linkClass} ${isActive(link) ? activeLinkClass : ''}`}
+                onClick={() => setActiveLink(link)}
+              >
+                {link}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </section>
   );
 }
 

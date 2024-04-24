@@ -79,6 +79,7 @@ const config = {
         tbbb: "510px",
         tbb: "650px",
         mdd: "1024px",
+        lg:"1050px"
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

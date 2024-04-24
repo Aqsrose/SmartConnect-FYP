@@ -4,6 +4,8 @@ import Post from "@/components/Post"
 import { trpc } from "@/server/trpc/client"
 import { Camera, Lock } from "lucide-react"
 import React, { useRef, useState } from "react"
+import GroupLinks from "@/components/Group/GroupLinks"
+import Link from "@/components/Group/GroupContainers"
 
 interface PageProps {
   params: {
@@ -15,7 +17,7 @@ const page = ({ params: { groupId } }: PageProps) => {
   const { data } = trpc.groupRouter.fetchGroupById.useQuery({ groupId })
   console.log("foo: ", data);
   
-
+  const [activeLink, setActiveLink] = useState<string>('');
   const {
     data: groupPosts,
     isLoading,
@@ -130,6 +132,9 @@ const page = ({ params: { groupId } }: PageProps) => {
             )
           })
         )}
+         <GroupLinks setActiveLink={setActiveLink} />
+      <Link activeLink={activeLink} />
+        
     </Layoutpage>
   )
 }
