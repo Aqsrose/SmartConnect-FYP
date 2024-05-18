@@ -38,6 +38,7 @@ function Landingpage_nav(props: LandingPageNavProps) {
 
           <div className="md:block ">
             <ul className="gap-[10px] text-sm space-x-0 md:text-lg mt-3 flex mr-14 md:space-x-4 lg:space-x-8 xl:space-x-10 md:mr-4 xl:mr-6">
+             
               <li className="cursor-pointer hover:text-[#85b3b6]">
                 Introduction
               </li>

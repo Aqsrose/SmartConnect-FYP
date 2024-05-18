@@ -197,7 +197,7 @@ const Post = ({
   }
   return (
    
-    <div className="bg-white p-3 m-3 rounded-lg shadow-md max-w-lg tb:ml-28 mt-2 sbb:p-5">
+    <div className="bg-white p-3 m-3 rounded-lg shadow-md max-w-lg  mt-2 sbb:p-5 md:ml-[20px]   mddd:ml-[20px]  lgg:ml-[20px] ">
       <div className="">
      
         {/* <!-- User Info with Three-Dot Menu --> */}
@@ -393,10 +393,10 @@ const Post = ({
                   <div>{commentCount} </div><div className="hidden  tbb:block  md:block lg:block ml-2 mr-2">Comment(s)</div></span>
               </button>
             </DialogTrigger>
-            <DialogContent>
-              <ScrollArea className="max-h-[90vh]">
+            <DialogContent className="w-[270px] sbb:w-[330px] tb:ml-14 tb:w-[270px] tbbb:ml-8 tbb:w-[400px] mddd:-ml-12  lgg:-ml-14  md:ml-32 mdd:-ml-8  ">
+              <ScrollArea className="max-h-[90vh] ">
                 <DialogHeader>
-                  <DialogTitle className="text-center">{`${userDisplayName}'s post's comments`}</DialogTitle>
+                  <DialogTitle className="text-center mr-60">{`${userDisplayName}'s post's comments`}</DialogTitle>
                   <hr className="mt-2 mb-2" />
                 </DialogHeader>
                 <CommentList postId={id} />

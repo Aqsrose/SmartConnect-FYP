@@ -166,8 +166,8 @@ const CreatePost = () => {
   return (
 
     <Layoutpage>
-     <div className="flex flex-col items-center justify-center -mt-4 pl-5 pr-5 md:pl-[200px] md:pr-[200px] tb:pl-32 tbb:pl-[300px] tbb:pr-[250px]">
-     <div className="w-[270px] sbb:w-[300px] tb:w-[300px] tbb:w-[400px] md:w-[500px] lg:w-[600px] max-w-2xl bg-white rounded-lg shadow p-4">
+     <div className="flex flex-col items-center justify-center mt-20 pl-5 pr-5 md:pl-[200px] md:pr-[200px] tb:pl-32 tbb:pl-[300px] tbb:pr-[250px] mb-[900px] ">
+     <div className="w-[270px] sbb:w-[300px] tb:w-[300px] tbb:w-[400px] md:w-[500px] mdd:-ml-32 lg:w-[500px] lgg:lg:w-[600px] max-w-2xl bg-white rounded-lg shadow p-4">
           <Textarea
             className="w-full border rounded-lg p-4 h-16 resize-none mt-3"
             placeholder="Share your thoughts..."

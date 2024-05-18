@@ -10,12 +10,10 @@ function NFTpage() {
   const { allNfts } = useNFTMarketplace()
   console.log("All Nfts: ", allNfts)
   return (
-    <Layoutpage>
+    <Layoutpage >
       <section id="NFTMarketplace">
       <div className="-mt-14 bg-gray-50">
         <Createpart/>
-        <NftCards />
-        <NftCards />
         <NftCards />
         </div>
       </section>
