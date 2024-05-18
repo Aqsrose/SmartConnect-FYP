@@ -115,7 +115,10 @@ const config = {
         tbbb: "510px",
         tbb: "650px",
         mdd: "1024px",
-        lg:"1050px"
+        mddd:"1100px",
+        lg:"1050px",
+        lgg:"1280px"
+        
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

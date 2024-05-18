@@ -106,7 +106,7 @@ const CommentList = ({ postId }: CommentListProps) => {
               {...register("postId")}
             />
             <Input
-              className="rounded-md h-7"
+              className="rounded-md h-7 w-[175px] tb:w-[175px] sbb:w-[230px] tbb:w-[300px] mdd:w-[400px]lgg:w-[300px] m-1"
               placeholder="Post a comment..."
               {...register("text")}
             />
@@ -116,7 +116,7 @@ const CommentList = ({ postId }: CommentListProps) => {
                 variant="ghost"
                 type="submit"
               >
-                <Send className=" h-4 w-4 text-gray-600" />
+                <Send className=" h-4 w-4 text-green-600 -ml-[560px] tb:-ml-[560px] sbb:-ml-[460px] tbb:-ml-[320px] lgg:-ml-[250px] mdd:mr-16 mt-1" />
               </Button>
             ) : (
               <Loader2 className="absolute right-3 top-2 h-4 w-4 animate-spin text-gray-600" />

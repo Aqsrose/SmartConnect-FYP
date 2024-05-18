@@ -97,7 +97,7 @@ const PostReel = () => {
         {<Loader2 className="animate-spin mx-auto text-gray-400 mt-3" />}
       </div>
       <div
-        className={cn("mt-3 mb-3 tb:ml-28 text-gray-800 font-lg text-center hidden", {
+        className={cn("mt-3 mb-3  text-gray-800 font-lg text-center hidden md:ml-[20px]   mddd:ml-[20px]  lgg:ml-[20px]", {
           block: !hasNextPage && !isFetchingNextPage,
         })}
         
