@@ -13,6 +13,8 @@ import useAllNfts from "./useAllNfts"
 
 const useNFTMarketplace = () => {
   const { signer } = useSigner()
+  console.log("signer: ", signer);
+  
   const nftStorageClient = new NFTStorage({
     token: `${process.env.NEXT_PUBLIC_NFT_STORAGE_KEY}`,
   })

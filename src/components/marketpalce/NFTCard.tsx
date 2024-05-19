@@ -14,8 +14,17 @@ import {
   DialogTrigger,
 } from "../ui/dialog"
 import SellModal from "./SellModal"
-import { Loader2 } from "lucide-react"
+import {
+  Clock,
+  Divide,
+  Heart,
+  Loader,
+  Loader2,
+  MoreHorizontal,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
+import useNFTMarketplace from "@/web3/useMarketplace"
+import { connect } from "cookies"
 
 type NFTCardProps = {
   nft: NFT
@@ -31,17 +40,19 @@ const NFTCard = ({ nft }: NFTCardProps) => {
   const [nftMeta, setNftMeta] = useState<nftMetadata>()
   const [error, setError] = useState<boolean>(false)
 
-  const { address } = useSigner()
+  const { address, connectWallet } = useSigner()
+
+  const { buyNft } = useNFTMarketplace()
 
   useEffect(() => {
     const fetchMetadata = async () => {
-      const metadataResponse = await fetch(ipfsToHTTPS(nft.tokenURI))
+      const metadataResponse = await fetch(ipfsToHTTPS(nft.tokenURI), {})
+      console.log("meta response: ", metadataResponse)
       if (metadataResponse.status != 200) return
       let json
       try {
         json = await metadataResponse.json()
       } catch (e) {
-        console.log(e)
         setError(() => true)
       }
       setNftMeta({
@@ -55,58 +66,87 @@ const NFTCard = ({ nft }: NFTCardProps) => {
 
   console.log("nft Meta: ", nftMeta)
 
-  return (
-    <>
-      <Link
-        href="#"
-        className="flex flex-col w-64 bg-white border rounded-sm shadow-sm"
-      >
-        <div
-          className={cn("h-48 relative w-full", {
-            "grid place-items-center": !nftMeta?.imageUrl,
-          })}
-        >
-          {nftMeta?.imageUrl ? (
-            <Image
-              fill
-              className="w-full h-full object-cover object-center rounded-sm"
-              src={error? "/placeholder.svg" : `${nftMeta?.imageUrl}`}
-              alt="nft card"
-            />
-          ) : (
-            <Loader2
-              className={cn("hidden animate-spin", {
-                block: !nftMeta?.imageUrl,
-              })}
-            />
-          )}
-        </div>
+  const [loading, setLoading] = useState(false)
 
-        <div className="bg-white px-2 py-1 flex flex-col gap-1">
-          <p className=" font-bold">{nftMeta?.name}</p>
-          {nft.price == "0" ? (
-            <Badge className="w-fit">Not Listed</Badge>
-          ) : (
-            <p className="text-xs">{nft.price} ETH</p>
-          )}
-          <div className="flex items-center gap-1">
+  const onBuyClicked = async () => {
+    setLoading(true)
+    if (!address) {
+      console.log("connecting wallet")
+      connectWallet()
+      return
+    }
+    try {
+      if (!owned && forSale) {
+        await buyNft(nft)
+      }
+    } catch (error) {
+      console.log("Error buying NFT: ", error)
+    }
+    setLoading(false)
+  }
+
+  const [imageError, setImageError] = useState(false)
+  const displayImageError = () => {
+    setImageError((prev) => true)
+  }
+
+  const forSale = nft.price != "0"
+  const owned = nft.owner == address?.toLowerCase()
+
+  return (
+    <div key={nft.id} className="w-64 rounded overflow-hidden shadow-lg">
+      <div className="relative">
+        {imageError ? (
+          <div className="w-full h-48 flex justify-center items-center">
+            could not load
+          </div>
+        ) : nftMeta ? (
+          <img
+            className="w-full h-48 object-cover rounded"
+            src={nftMeta?.imageUrl}
+            alt="NFT Image"
+            onError={displayImageError}
+          />
+        ) : (
+          <div className="w-full h-48 flex justify-center items-center">
+            <Loader2 className="h-4 w-4 animate-spin" />
+          </div>
+        )}
+        <button className="flex absolute top-2 right-2 text-red-700 bg-white rounded-full p-2 opacity-90 hover:opacity-100">
+          <Heart className="w-4" />
+          <p className="text-[12px] p-1">{0}</p>
+        </button>
+        <span className="flex absolute top-2 left-2 text-green-900 text-xs bg-white rounded-full px-2 py-1 opacity-100">
+          <Clock className="w-3" />
+          <p className="p-1">{0}</p>
+        </span>
+        <button className="flex absolute bottom-2 right-2 text-red-700 bg-white rounded-full p-2 opacity-60 hover:opacity-100">
+          <MoreHorizontal />
+        </button>
+      </div>
+      <div className="p-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-lg font-semibold">{nftMeta?.name}</p>
+            <p className="text-purple-700">{nft.price}</p>
             <AddressAvatar seed={nft.owner} />
           </div>
+          {nft.price > "0" ? (
+            <button
+              className="text-blue-500 font-semibold opacity-80 hover:opacity-100 self-end"
+              onClick={onBuyClicked}
+              // disabled={loading}
+            >
+              {loading ? "loading..." : "Buy now"}
+            </button>
+          ) : (
+            <Badge className="w-fit self-end" style={{ fontSize: "xx-small" }}>
+              not listed
+            </Badge>
+          )}
         </div>
-      </Link>
-      <br />
-      {nft.owner === address?.toLowerCase() && nft.price == "0" && (
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="block">Sell NFT</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>Set price in ETH to sell</DialogHeader>
-            <SellModal tokenId={nft.id} />
-          </DialogContent>
-        </Dialog>
-      )}
-    </>
+      </div>
+    </div>
   )
 }
 
