@@ -10,7 +10,7 @@ type GroupProps = {
 function JoinGroup({id, name, description, isPublic }: GroupProps) {
   console.log("id: ", id)
   return (
-    <div className="mt-2 items-center justify-center ">
+    <div className="mt-2 items-center justify-center">
       <div className="md:flex tbb:flex tb:flex shadow-sm h-50 md:w-[550px] m-2 mt-4 tb:ml-28 tb:h-46 tbbb:h-46 tb:pr-2 tbb:ml-28 tbb:h-26 md:h-24 tbb:pr-2 md:ml-[170px] mdd:ml-[400px] xl:ml-[400px] space-x-4 border border-gray-100 rounded-[30px] pt-5 pl-8 pb-5 tb:pl-4">
         <div className="w-8 h-8 rounded-full overflow-hidden  mt-3 ">
           <img
@@ -19,7 +19,7 @@ function JoinGroup({id, name, description, isPublic }: GroupProps) {
             className="object-cover bg-gray-200 "
           />
         </div>
-        <div className="pl-2 ">
+        <div className="pl-2">
           <p className="text-lg  text-[#10676B] -mt-8 ml-6 tb:mt-2 tb:ml-0">
             {name}
           </p>

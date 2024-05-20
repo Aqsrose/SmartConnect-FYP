@@ -2,7 +2,7 @@
 import React from 'react';
 function RightBar(){
   return (
-    <div className="w-[270px] right-0  h-full shadow-md hidden mdd:block md:hidden  mddd:block lg:block ">
+    <div className="w-[270px] fixed right-0  h-full shadow-md hidden mdd:hidden md:hidden lg:hidden mddd:block lgg:block ">
      
       <div className=" text-white p-7 m-3 mt-32 rounded-lg border-2 border-[#01A9B4]" style={{ backgroundImage: 'linear-gradient(to bottom,#1A1E50,#10676B,#4D869C,#086972,#22577E,#004A7C)' }}>
         <h2 className="font-semibold mb-2">🔗 Connect</h2>
