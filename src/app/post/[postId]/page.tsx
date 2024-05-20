@@ -76,6 +76,7 @@ const PostPage = ({ params: { postId } }: PageProps) => {
           postLikes={data.post.post.postLikes}
           userId={data.post.user.id}
           isLikedByUser={data.post.post.isLikedByUser ?? false}
+          groupId={data.post.post.groupId ?? ""}
         />
       )}
       <ScrollArea>

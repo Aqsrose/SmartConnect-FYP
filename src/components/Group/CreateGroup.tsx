@@ -33,23 +33,12 @@ function CreateGroup() {
         </div>
       </div>
       <MyGroups/>
-      {/* {isModalOpen && <CreateGroupModal onClose={() => setModalOpen(false)} />}
-      <div className="  ">
-        {data?.groups.map((group, index) => (
-          <MyGroups
-            key={index}
-            id={group.id}
-            name={group.name}
-            description={group.description}
-            isPublic={group.isPublic}
-          />
-        ))}
-    </div> */}
+   
       <section className="bg-white p-4 rounded-lg shadow mb-6 tb:ml-[110px] md:ml-[170px] mdd:ml-[400px] md:w-[550px]  lggg:w-[900px] mt-2">
       <h2 className="text-1xl font-semibold text-green-500 mb-4 ">Recommended Groups</h2>
       {isModalOpen && <CreateGroupModal onClose={() => setModalOpen(false)} />}
       <div className="  ">
-        {data?.groups.map((group, index) => (
+        {data?.notJoined.map((group, index) => (
           <JoinGroup
             key={index}
             id={group.id}

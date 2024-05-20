@@ -3,6 +3,7 @@ import { Search, MoreHorizontal, Info } from "lucide-react";
 
 interface GroupLinksProps {
   setActiveLink: (link: string) => void;
+  
 }
 
 const GroupLinks: React.FC<GroupLinksProps> = ({ setActiveLink }) => {
@@ -17,7 +18,7 @@ const GroupLinks: React.FC<GroupLinksProps> = ({ setActiveLink }) => {
       </div>
       <nav className="tb:ml-[300px] tbbb:ml-[350px] md:ml-[50px] lgg:-ml-[280px] lggg:-ml-[550px]">
         <ul className="flex justify-around w-full  text-sm  border border-gray-100 p-3 space-x-2 sbb:space-x-5 tb:space-x-5  ">
-          {['Discussion', 'Events', 'Media', 'Chats'].map((link) => (
+          {['Discussion','Events', 'Media', 'Chats'].map((link) => (
             <li key={link}
             className={linkClass}
                 onClick={() => setActiveLink(link)}
