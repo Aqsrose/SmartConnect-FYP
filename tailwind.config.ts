@@ -114,10 +114,12 @@ const config = {
         tb: "407px",
         tbbb: "510px",
         tbb: "650px",
+        mdc:"800px",
         mdd: "1024px",
-        mddd:"1100px",
         lg:"1050px",
-        lgg:"1280px"
+        mddd:"1100px",
+        lgg:"1280px",
+        lggg:"1290px"
         
       },
       backgroundImage: {

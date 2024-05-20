@@ -2,6 +2,7 @@
 import Layoutpage from "@/components/Navbar/Layout"
 import CreateGroup from "@/components/Group/CreateGroup"
 import { trpc } from "@/server/trpc/client"
+import GroupPostsSection from "@/components/Group/GroupPostsSection"
 
 function GroupPage() {
     const { data } = trpc.groupRouter.fetchGroups.useQuery()
@@ -21,6 +22,7 @@ function GroupPage() {
   return (
     <Layoutpage>
       <CreateGroup />
+      <GroupPostsSection/>
     </Layoutpage>
   )
 }

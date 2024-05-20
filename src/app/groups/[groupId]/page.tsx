@@ -2,7 +2,7 @@
 import Layoutpage from "@/components/Navbar/Layout"
 import Post from "@/components/Post"
 import { trpc } from "@/server/trpc/client"
-import { Camera, Lock } from "lucide-react"
+import { Camera, Lock,Plus,Share2 } from "lucide-react"
 import React, { useRef, useState } from "react"
 import GroupLinks from "@/components/Group/GroupLinks"
 import Link from "@/components/Group/GroupContainers"
@@ -35,7 +35,7 @@ const page = ({ params: { groupId } }: PageProps) => {
   // console.log("group posts: ", groupPosts)
   return (
     <Layoutpage>
-      <div className="bg-white h-full -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3 md:pl-64 md:pr-20">
+      <div className="bg-white h-full -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3  lggg:ml-[20px] md:w-[800px] mdc:w-[760px] mdd:w-11/12 lg:w-12/12 mddd:w-9/12 lgg:w-9/12 lggg:w-9/12">
         <div className="w-full h-72 rounded-md  relative bg-gray-100">
           {data?.group?.coverImageUrl && (
             <img
@@ -93,19 +93,32 @@ const page = ({ params: { groupId } }: PageProps) => {
             </div>
           </div>
         </div>
-        <div className="absolute right-0 mr-2 sbb:-mt-9 mt-3  tb:mt-1 tbb:-mt-9 mdd:-mt-16 md:mr-20 tbb:mr-4 xd:-mt-20 xd:mr-20 ">
-          <button
-            className="bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500 px-4 py-2  text-white rounded transition duration-200 mr-2"
+        <div className=" tbb:ml-[380px]  space-x-[88px] mdd:ml-[550px] mddd:ml-[430px] lg:ml-[450px] lggg:ml-[750px] -mt-16 ml-[220px] hidden sb:hidden sbb:hidden tb:hidden tbbb:hidden  tbb:block tb:mt-1 tbb:-mt-9 mdd:-mt-16 md:mr-20 tbb:mr-4 xd:-mt-20 xd:mr-20 ">
+          <div> <button
+            className="bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500 px-4 py-2  text-white rounded transition duration-200 "
           >
             + invite
-          </button>
-          <button
+          </button></div>
+          <div className="-mt-10"><button
             className="bg-gradient-to-r bg-[#349E8D] hover:from-[#488f84] hover:to-[#349E8D]  text-white px-4 py-2 rounded transition duration-200"
           >
             Share
-          </button>
+          </button></div>
         </div>
       </div>
+      <div className="flex mdd:ml-[820px] -mt-12 space-x-7 sb:space-x-10 ml-[200px] sb:ml-[230px] sbb:ml-[270px] tb:ml-[350px] tbbb:ml-[450px] w-[80px] sb:block sbb:block tb:block tbbb:block tbb:hidden md:hidden mdd:hidden mddd:hidden lg:hidden lgg:hidden lggg:hidden ">
+          <div className="w-3"> <button
+            className="bg-gradient-to-r  text-blue-500 hover:from-blue-600 hover:to-blue-500 px-1 py-1 text-[2px] bg-gray-50 border border-blue-500 rounded transition duration-200 "
+          >
+            <Plus/>
+          </button></div>
+          <div className="w-3 sb:-mt-9 sbb:-mt-9"><button
+            className="bg-gradient-to-r text-[#349E8D] hover:from-[#488f84] hover:to-[#349E8D] text-[2px] bg-gray-50 border border-[#349E8D] px-1 py-1 rounded transition duration-200"
+          >
+            <Share2/>
+          </button></div>
+        </div>
+      
       
       {!isLoading &&
         groupPosts?.pages.map((response) =>
@@ -113,6 +126,7 @@ const page = ({ params: { groupId } }: PageProps) => {
             return (
               <Post
                 key={post?.post.id}
+                groupId={post?.post.groupId|| ""}
                 id={post?.post.id || ""}
                 caption={post?.post.caption || ""}
                 createdAt={post?.post.createdAt || ""}
@@ -132,6 +146,7 @@ const page = ({ params: { groupId } }: PageProps) => {
             )
           })
         )}
+        
          <GroupLinks setActiveLink={setActiveLink} />
       <Link activeLink={activeLink} />
         
