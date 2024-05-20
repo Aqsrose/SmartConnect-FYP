@@ -11,7 +11,12 @@ import { trpc } from "@/server/trpc/client"
 import { useToast } from "@/components/ui/use-toast"
 import Layoutpage from "@/components/Navbar/Layout"
 
-const GroupDiscussion = () => {
+interface GroupDiscussionProps{
+  groupId:string
+}
+
+const GroupDiscussion = ({groupId}:GroupDiscussionProps) => {
+  console.log('groupId: ', groupId)
   const { toast } = useToast()
   const utils = trpc.useUtils()
   const { mutate, isLoading } = trpc.postRouter.createPost.useMutation()
@@ -134,7 +139,7 @@ const GroupDiscussion = () => {
 
     const hashTags = extractHashtags(caption)
     mutate(
-      { caption, mediaUrls, fileTypes, hashTags },
+      { caption, mediaUrls, fileTypes, hashTags, groupId  },
       {
         onSuccess: () => {
           toast({

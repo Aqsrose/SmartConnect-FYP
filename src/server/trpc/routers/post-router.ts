@@ -318,7 +318,7 @@ export const postRouter = router({
   createPost: privateProcedure
     .input(postSchema)
     .mutation(async ({ ctx, input }) => {
-      const { caption, mediaUrls, fileTypes, hashTags } = input
+      const { caption, mediaUrls, fileTypes, hashTags, groupId } = input
       const userId = ctx.user.id
 
       if (!caption && mediaUrls?.length == 0) {
@@ -343,6 +343,7 @@ export const postRouter = router({
                 })),
               },
             },
+            groupId: groupId ?? null,
             hashTags: {
               createMany: {
                 data: hashTags!.map((tag) => ({
