@@ -42,7 +42,7 @@ const NFTCard = ({ nft }: NFTCardProps) => {
 
   const { address, connectWallet } = useSigner()
 
-  const { buyNft } = useNFTMarketplace()
+  const { buyNft, listNft } = useNFTMarketplace()
 
   useEffect(() => {
     const fetchMetadata = async () => {
@@ -67,6 +67,7 @@ const NFTCard = ({ nft }: NFTCardProps) => {
   console.log("nft Meta: ", nftMeta)
 
   const [loading, setLoading] = useState(false)
+  const [listingLoading, setListingLoading] = useState(false)
 
   const onBuyClicked = async () => {
     setLoading(true)
@@ -92,6 +93,14 @@ const NFTCard = ({ nft }: NFTCardProps) => {
 
   const forSale = nft.price != "0"
   const owned = nft.owner == address?.toLowerCase()
+
+  const onListClicked = async()=>{
+    setListingLoading(true)
+
+    setOpenListModal(true)
+
+    setListingLoading(false)
+  }
 
   return (
     <div key={nft.id} className="w-64 rounded overflow-hidden shadow-lg">
@@ -131,13 +140,21 @@ const NFTCard = ({ nft }: NFTCardProps) => {
             <p className="text-purple-700">{nft.price}</p>
             <AddressAvatar seed={nft.owner} />
           </div>
-          {nft.price > "0" ? (
+          {nft.price > "0" && nft.owner !== address ? (
             <button
               className="text-blue-500 font-semibold opacity-80 hover:opacity-100 self-end"
               onClick={onBuyClicked}
               // disabled={loading}
             >
               {loading ? "loading..." : "Buy now"}
+            </button>
+          ) : nft.owner === address ? (
+            <button
+              className="text-blue-500 font-semibold opacity-80 hover:opacity-100 self-end"
+              onClick={onListClicked}
+              // disabled={loading}
+            >
+              {loading ? "loading..." : "List nft"}
             </button>
           ) : (
             <Badge className="w-fit self-end" style={{ fontSize: "xx-small" }}>

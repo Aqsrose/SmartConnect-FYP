@@ -2,7 +2,10 @@ import { z } from "zod"
 import { privateProcedure, publicProcedure, router } from "../trpc"
 import { TRPCError } from "@trpc/server"
 import clerk from "@clerk/clerk-sdk-node"
-import { filterUserForClient, filterUsersForClient } from "../../helpers/filterUserForClient"
+import {
+  filterUserForClient,
+  filterUsersForClient,
+} from "../../helpers/filterUserForClient"
 
 export const profileRouter = router({
   fetchFriendsForChat: privateProcedure
@@ -37,7 +40,7 @@ export const profileRouter = router({
       // so now, we technically should have the users that we want to return
       const filteredUsers = filterUsersForClient(users)
 
-      return {success: true, users: filteredUsers}
+      return { success: true, users: filteredUsers }
     }),
   fetchUserInfo: publicProcedure
     .input(
@@ -114,6 +117,38 @@ export const profileRouter = router({
           receiverId: receiverId,
         },
       })
+    }),
+
+  fetchFriendRequests: privateProcedure.query(async ({ ctx }) => {
+    const { id } = ctx.user
+
+    const requests = await ctx.prisma.friendRequests.findMany({
+      where: {
+        OR: [{ receiverId: id }, { senderId: id }],
+      },
+    })
+
+    return { success: true, requests }
+  }),
+
+  cancelRequest: privateProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
+    .mutation(async ({ctx, input}) => {
+      const {userId} = input
+      const deletedRequest = await ctx.prisma.friendRequests.deleteMany({
+        where: {
+          OR: [
+            { senderId: ctx.user.id, receiverId: userId },
+            { senderId: userId, receiverId: ctx.user.id },
+          ],
+        },
+      })
+
+      return {success: true, deletedRequest}
     }),
 
   updateCoverImage: privateProcedure

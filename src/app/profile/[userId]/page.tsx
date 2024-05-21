@@ -5,18 +5,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { trpc } from "@/server/trpc/client"
 import Post from "@/components/Post"
 import { useInView } from "react-intersection-observer"
-import { useEffect} from "react"
+import { useEffect } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
-import { Camera, Loader2, Pencil,ChevronDown } from "lucide-react"
+import { Camera, Loader2, Pencil, ChevronDown } from "lucide-react"
 import useNFTMarketplace from "@/web3/useMarketplace"
 import NFTCard from "@/components/marketpalce/NFTCard"
 import { Button } from "@/components/ui/button"
 import getSignedUrls from "@/app/actions/getSignedUrls"
 import { toast } from "@/components/ui/use-toast"
 import Layoutpage from "@/components/Navbar/Layout"
-import React, { useState, useRef, ChangeEvent } from "react";
-import ProfilePageLinks from '@/components/Profile/profilePageLinks';
+import React, { useState, useRef, ChangeEvent } from "react"
+import ProfilePageLinks from "@/components/Profile/profilePageLinks"
 import ProfileDetails from "@/components/Profile/profileDetails"
 
 interface PageProps {
@@ -27,17 +27,67 @@ interface PageProps {
 
 const UserProfilePage = ({ params: { userId } }: PageProps) => {
   const { user } = useUser()
-  const [activeLink, setActiveLink] = useState<string>('');
+  const utils = trpc.useUtils()
+  const [activeLink, setActiveLink] = useState<string>("")
 
   const coverImageElement = useRef<HTMLInputElement | null>(null)
 
   const { data: userFromBackend } = trpc.profileRouter.fetchUserInfo.useQuery({
     userId,
   })
-  
-  const { data: friends } = trpc.profileRouter.fetchFriends.useQuery({ userId })
+
+  const {
+    data: requests,
+    isLoading: loadingRequests,
+    isError: requestsError,
+  } = trpc.profileRouter.fetchFriendRequests.useQuery()
+
+  const { data: friends, isFetched: friendsFetched } =
+    trpc.profileRouter.fetchFriends.useQuery({ userId })
 
   console.log("friends: ", friends)
+
+  const [requestButtonState, setRequestButtonState] = useState({
+    showCancel: false,
+    showRequest: false,
+    showRespond: false,
+  })
+
+  useEffect(() => {
+    if (!friendsFetched || loadingRequests) return
+
+    const isFriend =
+      user &&
+      user.id !== userId &&
+      friends &&
+      friends?.friends.some((friend) => {
+        return (
+          (friend.userId === user.id && friend.friendId === userId) ||
+          (friend.userId === userId && friend.friendId === user.id)
+        )
+      })
+    const friendRequest = requests?.requests.find((request) => {
+      return (
+        (request.senderId === user?.id && request.receiverId === userId) ||
+        (request.senderId === userId && request.receiverId === user?.id)
+      )
+    })
+    let showCancel = false
+    let showRespond = false
+    let showRequest = false
+
+    if (friendRequest) {
+      if (friendRequest.senderId === user?.id) {
+        showCancel = true
+      } else if (friendRequest.receiverId === user?.id) {
+        showRespond = true
+      }
+    } else if (!isFriend) {
+      showRequest = true
+    }
+
+    setRequestButtonState({ showCancel, showRespond, showRequest })
+  }, [user, userId, friendsFetched, loadingRequests, friends, requests])
 
   const {
     data: coverImageResponse,
@@ -70,6 +120,12 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
     isLoading: sendingRequest,
     isError: errorSendingRequest,
   } = trpc.profileRouter.sendFriendRequest.useMutation()
+
+  const {
+    mutate: cancelRequest,
+    isLoading: cancellingRequest,
+    isError: errorCancelling,
+  } = trpc.profileRouter.cancelRequest.useMutation()
 
   const { ownedNfts } = useNFTMarketplace()
 
@@ -141,31 +197,30 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
       .join("")
     return hashHex
   }
-  const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
-  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
-  const coverPhotoInputRef = useRef<HTMLInputElement>(null);
-  const profilePhotoInputRef = useRef<HTMLInputElement>(null);
+  const [coverPhoto, setCoverPhoto] = useState<string | null>(null)
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null)
+  const coverPhotoInputRef = useRef<HTMLInputElement>(null)
+  const profilePhotoInputRef = useRef<HTMLInputElement>(null)
 
   const handleCoverPhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const file = event.target.files?.[0]
     if (file) {
-      setCoverPhoto(URL.createObjectURL(file));
+      setCoverPhoto(URL.createObjectURL(file))
     }
-  };
+  }
 
   const handleProfilePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const file = event.target.files?.[0]
     if (file) {
-      const fileURL = URL.createObjectURL(file);
-      setProfilePhoto(fileURL);
-      localStorage.setItem('profilePhoto', fileURL);
+      const fileURL = URL.createObjectURL(file)
+      setProfilePhoto(fileURL)
+      localStorage.setItem("profilePhoto", fileURL)
     }
-  };
+  }
 
   const triggerFileInput = (inputRef: React.RefObject<HTMLInputElement>) => {
-    inputRef.current?.click();
-  };
-
+    inputRef.current?.click()
+  }
 
   if (!user) {
     return (
@@ -209,11 +264,65 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
     )
   }
 
-  console.log("user: ", userFromBackend)
+  const showRequestButton = () => {
+    if (requestButtonState.showCancel) {
+      return (
+        <button
+          className="bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500  px-0 py-2 sb:px-2 sbb:py-2 sbb:px-2 sb:py-2 tb:px-4 tb:py-2  text-white rounded transition duration-200 mr-2"
+          onClick={() => {
+            cancelRequest({userId}, {
+              onSuccess: ()=>{
+                utils.profileRouter.fetchFriendRequests.invalidate()
+                utils.profileRouter.fetchFriends.invalidate()
+              }
+            })
+          }}
+        >
+          {!cancellingRequest ? "Cancel Request" : "loading..."}
+        </button>
+      )
+    } else if (requestButtonState.showRespond) {
+      return (
+        <button
+          className="bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500  px-0 py-2 sb:px-2 sbb:py-2 sbb:px-2 sb:py-2 tb:px-4 tb:py-2  text-white rounded transition duration-200 mr-2"
+          onClick={() => {}}
+        >
+          Respond +
+        </button>
+      )
+    } else if (requestButtonState.showRequest) {
+      return (
+        <button
+          className="bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500  px-0 py-2 sb:px-2 sbb:py-2 sbb:px-2 sb:py-2 tb:px-4 tb:py-2  text-white rounded transition duration-200 mr-2"
+          onClick={() => {
+            sendFriendRequest(
+              { receiverId: userId },
+              {
+                onSuccess: () => {
+                  utils.profileRouter.fetchFriendRequests.invalidate()
+                  utils.profileRouter.fetchFriends.invalidate()
+                },
+                onError: () => {
+                  toast({
+                    variant: "destructive",
+                    title: "Server Error",
+                    description: "An error occurred sending request",
+                  })
+                },
+              }
+            )
+          }}
+        >
+          {!sendingRequest ? "Request +" : "loading..."}
+        </button>
+      )
+    }
+
+    return null
+  }
 
   return (
     <Layoutpage>
-
       <div className="bg-white -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3 md:pl-64 md:pr-20">
         <div className="w-full h-72 rounded-md  relative bg-gray-100">
           {coverImageResponse?.coverImage && (
@@ -265,7 +374,7 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
           <p className="text-gray-500 ml-[170px]">
             {`@${userFromBackend?.user.username}`}
           </p>
-          <p className="text-sm text-gray-700 mt-2 ml-32">
+          <p className="text-sm text-gray-700 mt-2 ml-[10.6rem]">
             {userFromBackend?.user.bio + ""}
           </p>
         </div>
@@ -273,28 +382,21 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
           <p> 0 friends </p>
         </div>
         <div className="mt-3 ml-[45px]">
-        <div className="absolute right-0 mr-2 sbb:-mt-1 -mt-1  tb:mt-1 tbb:-mt-9 mdd:-mt-10 md:-mt-1 md:mr-20 tbb:mr-4 xd:-mt-20 xd:mr-20 flex ">
-          <button
-            className="bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500  px-0 py-2 sb:px-2 sbb:py-2 sbb:px-2 sb:py-2 tb:px-4 tb:py-2  text-white rounded transition duration-200 mr-2"
-          >
-           Request +
-          </button>
-          <button
-            className="bg-gradient-to-r bg-gray-500 hover:from-gray-600 hover:to-gray-600  text-white px-4 py-2 rounded transition duration-200"
-          >
-            Edit profile
-          </button>
-          <div className="ml-2">
-          <button
-            className="bg-gradient-to-r bg-gray-400 hover:from-gray-500 hover:to-gray-500  text-white px-4 py-2 rounded transition duration-200 "
-          >
-            <ChevronDown />
-          </button></div>
-        </div>
+          <div className="absolute right-0 mr-2 sbb:-mt-1 -mt-1  tb:mt-1 tbb:-mt-9 mdd:-mt-10 md:-mt-1 md:mr-20 tbb:mr-4 xd:-mt-20 xd:mr-20 flex ">
+            {showRequestButton()}
+            <button className="bg-gradient-to-r bg-gray-500 hover:from-gray-600 hover:to-gray-600  text-white px-4 py-2 rounded transition duration-200">
+              Edit profile
+            </button>
+            <div className="ml-2">
+              <button className="bg-gradient-to-r bg-gray-400 hover:from-gray-500 hover:to-gray-500  text-white px-4 py-2 rounded transition duration-200 ">
+                <ChevronDown />
+              </button>
+            </div>
+          </div>
         </div>
         <div className="border-t border-gray-400  my-4 mt-16 tbb:mt-12 md:mt-16 mdd:mt-10"></div>
       </div>
-      <ProfilePageLinks setActiveLink={setActiveLink}/>
+      <ProfilePageLinks setActiveLink={setActiveLink} />
       <ProfileDetails activeLink={activeLink} />
     </Layoutpage>
   )
