@@ -53,8 +53,8 @@ const ProfileDetails: React.FC<LinkDetailsProps> = ({ activeLink = 'Posts'}) => 
       <div className=" mr-[200px] w-[400px] h-80 bg-white shadow-md rounded-md  items-center justify-center  border border-gray-50 p-5 hidden lg:block mddd:hidden mdd:block lgg:block lggg:block mdd:w-[280px] lg:w-[290px] lgg:w-[290px] lggg:w-[400px]">
         <h2 className='text-lg mt-4 mb-4 text-purple-500'>About</h2>
         <div className='flex space-x-3 mb-2'>
-          <GraduationCap className='text-green-500 w-14'/>
-          <h4 className='text-sm ml-1'>Studies at PMAS ARID AGRICULTURE UNIVERSITY RAWALPINDI</h4>
+          <GraduationCap className='text-green-500 w-6 '/>
+          <h4 className='text-sm ml-1'> RAWALPINDI</h4>
         </div>
         <div className='flex space-x-3 mb-2'>
           <Map className='text-green-500 '/>
