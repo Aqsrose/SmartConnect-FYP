@@ -5,7 +5,7 @@ import { ImagePlus, Loader2, Trash2 } from "lucide-react"
 import Image from "next/image"
 import { ChangeEvent, useState } from "react"
 import { Button } from "@/components/ui/button"
-import getSignedUrls from "../actions/getSignedUrls"
+import getSignedUrls from "../../actions/getSignedUrls"
 import { useUser } from "@clerk/nextjs"
 import { trpc } from "@/server/trpc/client"
 import { useToast } from "@/components/ui/use-toast"
@@ -170,8 +170,8 @@ const GroupDiscussion = ({groupId}:GroupDiscussionProps) => {
 
   return (
 
-    <div className="flex flex-col items-center justify-center -ml-2 absolute top-0 left-0 pl-5 pr-5 md:ml-16  tb:ml-1   tbb:ml-2 tbb:pr-[250px] mdc:ml-[10px] mdd:ml-40 mb-[900px] lggg:ml-36">
-     <div className="w-[270px] sbb:w-[300px] tb:w-[300px] tbbb:w-[380px] tbb:w-[450px] md:w-[550px] mdd:-ml-32 lg:w-[500px] lgg:lg:w-[600px] lggg:w-[490px] max-w-2xl bg-white rounded-lg shadow p-4">
+    <div className="flex flex-col items-center justify-center -ml-2 absolute top-0 left-2   mb-[900px]  lggg:w-[550px]">
+     <div className="relative w-[270px] sbb:w-[300px] tb:w-[300px] tbbb:w-[380px] tbb:w-[450px] md:w-[550px]  lg:w-[500px] lgg:lg:w-[600px] lggg:w-[490px] max-w-2xl bg-white rounded-lg shadow ">
      <div className="flex">
           <div className=" w-8 h-8 rounded-full overflow-hidden bg-red mt-6 ml-3 mr-3 ">
                 <img

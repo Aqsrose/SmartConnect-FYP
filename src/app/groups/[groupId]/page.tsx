@@ -118,7 +118,9 @@ const page = ({ params: { groupId } }: PageProps) => {
             <Share2/>
           </button></div>
         </div>
-      
+        <GroupLinks setActiveLink={setActiveLink}/>
+      <Link activeLink={activeLink} groupId={groupId}/>
+        
       
       {!isLoading &&
         groupPosts?.pages.map((response) =>
@@ -147,8 +149,6 @@ const page = ({ params: { groupId } }: PageProps) => {
           })
         )}
         
-         <GroupLinks setActiveLink={setActiveLink}/>
-      <Link activeLink={activeLink} groupId={groupId}/>
         
     </Layoutpage>
   )

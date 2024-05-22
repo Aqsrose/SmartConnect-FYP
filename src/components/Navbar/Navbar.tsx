@@ -138,7 +138,7 @@ function Navbar() {
       </div>
       <div className="md:hidden lg:hidden hidden sb:hidden sbb:hidden tbbb:block tbb:block tb:block tb:mt-32 md:mt-32 lg:mt-32 tb:ml-3 md:ml-5 lg:ml-5">
         <Link href="/">
-          <button className="bg-red-500 text-white px-4 py-2 rounded">
+          <button className=" text-white px-4 py-2 rounded" style={{ backgroundImage: 'linear-gradient(to right, #086972, #44679F, #005691, #004A7C, #22577E)' }}>
             <LogOut />
           </button>
         </Link>
