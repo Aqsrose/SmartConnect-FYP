@@ -25,7 +25,7 @@ interface PageProps {
   }
 }
 
-const UserProfilePage = ({ params: { userId } }: PageProps) => {
+const OtherUserProfilePage = ({ params: { userId } }: PageProps) => {
   const { user } = useUser()
   const utils = trpc.useUtils()
   const [activeLink, setActiveLink] = useState<string>("")
@@ -197,60 +197,50 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
       .join("")
     return hashHex
   }
-  const [coverPhoto, setCoverPhoto] = useState<string | null>(null)
-  const [profilePhoto, setProfilePhoto] = useState<string | null>(null)
-  const coverPhotoInputRef = useRef<HTMLInputElement>(null)
-  const profilePhotoInputRef = useRef<HTMLInputElement>(null)
-
-  const handleCoverPhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      setCoverPhoto(URL.createObjectURL(file))
-    }
-  }
-
-  const handleProfilePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const fileURL = URL.createObjectURL(file)
-      setProfilePhoto(fileURL)
-      localStorage.setItem("profilePhoto", fileURL)
-    }
-  }
-
-  const triggerFileInput = (inputRef: React.RefObject<HTMLInputElement>) => {
-    inputRef.current?.click()
-  }
+  
 
   if (!user) {
     return (
-      <div className="bg-white relative h-full -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3  lggg:ml-[20px] md:w-[680px] mdc:w-[730px] mdd:w-[930px] lg:w-[950px] mddd:w-[730px] lgg:w-[900px] lggg:w-9/12">
-       <Skeleton className="w-full h-72 rounded-md  relative bg-gray-200 dark:bg-gray-700 "/>
-       <Skeleton className="w-32 h-32 bg-gray-200 dark:bg-gray-700 rounded-full ml-2 tb:ml-4 -mt-10 border-4 border-white relative" />
-       <div className="-mt-20 -ml-6 tb:-ml-6 ">
-          <Skeleton className=" ml-[170px] w-32 h-3 bg-gray-200 dark:bg-gray-700 "/>
-          <Skeleton className=" ml-[170px] w-32 h-3 bg-gray-200 dark:bg-gray-700 "/>
-          <Skeleton className=" mt-2 ml-[10.6rem] w-32 h-3 bg-gray-200 dark:bg-gray-700 "/>
-         </div>
-        <div className="mt-3  w-[340px] ">
-          <div className="flex absolute right-0 bottom-40  ">
-          <Skeleton className=" bg-gray-200 dark:bg-gray-700  mr-2 w-16 h-10 rounded "/>
-            <Skeleton className="bg-gray-200 dark:bg-gray-700 w-16 h-10 rounded "/>
-            <div className="ml-2">
-              <Skeleton className="bg-gray-200 dark:bg-gray-700 w-16 h-10 rounded "/>
+      <div className="flex flex-col w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-sm shadow-lg p-6 gap-6 animate-pulse">
+        <header className="flex flex-col gap-6">
+          <Skeleton className="w-full h-36 relative bg-gray-200 dark:bg-gray-700 rounded-md" />
+          <div className="flex items-center gap-6">
+            <Skeleton className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700" />
+            <div className="flex flex-col">
+              <Skeleton className="h-5 w-32 bg-gray-200 dark:bg-gray-700 rounded" />
+              <Skeleton className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded mt-2" />
+              <Skeleton className="h-4 w-64 bg-gray-200 dark:bg-gray-700 rounded mt-4" />
+              <Skeleton className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded mt-4" />
             </div>
           </div>
-        </div>
-      <div className="flex justify-around w-full mt-40 space-x-7  p-3 left-7 top-3 border border-gray-100">
-        <Skeleton className=" bg-gray-200 dark:bg-gray-700   w-20 h-10 rounded "/>
-        <Skeleton className=" bg-gray-200 dark:bg-gray-700   w-20 h-10 rounded "/>
-        <Skeleton className=" bg-gray-200 dark:bg-gray-700  w-20 h-10 rounded "/>
-        <Skeleton className=" bg-gray-200 dark:bg-gray-700   w-20 h-10 rounded "/>
-    </div>
-    </div>
-      
+          <div className="mt-6">
+            <div className="flex justify-around items-center text-gray-800 dark:text-gray-200">
+              <Skeleton className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded" />
+              <Skeleton className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
+              <Skeleton className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
+              <Skeleton className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
+              <Skeleton className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded" />
+              <Skeleton className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded" />
+            </div>
+          </div>
+        </header>
+        <main className="flex flex-col gap-6">
+          <div>
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+              <Skeleton className="h-64 bg-gray-200 dark:bg-gray-700 rounded-md" />
+              <Skeleton className="h-64 bg-gray-200 dark:bg-gray-700 rounded-md" />
+            </section>
+          </div>
+          <div>
+            <section className="flex flex-col gap-6 mt-10">
+              <Skeleton className="h-64 bg-gray-200 dark:bg-gray-700 rounded-md" />
+            </section>
+          </div>
+        </main>
+      </div>
     )
   }
+
   const showRequestButton = () => {
     if (requestButtonState.showCancel) {
       return (
@@ -293,53 +283,27 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
     return null
   }
 
-
   return (
     <Layoutpage>
-      <div className="bg-white relative h-full -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3  lggg:ml-[20px] md:w-[680px] mdc:w-[730px] mdd:w-[930px] lg:w-[950px] mddd:w-[730px] lgg:w-[900px] lggg:w-9/12">
-        <div className="w-full h-72 rounded-md  relative bg-gray-100">
-
-          {coverImageResponse?.coverImage && (
+        <div className="bg-white relative h-[430px] -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3 tb:ml-[130px] md:ml-[160px] md:w-[540px] mdc:w-[570px] mdd:w-[720px] lg:w-[750px] mddd:w-[600px] lgg:w-[750px] lggg:w-[1000px]">
+      
+        <div className="w-full h-72 rounded-md  bg-gray-100 absolute top-0 left-0">
+            {coverImageResponse?.coverImage && (
             <img
               src={coverImageResponse?.coverImage.url}
               alt="Cover"
               className="w-full h-72 object-cover rounded-md"
             />
           )}
-          <div className="absolute right-0 bottom-0 p-1 border-4 border-white rounded-full bg-gray-50">
-            <Camera
-              className="cursor-pointer"
-              onClick={() => triggerFileInput(coverPhotoInputRef)}
-            />
-          </div>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleCoverPhotoChange}
-            ref={coverPhotoInputRef}
-            className="hidden"
-          />
-        </div>
-
+           </div>
+        <div className="absolute left-2 bottom-8">
         <div className="w-32 h-32 bg-gray-100 rounded-full ml-2 tb:ml-4 -mt-10 border-4 border-white relative">
           <img
             src={userFromBackend?.user.imageUrl}
             alt="Profile"
             className="w-full h-full object-cover rounded-full border border-black"
           />
-          <div className="absolute right-0 bottom-0 p-1 border-4 border-white rounded-full bg-gray-50">
-            <Pencil
-              className="cursor-pointer"
-              onClick={() => triggerFileInput(profilePhotoInputRef)}
-            />
-          </div>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleProfilePhotoChange}
-            ref={profilePhotoInputRef}
-            className="hidden"
-          />
+         
         </div>
         <div className="-mt-20 -ml-6 tb:-ml-6">
           <h2 className="text-xl font-bold ml-[170px]">
@@ -355,28 +319,24 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
         <div className="text-sm text-gray-700 mt-7 tb:ml-[65px] ml-12">
           <p> 0 friends </p>
         </div>
+        </div>
+        
         <div className="mt-3  w-[340px] ">
-          <div className="flex absolute right-0 bottom-10  ">
-          {/* {showRequestButton()} */}
-          <button className=" hover:from-purple-500 hover:to-blue-500 text-[11px] sbb:text-sm text-white mr-2 px-3 py-1 sb:px-2 sbb:px-4 sbb:py-2 rounded transition duration-200" style={{ backgroundImage: 'linear-gradient(to right, #086972, #44679F, #005691, #004A7C, #22577E)' }}>
-              + Story
-            </button>
-            <button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-[11px] sbb:text-sm text-white px-3 py-1 sb:px-2 sbb:px-4 sbb:py-2 rounded transition duration-200">
-              Edit profile
-            </button>
-            <div className="ml-2">
-              <button className="bg-gradient-to-r bg-gray-400 hover:from-gray-500 hover:to-gray-500  text-white px-4 py-2 rounded transition duration-200 ">
-                <ChevronDown />
-              </button>
+          <div className="flex  absolute   right-0 bottom-8  ">
+            {showRequestButton()}
+            <button
+            className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 hidden tbbb:block text-white px-4 py-2 rounded transition duration-200"
+          >
+            Share
+          </button>
             </div>
           </div>
-        </div>
-        <div className="border-t bg-gradient-to-r from-blue-500 to-purple-500  my-4 mt-16 tbb:mt-12 md:mt-16 mdd:mt-10"></div>
-      </div>
+          <div className="border-t bg-gradient-to-r from-blue-500 to-purple-500  my-4  "></div>
+     </div>
       <ProfilePageLinks setActiveLink={setActiveLink} />
       <ProfileDetails activeLink={activeLink} />
     </Layoutpage>
   )
 }
 
-export default UserProfilePage
+export default OtherUserProfilePage

@@ -1,12 +1,11 @@
 'use client'
 import React, { useEffect, useState } from "react";
-import dynamic from 'next/dynamic';
 import { Eye, Lock } from "lucide-react";
-import GroupDiscussion from "@/app/GroupDiscussion/page";
-import GroupMembers from "@/app/GroupMembers/page";
-import GroupEvents from "@/app/GroupEvents/page";
-import GroupMedia from "@/app/GroupMedia/page";
-import GroupChats from "@/app/GroupChats/page";
+import GroupDiscussion from "@/app/group_folder/groupDiscussion/page";
+import GroupMembers from "@/app/group_folder/groupMembers/page";
+import GroupEvents from "@/app/group_folder/groupEvents/page";
+import GroupMedia from "@/app/group_folder/groupMedia/page";
+import GroupChats from "@/app/group_folder/groupChats/page";
 
 interface LinkDetailsProps {
   activeLink?: string;
@@ -46,10 +45,6 @@ const Link: React.FC<LinkDetailsProps> = ({ activeLink = 'Discussion' , groupId}
     }
   }
 
-  // useEffect(() => {
-    
-    // loadComponent();
-  // }, [currentLink]);
   return (
     <section className="flex flex-col md:flex-row">
       <div className="flex tb:ml-[130px] md:ml-[150px] ">
