@@ -99,7 +99,7 @@ const CommentReply = ({
   }
 
   return (
-    <div className="flex items-start space-x-2 ml-5 pl-3 mt-3">
+    <div className="flex items-start space-x-2 ml-5 pl-3 mt-32">
       <img
         src={userImageUrl}
         alt="User Avatar"

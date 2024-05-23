@@ -2,10 +2,14 @@
 import Layoutpage from "@/components/Navbar/Layout"
 import Post from "@/components/Post"
 import { trpc } from "@/server/trpc/client"
-import { Camera, Lock,Plus,Share2 } from "lucide-react"
+import { Camera, Lock,Plus,Repeat,Share2 } from "lucide-react"
 import React, { useRef, useState } from "react"
 import GroupLinks from "@/components/Group/GroupLinks"
 import Link from "@/components/Group/GroupContainers"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 
 interface PageProps {
   params: {
@@ -18,20 +22,8 @@ const page = ({ params: { groupId } }: PageProps) => {
   console.log("foo: ", data);
   
   const [activeLink, setActiveLink] = useState<string>('');
-  const {
-    data: groupPosts,
-    isLoading,
-    isError,
-    fetchNextPage,
-    isFetchingNextPage,
-    hasNextPage,
-  } = trpc.groupRouter.fetchPosts.useInfiniteQuery(
-    { limit: 2, groupId },
-    {
-      getNextPageParam: (lastPageResponse) => lastPageResponse.nextCursor,
-    }
-  )
-
+  const [isCopied, setIsCopied] = useState(false)
+  const copyElement = useRef<HTMLInputElement | null>(null)
   // console.log("group posts: ", groupPosts)
   return (
     <Layoutpage>
@@ -99,11 +91,66 @@ const page = ({ params: { groupId } }: PageProps) => {
           >
             + invite
           </button></div>
-          <div className="-mt-10"><button
+          <div className="-mt-10"> <Dialog>
+              <DialogTrigger asChild>
+              <button
             className="bg-gradient-to-r bg-[#349E8D] hover:from-[#488f84] hover:to-[#349E8D]  text-white px-4 py-2 rounded transition duration-200"
           >
             Share
-          </button></div>
+          </button>
+              </DialogTrigger>
+              <DialogContent>
+                <div>
+                  <div>
+                    <Button className="text-sm leading-none" variant="ghost">
+                      Share
+                    </Button>
+                  </div>
+                  <div className="max-w-sm">
+                    <div>
+                      <div>Share Post</div>
+                      <div>Share the post with others.</div>
+                    </div>
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <Label className="sr-only" htmlFor="link">
+                          Link
+                        </Label>
+                        <Input
+                          className="flex-1 text-sm"
+                          id="link"
+                          placeholder="Link"
+                          readOnly
+                          value={`${process.env.NEXT_PUBLIC_SERVER_URL}/groups/${groupId}`}
+                          ref={copyElement}
+                        />
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            if (copyElement.current) {
+                              const link = copyElement.current.value
+                              if (navigator.clipboard) {
+                                navigator.clipboard.writeText(link).then(() => {
+                                  setIsCopied(true)
+                                  setTimeout(() => setIsCopied(false), 3000)
+                                  return
+                                })
+                                copyElement.current.select()
+                                document.execCommand("copy")
+                                setIsCopied(true)
+                                setTimeout(() => setIsCopied(false), 3000)
+                              }
+                            }
+                          }}
+                        >
+                          {isCopied ? "Copied!" : "Copy"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog></div>
         </div>
       </div>
       <div className="flex mdd:ml-[820px] -mt-12 space-x-7 sb:space-x-10 ml-[200px] sb:ml-[230px] sbb:ml-[270px] tb:ml-[350px] tbbb:ml-[450px] w-[80px] sb:block sbb:block tb:block tbbb:block tbb:hidden md:hidden mdd:hidden mddd:hidden lg:hidden lgg:hidden lggg:hidden ">
@@ -118,37 +165,11 @@ const page = ({ params: { groupId } }: PageProps) => {
             <Share2/>
           </button></div>
         </div>
-      
-      
-      {!isLoading &&
-        groupPosts?.pages.map((response) =>
-          response.posts.map((post) => {
-            return (
-              <Post
-                key={post?.post.id}
-                groupId={post?.post.groupId|| ""}
-                id={post?.post.id || ""}
-                caption={post?.post.caption || ""}
-                createdAt={post?.post.createdAt || ""}
-                likes={post?.post._count.postLikes || 0}
-                commentCount={post?.post._count.comments || 0}
-                userImageUrl={post?.user?.imageUrl || ""}
-                userDisplayName={
-                  (post?.user?.username ??
-                    post?.user?.emailAddresses[0].emailAddress.split("@")[0]) ||
-                  ""
-                }
-                media={post!.post.media}
-                postLikes={post!.post.postLikes}
-                userId={post.user.id}
-                isLikedByUser={post.post.isLikedByUser ?? false}
-              />
-            )
-          })
-        )}
-        
-         <GroupLinks setActiveLink={setActiveLink}/>
+        <GroupLinks setActiveLink={setActiveLink}/>
       <Link activeLink={activeLink} groupId={groupId}/>
+        
+    
+        
         
     </Layoutpage>
   )
