@@ -10,6 +10,7 @@ import { useUser } from "@clerk/nextjs"
 import { trpc } from "@/server/trpc/client"
 import { useToast } from "@/components/ui/use-toast"
 import Layoutpage from "@/components/Navbar/Layout"
+import GroupPostReel from "@/components/Group/GroupPostReel"
 
 interface GroupDiscussionProps{
   groupId:string
@@ -271,7 +272,9 @@ const GroupDiscussion = ({groupId}:GroupDiscussionProps) => {
               )}
             </button>
           </div>
+       
         </div>
+        <GroupPostReel groupId={groupId}/>
       </div>
     
   )
