@@ -126,6 +126,7 @@ const page = ({ params: { groupId } }: PageProps) => {
         groupPosts?.pages.map((response) =>
           response.posts.map((post) => {
             return (
+              <div className="">
               <Post
                 key={post?.post.id}
                 groupId={post?.post.groupId|| ""}
@@ -145,6 +146,7 @@ const page = ({ params: { groupId } }: PageProps) => {
                 userId={post.user.id}
                 isLikedByUser={post.post.isLikedByUser ?? false}
               />
+              </div>
             )
           })
         )}
