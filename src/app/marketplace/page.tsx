@@ -2,8 +2,8 @@
 import React from "react"
 import Layoutpage from "@/components/Navbar/Layout"
 import { Heart, Clock, MoreHorizontal } from "lucide-react"
-import Createpart from "@/components/Comments/marketplacedesign/createpart"
-import NftCards from "@/components/Comments/marketplacedesign/nftcard"
+import Createpart from "@/components/marketplacedesign/createpart"
+import NftCards from "@/components/marketplacedesign/nftcard"
 import useNFTMarketplace from "@/web3/useMarketplace"
 
 function NFTpage() {

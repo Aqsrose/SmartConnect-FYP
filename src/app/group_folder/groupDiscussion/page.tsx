@@ -171,7 +171,7 @@ const GroupDiscussion = ({groupId}:GroupDiscussionProps) => {
   return (
 
     <div className="flex flex-col items-center justify-center -ml-2 absolute top-0 left-2   mb-[900px]  lggg:w-[550px]">
-     <div className="relative w-[270px] sbb:w-[300px] tb:w-[300px] tbbb:w-[380px] tbb:w-[450px] md:w-[550px]  lg:w-[500px] lgg:lg:w-[600px] lggg:w-[490px] max-w-2xl bg-white rounded-lg shadow ">
+     <div className="relative w-[270px] sbb:w-[300px] tb:w-[300px] tbbb:w-[380px] tbb:w-[450px] md:w-[550px]  lg:w-[500px] lgg:lg:w-[600px] lggg:w-[490px] max-w-2xl bg-white rounded-lg shadow p-2 ">
      <div className="flex">
           <div className=" w-8 h-8 rounded-full overflow-hidden bg-red mt-6 ml-3 mr-3 ">
                 <img
