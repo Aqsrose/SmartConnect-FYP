@@ -18,6 +18,14 @@ import Layoutpage from "@/components/Navbar/Layout"
 import React, { useState, useRef, ChangeEvent } from "react"
 import ProfilePageLinks from "@/components/Profile/profilePageLinks"
 import ProfileDetails from "@/components/Profile/profileDetails"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 interface PageProps {
   params: {
@@ -82,11 +90,12 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
       } else if (friendRequest.receiverId === user?.id) {
         showRespond = true
       }
-    } else if (!isFriend) {
+    } else if (!isFriend && userId !== user?.id) {
       showRequest = true
     }
 
     setRequestButtonState({ showCancel, showRespond, showRequest })
+    console.log("is friend: ", isFriend)
   }, [user, userId, friendsFetched, loadingRequests, friends, requests])
 
   const {
@@ -218,6 +227,18 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
     }
   }
 
+  const {
+    mutate: acceptFriendRequest,
+    isLoading: accpetingFriendRequest,
+    isError: errorAcceptingFriendRequest,
+  } = trpc.profileRouter.acceptFriendRequest.useMutation()
+
+  const {
+    mutate: rejectRequest,
+    isLoading: rejectingRequest,
+    isError: errorRejectingRequest,
+  } = trpc.profileRouter.rejectRequest.useMutation()
+
   const triggerFileInput = (inputRef: React.RefObject<HTMLInputElement>) => {
     inputRef.current?.click()
   }
@@ -270,12 +291,15 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
         <button
           className="bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500  px-0 py-2 sb:px-2 sbb:py-2 sbb:px-2 sb:py-2 tb:px-4 tb:py-2  text-white rounded transition duration-200 mr-2"
           onClick={() => {
-            cancelRequest({userId}, {
-              onSuccess: ()=>{
-                utils.profileRouter.fetchFriendRequests.invalidate()
-                utils.profileRouter.fetchFriends.invalidate()
+            cancelRequest(
+              { userId },
+              {
+                onSuccess: () => {
+                  utils.profileRouter.fetchFriendRequests.invalidate()
+                  utils.profileRouter.fetchFriends.invalidate()
+                },
               }
-            })
+            )
           }}
         >
           {!cancellingRequest ? "Cancel Request" : "loading..."}
@@ -283,12 +307,80 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
       )
     } else if (requestButtonState.showRespond) {
       return (
-        <button
-          className="bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500  px-0 py-2 sb:px-2 sbb:py-2 sbb:px-2 sb:py-2 tb:px-4 tb:py-2  text-white rounded transition duration-200 mr-2"
-          onClick={() => {}}
-        >
-          Respond +
-        </button>
+        <Dialog>
+          <DialogTrigger>
+            <button className="bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500  px-0 py-2 sb:px-2 sbb:py-2 sbb:px-2 sb:py-2 tb:px-4 tb:py-2  text-white rounded transition duration-200 mr-2">
+              Respond +
+            </button>
+            <DialogContent className="max-w-xs">
+              <DialogHeader>
+                <DialogTitle>How do you want to respond?</DialogTitle>
+                <DialogDescription className="mt-2">
+                  <button
+                    className="bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500  px-0 py-2 sb:px-2 sbb:py-2 sbb:px-2 sb:py-2 tb:px-4 tb:py-2  text-white rounded transition duration-200 mr-2"
+                    onClick={() => {
+                      acceptFriendRequest(
+                        { senderId: userId },
+                        {
+                          onSuccess: () => {
+                            toast({
+                              variant: "default",
+                              title: "Request Accepted",
+                              description:
+                                "The friend request has been accepted",
+                            })
+                            utils.profileRouter.fetchFriendRequests.invalidate()
+                            utils.profileRouter.fetchFriends.invalidate()
+                          },
+                          onError: () => {
+                            toast({
+                              variant: "destructive",
+                              title: "Error Accepting Request",
+                              description:
+                                "The friend request was not accepted due to a server error",
+                            })
+                          },
+                        }
+                      )
+                    }}
+                  >
+                    {accpetingFriendRequest ? "loading..." : "Accept"}
+                  </button>
+                  <button
+                    className="bg-gradient-to-r  bg-red-500 hover:from-red-600 hover:to-red-500  px-0 py-2 sb:px-2 sbb:py-2 sbb:px-2 sb:py-2 tb:px-4 tb:py-2  text-white rounded transition duration-200 mr-2"
+                    onClick={() => {
+                      rejectRequest(
+                        { userId },
+                        {
+                          onSuccess: () => {
+                            toast({
+                              variant: "default",
+                              title: "Request Rejected",
+                              description:
+                                "The friend request has been rejected",
+                            })
+                            utils.profileRouter.fetchFriendRequests.invalidate()
+                            utils.profileRouter.fetchFriends.invalidate()
+                          },
+                          onError: () => {
+                            toast({
+                              variant: "destructive",
+                              title: "Error Rejecting Request",
+                              description:
+                                "The friend request was not rejecting due to a server error",
+                            })
+                          },
+                        }
+                      )
+                    }}
+                  >
+                    {rejectingRequest ? "loading..." : "Reject"}
+                  </button>
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </DialogTrigger>
+        </Dialog>
       )
     } else if (requestButtonState.showRequest) {
       return (
@@ -341,7 +433,7 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
           <input
             type="file"
             accept="image/*"
-            onChange={handleCoverPhotoChange}
+            onChange={handleCoverImageUpload}
             ref={coverPhotoInputRef}
             className="hidden"
           />

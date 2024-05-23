@@ -111,12 +111,14 @@ export const profileRouter = router({
       })
     )
     .mutation(async ({ ctx, input: { receiverId } }) => {
-      await ctx.prisma.friendRequests.create({
+      const request = await ctx.prisma.friendRequests.create({
         data: {
           senderId: ctx.user.id,
           receiverId: receiverId,
         },
       })
+
+      return { success: true, request }
     }),
 
   fetchFriendRequests: privateProcedure.query(async ({ ctx }) => {
@@ -125,20 +127,94 @@ export const profileRouter = router({
     const requests = await ctx.prisma.friendRequests.findMany({
       where: {
         OR: [{ receiverId: id }, { senderId: id }],
+        status: "PENDING",
       },
     })
 
     return { success: true, requests }
   }),
 
+  // not correct I think
+  acceptFriendRequest: privateProcedure
+    .input(
+      z.object({
+        senderId: z.string(), // ID of the user who sent the friend request
+        // this will be the userId in the page url
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { senderId } = input
+      const { id: receiverId } = ctx.user // Currently logged-in user
+
+      // Check if the friend request exists and is pending
+      const request = await ctx.prisma.friendRequests.findUnique({
+        where: {
+          senderId_receiverId: {
+            senderId,
+            receiverId,
+          },
+        },
+      })
+
+      if (!request || request.status !== "PENDING") {
+        throw new Error("Friend request not found or already processed")
+      }
+
+      // Update the friend request status to accepted
+      await ctx.prisma.friendRequests.update({
+        where: {
+          senderId_receiverId: {
+            senderId,
+            receiverId,
+          },
+        },
+        data: {
+          status: "ACCEPTED",
+        },
+      })
+
+      // Create a friendship entry
+      await ctx.prisma.friend.create({
+        data: {
+          userId: receiverId,
+          friendId: senderId,
+        },
+      })
+
+      return { success: true }
+    }),
+
+  // reject an incoming req
+  rejectRequest: privateProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { userId } = input
+      const rejectedRequest = await ctx.prisma.friendRequests.updateMany({
+        where: {
+          OR: [
+            { senderId: ctx.user.id, receiverId: userId },
+            { senderId: userId, receiverId: ctx.user.id },
+          ],
+        },
+        data: {
+          status: "DENIED",
+        },
+      })
+    }),
+
+  // basically when you cancel a req sent by yourself
   cancelRequest: privateProcedure
     .input(
       z.object({
         userId: z.string(),
       })
     )
-    .mutation(async ({ctx, input}) => {
-      const {userId} = input
+    .mutation(async ({ ctx, input }) => {
+      const { userId } = input
       const deletedRequest = await ctx.prisma.friendRequests.deleteMany({
         where: {
           OR: [
@@ -148,7 +224,7 @@ export const profileRouter = router({
         },
       })
 
-      return {success: true, deletedRequest}
+      return { success: true, deletedRequest }
     }),
 
   updateCoverImage: privateProcedure
