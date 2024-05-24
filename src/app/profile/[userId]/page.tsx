@@ -8,7 +8,7 @@ import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { Camera, Loader2, Pencil, ChevronDown } from "lucide-react";
+import { Camera, Loader2, Pencil, ChevronDown, MoreHorizontal } from "lucide-react";
 import useNFTMarketplace from "@/web3/useMarketplace";
 import NFTCard from "@/components/marketpalce/NFTCard";
 import { Button } from "@/components/ui/button";
@@ -230,13 +230,13 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
           <Skeleton className="w-32 h-32 bg-gray-200 dark:bg-gray-700 rounded-full ml-2 tb:ml-4 -mt-10 border-4 border-white relative" />
           <div className="-mt-20 -ml-6 tb:-ml-6 ">
             <Skeleton className=" ml-[170px] w-32 h-3 bg-gray-200 dark:bg-gray-700 " />
-            <Skeleton className=" ml-[170px] w-32 h-3 bg-gray-200 dark:bg-gray-700 " />
+            <Skeleton className=" ml-[170px] w-32 h-3 bg-gray-200 dark:bg-gray-700 mt-2" />
             <Skeleton className=" mt-2 ml-[10.6rem] w-32 h-3 bg-gray-200 dark:bg-gray-700 " />
           </div>
           <div className="mt-3  w-[340px] ">
             <div className="flex absolute right-0 bottom-40  ">
               <Skeleton className=" bg-gray-200 dark:bg-gray-700  mr-2 w-16 h-10 rounded " />
-              <Skeleton className="bg-gray-200 dark:bg-gray-700 w-16 h-10 rounded " />
+              <Skeleton className="bg-gray-200 dark:bg-gray-700  w-16 h-10 rounded " />
               <div className="ml-2">
                 <Skeleton className="bg-gray-200 dark:bg-gray-700 w-16 h-10 rounded " />
               </div>
@@ -378,6 +378,9 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
         <div className="text-sm text-gray-700 mt-7 tb:ml-[65px] ml-12">
           <p> 0 friends </p>
         </div>
+        <div className="flex absolute right-3 bottom-32 ">
+          <MoreHorizontal size={20} />
+        </div>
         <div className="mt-3  w-[340px] ">
           <div className="flex absolute right-0 bottom-10  ">
             {showRequestButton()}
@@ -397,11 +400,7 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
                 Edit profile
               </button>
             )}
-            <div className="ml-2">
-              <button className="bg-gradient-to-r bg-gray-400 hover:from-gray-500 hover:to-gray-500  text-white px-4 py-2 rounded transition duration-200 ">
-                <ChevronDown />
-              </button>
-            </div>
+         
           </div>
         </div>
         <div className="border-t bg-gradient-to-r from-blue-500 to-purple-500  my-4 mt-16 tbb:mt-12 md:mt-16 mdd:mt-10"></div>

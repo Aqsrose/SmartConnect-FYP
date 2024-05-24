@@ -28,7 +28,7 @@ const ProfilePageLinks: React.FC<ProfilePageLinksProps> = ({ setActiveLink }) =>
               </div>
             </li>
           ))}
-          <li key="About" className="block  mdc:block mddd:block mdd:hidden lg:hidden">
+          <li key="About" className="block  mdc:block mddd:block mdd:hidden lg:hidden lgg:hidden lggg:hidden">
             <div 
               className={`${linkClass} ${isActive('About') ? activeLinkClass : ''}`}
               onClick={() => setActiveLink('About')}
