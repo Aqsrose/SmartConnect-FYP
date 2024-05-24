@@ -9,7 +9,7 @@ import { useInView } from "react-intersection-observer"
 import { useEffect } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
-import { Camera, Loader2, Pencil, ChevronDown } from "lucide-react"
+import { Camera, Loader2, Pencil, ChevronDown, MoreHorizontal } from "lucide-react"
 import useNFTMarketplace from "@/web3/useMarketplace"
 import NFTCard from "@/components/marketpalce/NFTCard"
 import { Button } from "@/components/ui/button"
@@ -212,12 +212,6 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
   const coverPhotoInputRef = useRef<HTMLInputElement>(null);
   const profilePhotoInputRef = useRef<HTMLInputElement>(null);
 
-  const handleCoverPhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setCoverPhoto(URL.createObjectURL(file));
-    }
-  };
 
   const handleProfilePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

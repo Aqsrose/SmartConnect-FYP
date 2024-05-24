@@ -1,12 +1,17 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState } from "react";
-import { FieldValues, useForm, SubmitHandler } from "react-hook-form";
-import { z } from "zod";
-import Modal from "@/components/Modal";
+"use client"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { zodResolver } from "@hookform/resolvers/zod"
+import React, { useState } from "react"
+import { FieldValues, useForm, SubmitHandler } from "react-hook-form"
+import { z } from "zod"
+import Modal from "@/components/Modal"
+import getSignedUrls from "@/app/actions/getSignedUrls"
+import { useUser } from "@clerk/nextjs"
+import { trpc } from "@/server/trpc/client"
+import { toast } from "../ui/use-toast"
+import { Loader2 } from "lucide-react"
 
 const eventSchema = z.object({
   name: z.string(),
@@ -14,13 +19,18 @@ const eventSchema = z.object({
   date: z.string(),
   location: z.string(),
   time: z.string(),
-  image: z.string(),
-});
+  image: z.any(),
+})
 
-type EventSchemaType = z.infer<typeof eventSchema>;
+type EventSchemaType = z.infer<typeof eventSchema>
 
 const CreateEventModal = ({ close }: { close: () => void }) => {
-  const [showModal, setShowModal] = useState(false);
+  const { user } = useUser()
+
+  const [showModal, setShowModal] = useState(false)
+
+  const [uploadingImage, setUploadingImage] = useState(false)
+
   const {
     register,
     formState: { errors },
@@ -28,11 +38,87 @@ const CreateEventModal = ({ close }: { close: () => void }) => {
     reset,
   } = useForm<EventSchemaType>({
     resolver: zodResolver(eventSchema),
-  });
+  })
+
+  const {
+    mutate: createEvent,
+    isLoading: creatingEvent,
+    isError: erroCreatingEvent,
+  } = trpc.eventRouter.createEvent.useMutation()
 
   const handleCreateEvent: SubmitHandler<EventSchemaType> = async (data) => {
-    console.log("event data: ", data);
-  };
+    const url = await handleEventCoverImageUpload(data.image[0])
+
+    if (url) {
+      createEvent(
+        {
+          ...data,
+          imageUrl: url,
+        },
+        {
+          onError: () => {
+            toast({
+              variant: "destructive",
+              title: "Uh oh! Something went wrong",
+              description: `An internal server error occurred. Please try again later.`,
+            })
+          },
+          onSuccess: () => {
+            close()
+            toast({
+              title: "Success.",
+              description: "Event created successfully.",
+            })
+          },
+        }
+      )
+    }
+  }
+
+  const computeSHA256 = async (file: File) => {
+    //do this for media array
+    const buffer = await file.arrayBuffer()
+    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    const hashHex = hashArray
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("")
+    return hashHex
+  }
+
+  const handleEventCoverImageUpload = async (image: File) => {
+    setUploadingImage(true)
+    if (user) {
+      if (!image) {
+        return
+      }
+      const selectedFile = image
+
+      const checksum = await computeSHA256(selectedFile)
+
+      const response = await getSignedUrls(
+        [selectedFile.type],
+        [selectedFile.size],
+        [checksum],
+        user.id
+      )
+
+      if (response) {
+        const [first] = response.signedUrls
+
+        const res = await fetch(first, {
+          method: "PUT",
+          headers: {
+            "Content-Type": selectedFile.type,
+          },
+          body: selectedFile,
+        })
+        const url = first.split("?")[0]
+        setUploadingImage(false)
+        return url
+      }
+    }
+  }
 
   return (
     <>
@@ -135,14 +221,18 @@ const CreateEventModal = ({ close }: { close: () => void }) => {
                 type="submit"
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               >
-                Create
+                {creatingEvent || uploadingImage ? (
+                  <Loader2 className="animate-spin w-4 h-4" />
+                ) : (
+                  "Create"
+                )}
               </button>
             </div>
           </form>
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default CreateEventModal;
+export default CreateEventModal

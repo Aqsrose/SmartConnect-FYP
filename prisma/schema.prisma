@@ -189,21 +189,37 @@ model Message {
 }
 
 model Event {
-  id          String    @id @default(uuid()) @db.Uuid
+  id          String   @id @default(uuid())
   name        String
   description String
-  type        EventType
   location    String?
-  startDate   DateTime  @map("start_date")
-  endDate     DateTime  @map("end_date")
-  organizerId String    @map("organizer_id") //clerk user id
+  date        String
+  time        String
+  organizerId String   @map("organizer_id") //clerk user id
+
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  EventUsers EventUsers[]
+  EventMedia EventMedia?
 
   @@map("event")
+}
+
+model EventMedia {
+  id  String @id @default(uuid())
+  url String
+
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId String @unique @map("event_id")
+
+  @@map("event_media")
 }
 
 model EventUsers {
   userId  String @map("user_id")
   eventId String @map("event_id")
+
+  event Event @relation(fields: [eventId], references: [id])
 
   @@id([userId, eventId])
   @@map("event_users")
