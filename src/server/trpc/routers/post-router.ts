@@ -490,4 +490,74 @@ export const postRouter = router({
       }
       return { success: true }
     }),
+
+  fetchSavedPosts: privateProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(50).nullish(),
+        cursor: z.string().uuid().nullish(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const limit = input.limit ?? 50
+      const { cursor } = input
+
+      if (!ctx.user) {
+        throw new TRPCError({ code: "UNAUTHORIZED" })
+      }
+
+      let rawSavedPosts = await ctx.prisma.savedPosts.findMany({
+        take: limit + 1,
+        cursor: cursor
+          ? { postId_userId: { postId: cursor, userId: ctx.user.id } }
+          : undefined,
+        where: {
+          userId: ctx.user.id,
+        },
+        orderBy: [
+          {
+            post: {
+              createdAt: "desc",
+            },
+          },
+        ],
+        include: {
+          post: {
+            include: {
+              _count: {
+                select: {
+                  comments: true,
+                  postLikes: true,
+                },
+              },
+              postLikes: true,
+              media: true,
+            },
+          },
+        },
+      })
+
+      const postsWithUsers = await addUserDataToPosts(
+        rawSavedPosts.map((sp) => sp.post)
+      )
+
+      const posts = postsWithUsers.map((post) => {
+        if (!ctx.user)
+          return { ...post, post: { ...post.post, isLikedByUser: false } }
+        const isLikedByUser = post.post.postLikes.some(
+          (like) => like.userId === ctx.user?.id
+        )
+        return { ...post, post: { ...post.post, isLikedByUser } }
+      })
+
+      let nextCursor: typeof cursor | undefined = undefined
+
+      //it means there still are posts to retrieve
+      if (posts.length > limit) {
+        const nextItem = posts.pop()
+        nextCursor = nextItem!.post.id
+      }
+
+      return { success: true, posts, nextCursor }
+    }),
 })

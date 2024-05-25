@@ -53,10 +53,28 @@ export const eventRouter = router({
         },
       },
       include: {
-        EventMedia: true
-      }
+        EventMedia: true,
+      },
     })
     return { success: true, events }
+  }),
+
+  fetchRecommendedEvents: privateProcedure.query(async ({ input, ctx }) => {
+    const {
+      user: { id },
+    } = ctx
+
+    const recommendedEvents = await ctx.prisma.event.findMany({
+      where: {
+        EventUsers: {
+          none: {
+            userId: id,
+          },
+        },
+      },
+    })
+
+    return { sucecss: true, recommendedEvents }
   }),
 
   markInterested: privateProcedure
@@ -66,18 +84,53 @@ export const eventRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-
-      const {eventId} = input
+      const { eventId } = input
 
       await ctx.prisma.eventUsers.create({
         data: {
           userId: ctx.user.id,
-          eventId
-        }
+          eventId,
+        },
       })
 
-      return {success: true}
+      return { success: true }
+    }),
 
+  markUninterested: privateProcedure
+    .input(
+      z.object({
+        eventId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { eventId } = input
 
+      const markedEvent = await ctx.prisma.eventUsers.deleteMany({
+        where: {
+          eventId,
+          userId: ctx.user.id,
+        },
+      })
+
+      return { success: true, markedEvent }
+    }),
+
+  deleteEvent: privateProcedure
+    .input(
+      z.object({
+        eventId: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { eventId } = input
+
+      const deletedEvent = await ctx.prisma.event.deleteMany({
+        where: {
+          organizerId: ctx.user.id,
+          id: eventId,
+        },
+      })
+
+      return { success: true, deletedEvent }
     }),
 })

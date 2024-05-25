@@ -1,4 +1,3 @@
-
 "use client"
 import Navbar from "@/components/Navbar"
 import { UserProfile, useClerk, useUser } from "@clerk/nextjs"
@@ -9,7 +8,13 @@ import { useInView } from "react-intersection-observer"
 import { useEffect } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
-import { Camera, Loader2, Pencil, ChevronDown, MoreHorizontal } from "lucide-react"
+import {
+  Camera,
+  Loader2,
+  Pencil,
+  ChevronDown,
+  MoreHorizontal,
+} from "lucide-react"
 import useNFTMarketplace from "@/web3/useMarketplace"
 import NFTCard from "@/components/marketpalce/NFTCard"
 import { Button } from "@/components/ui/button"
@@ -28,43 +33,42 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-
 interface PageProps {
   params: {
-    userId: string;
-  };
+    userId: string
+  }
 }
 
 const UserProfilePage = ({ params: { userId } }: PageProps) => {
-  const { user } = useUser();
-  const utils = trpc.useUtils();
-  const [activeLink, setActiveLink] = useState<string>("");
+  const { user } = useUser()
+  const utils = trpc.useUtils()
+  const [activeLink, setActiveLink] = useState<string>("")
 
-  const coverImageElement = useRef<HTMLInputElement | null>(null);
+  const coverImageElement = useRef<HTMLInputElement | null>(null)
 
   const { data: userFromBackend } = trpc.profileRouter.fetchUserInfo.useQuery({
     userId,
-  });
+  })
 
   const {
     data: requests,
     isLoading: loadingRequests,
     isError: requestsError,
-  } = trpc.profileRouter.fetchFriendRequests.useQuery();
+  } = trpc.profileRouter.fetchFriendRequests.useQuery()
 
   const { data: friends, isFetched: friendsFetched } =
-    trpc.profileRouter.fetchFriends.useQuery({ userId });
+    trpc.profileRouter.fetchFriends.useQuery({ userId })
 
-  console.log("friends: ", friends);
+  console.log("friends: ", friends)
 
   const [requestButtonState, setRequestButtonState] = useState({
     showCancel: false,
     showRequest: false,
     showRespond: false,
-  });
+  })
 
   useEffect(() => {
-    if (!friendsFetched || loadingRequests) return;
+    if (!friendsFetched || loadingRequests) return
 
     const isFriend =
       user &&
@@ -74,30 +78,30 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
         return (
           (friend.userId === user.id && friend.friendId === userId) ||
           (friend.userId === userId && friend.friendId === user.id)
-        );
-      });
+        )
+      })
     const friendRequest = requests?.requests.find((request) => {
       return (
         (request.senderId === user?.id && request.receiverId === userId) ||
         (request.senderId === userId && request.receiverId === user?.id)
-      );
-    });
-    let showCancel = false;
-    let showRespond = false;
-    let showRequest = false;
+      )
+    })
+    let showCancel = false
+    let showRespond = false
+    let showRequest = false
 
     if (friendRequest) {
       if (friendRequest.senderId === user?.id) {
-        showCancel = true;
+        showCancel = true
       } else if (friendRequest.receiverId === user?.id) {
-        showRespond = true;
+        showRespond = true
       }
     } else if (!isFriend && userId !== user?.id) {
       showRequest = true
     }
 
-    setRequestButtonState({ showCancel, showRespond, showRequest });
-  }, [user, userId, friendsFetched, loadingRequests, friends, requests]);
+    setRequestButtonState({ showCancel, showRespond, showRequest })
+  }, [user, userId, friendsFetched, loadingRequests, friends, requests])
 
   const {
     data: coverImageResponse,
@@ -105,10 +109,10 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
     isError: coverImageError,
   } = trpc.profileRouter.fetchCoverImage.useQuery({
     userId,
-  });
+  })
 
   const { mutate: updateCoverImage, isLoading: updatingCoverImage } =
-    trpc.profileRouter.updateCoverImage.useMutation();
+    trpc.profileRouter.updateCoverImage.useMutation()
 
   const {
     data,
@@ -123,49 +127,65 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
       getNextPageParam: (lastPageResponse) => lastPageResponse.nextCursor,
       enabled: userId ? true : false,
     }
-  );
+  )
+
+  const {
+    data: savedPosts,
+    isLoading: loadingSavedPosts,
+    isError: errorLoadingSavedPosts,
+  } = trpc.postRouter.fetchSavedPosts.useInfiniteQuery(
+    {
+      limit: 2,
+    },
+    {
+      getNextPageParam: (lastPageResponse) => lastPageResponse.nextCursor,
+      enabled: userId ? true : false,
+    }
+  )
+
+  console.log("saved posts: ", savedPosts)
 
   const {
     mutate: sendFriendRequest,
     isLoading: sendingRequest,
     isError: errorSendingRequest,
-  } = trpc.profileRouter.sendFriendRequest.useMutation();
+  } = trpc.profileRouter.sendFriendRequest.useMutation()
 
   const {
     mutate: cancelRequest,
     isLoading: cancellingRequest,
     isError: errorCancelling,
-  } = trpc.profileRouter.cancelRequest.useMutation();
+  } = trpc.profileRouter.cancelRequest.useMutation()
 
-  const { ownedNfts } = useNFTMarketplace();
+  const { ownedNfts } = useNFTMarketplace()
 
-  const { ref, inView, entry } = useInView();
+  const { ref, inView, entry } = useInView()
 
   useEffect(() => {
     if (inView && hasNextPage) {
-      fetchNextPage();
+      fetchNextPage()
     }
-  }, [fetchNextPage, inView]);
+  }, [fetchNextPage, inView])
 
   const handleCoverImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (!event.target.files || !event.target.files[0]) {
-      return;
+      return
     }
-    const selectedFile = event.target.files[0];
+    const selectedFile = event.target.files[0]
 
-    const checksum = await computeSHA256(selectedFile);
+    const checksum = await computeSHA256(selectedFile)
 
     const response = await getSignedUrls(
       [selectedFile.type],
       [selectedFile.size],
       [checksum],
       userId
-    );
+    )
 
     if (response) {
-      const [first] = response.signedUrls;
+      const [first] = response.signedUrls
 
       const res = await fetch(first, {
         method: "PUT",
@@ -173,8 +193,8 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
           "Content-Type": selectedFile.type,
         },
         body: selectedFile,
-      });
-      const url = first.split("?")[0];
+      })
+      const url = first.split("?")[0]
       updateCoverImage(
         { imageUrl: url },
         {
@@ -183,42 +203,41 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
               variant: "destructive",
               title: "Uh oh! Something went wrong",
               description: `An internal server error occurred. Please try again later.`,
-            });
+            })
           },
           onSuccess: () => {
             toast({
               title: "Success.",
               description: "Cover image updated successfully.",
-            });
+            })
           },
         }
-      );
+      )
     }
-  };
+  }
 
   //MOVE THIS TO A SEPARATE FILE LATER AND IMPORT FROM THERE "helpers.ts"
   const computeSHA256 = async (file: File) => {
     //do this for media array
-    const buffer = await file.arrayBuffer();
-    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const buffer = await file.arrayBuffer()
+    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
     const hashHex = hashArray
       .map((byte) => byte.toString(16).padStart(2, "0"))
-      .join("");
-    return hashHex;
-  };
-  const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
-  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
-  const coverPhotoInputRef = useRef<HTMLInputElement>(null);
-  const profilePhotoInputRef = useRef<HTMLInputElement>(null);
-
+      .join("")
+    return hashHex
+  }
+  const [coverPhoto, setCoverPhoto] = useState<string | null>(null)
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null)
+  const coverPhotoInputRef = useRef<HTMLInputElement>(null)
+  const profilePhotoInputRef = useRef<HTMLInputElement>(null)
 
   const handleProfilePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const file = event.target.files?.[0]
     if (file) {
-      const fileURL = URL.createObjectURL(file);
-      setProfilePhoto(fileURL);
-      localStorage.setItem("profilePhoto", fileURL);
+      const fileURL = URL.createObjectURL(file)
+      setProfilePhoto(fileURL)
+      localStorage.setItem("profilePhoto", fileURL)
     }
   }
 
@@ -235,8 +254,8 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
   } = trpc.profileRouter.rejectRequest.useMutation()
 
   const triggerFileInput = (inputRef: React.RefObject<HTMLInputElement>) => {
-    inputRef.current?.click();
-  };
+    inputRef.current?.click()
+  }
 
   if (!user) {
     return (
@@ -266,7 +285,7 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
           </div>
         </div>
       </Layoutpage>
-    );
+    )
   }
   const showRequestButton = () => {
     if (requestButtonState.showCancel) {
@@ -287,7 +306,7 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
         >
           {!cancellingRequest ? "Cancel Request" : "loading..."}
         </button>
-      );
+      )
     } else if (requestButtonState.showRespond) {
       return (
         <Dialog>
@@ -374,27 +393,27 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
               { receiverId: userId },
               {
                 onSuccess: () => {
-                  utils.profileRouter.fetchFriendRequests.invalidate();
-                  utils.profileRouter.fetchFriends.invalidate();
+                  utils.profileRouter.fetchFriendRequests.invalidate()
+                  utils.profileRouter.fetchFriends.invalidate()
                 },
                 onError: () => {
                   toast({
                     variant: "destructive",
                     title: "Server Error",
                     description: "An error occurred sending request",
-                  });
+                  })
                 },
               }
-            );
+            )
           }}
         >
           {!sendingRequest ? "Request +" : "loading..."}
         </button>
-      );
+      )
     }
 
-    return null;
-  };
+    return null
+  }
 
   return (
     <Layoutpage>
@@ -484,7 +503,6 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
                 Edit profile
               </button>
             )}
-         
           </div>
         </div>
         <div className="border-t bg-gradient-to-r from-blue-500 to-purple-500  my-4 mt-16 tbb:mt-12 md:mt-16 mdd:mt-10"></div>
@@ -492,7 +510,7 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
       <ProfilePageLinks setActiveLink={setActiveLink} />
       <ProfileDetails activeLink={activeLink} />
     </Layoutpage>
-  );
-};
+  )
+}
 
-export default UserProfilePage;
+export default UserProfilePage

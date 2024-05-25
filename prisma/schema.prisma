@@ -16,6 +16,29 @@ model UserCoverImages {
   @@map("user_cover_images")
 }
 
+model UserStory {
+  id        String   @id @default(uuid()) @db.Uuid
+  mediaType String   @map("media_type") @db.VarChar(20) // e.g., "image", "video"
+  mediaUrl  String   @map("media_url")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  expiresAt DateTime @map("expires_at") @db.Timestamptz()
+  userId    String   @map("user_id") //clerk userId
+
+  storyViews StoryViews[]
+
+  @@map("user_stories")
+}
+
+model StoryViews {
+  storyId String @map("story_id") @db.Uuid
+  userId  String @map("user_id")
+
+  userStory UserStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@id([storyId, userId])
+  @@map("story_views")
+}
+
 enum FriendRequestStatus {
   PENDING
   ACCEPTED
@@ -156,24 +179,25 @@ model CommentLikes {
 }
 
 model Chat {
-  id String @id @default(uuid()) @db.Uuid
+  id    String @id @default(uuid()) @db.Uuid
+  userA String
+  userB String
 
-  message         Message[]
-  chatParticipant ChatParticipant[]
+  message Message[]
 
   @@map("chat")
 }
 
 // read it as ChatParticipant for the sake of semanticness, singular
-model ChatParticipant {
-  id     String @id @default(uuid()) @db.Uuid
-  userId String @map("user_id")
+// model ChatParticipant {
+//   id     String @id @default(uuid()) @db.Uuid
+//   userId String @map("user_id")
 
-  Chat   Chat?   @relation(fields: [chatId], references: [id])
-  chatId String? @map("chat_id") @db.Uuid
+//   Chat   Chat?   @relation(fields: [chatId], references: [id])
+//   chatId String? @map("chat_id") @db.Uuid
 
-  @@map("chat_participants")
-}
+//   @@map("chat_participants")
+// }
 
 model Message {
   id        String   @id @default(uuid()) @db.Uuid
@@ -189,15 +213,15 @@ model Message {
 }
 
 model Event {
-  id          String   @id @default(uuid())
+  id          String  @id @default(uuid())
   name        String
   description String
   location    String?
   date        String
   time        String
-  organizerId String   @map("organizer_id") //clerk user id
+  organizerId String  @map("organizer_id") //clerk user id
 
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
   EventUsers EventUsers[]
   EventMedia EventMedia?

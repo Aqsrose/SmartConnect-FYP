@@ -7,13 +7,17 @@ import { BiArrowBack, BiSearchAlt2 } from "react-icons/bi"
 
 const ContactList = () => {
   const [searchKey, setSearchKey] = useState<string>("")
+  const [openDropDown, setOpenDropDown] = useState(false)
 
   const {
     data: friends,
     refetch,
     isLoading,
     isError,
-  } = trpc.profileRouter.fetchFriendsForChat.useQuery({ key: searchKey })
+  } = trpc.profileRouter.fetchFriendsForChat.useQuery(
+    { key: searchKey },
+    { enabled: searchKey !== "" }
+  )
 
   console.log("value: ", searchKey)
 
@@ -34,7 +38,7 @@ const ContactList = () => {
             <div>
               <BiSearchAlt2 className="text-panel-header-icon cursor-pointer text-l" />
             </div>
-            <div>
+            <div className="relative">
               <input
                 type="text"
                 placeholder="Search Contacts"
@@ -43,7 +47,9 @@ const ContactList = () => {
                 onChange={(e) => {
                   setSearchKey(e.currentTarget.value)
                 }}
+                onInput={() => setOpenDropDown(true)}
               />
+              {openDropDown && <div>This will be the dropdown</div>}
             </div>
           </div>
         </div>

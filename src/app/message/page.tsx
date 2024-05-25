@@ -9,8 +9,7 @@ export default function Home() {
     
    <div className="grid grid-cols-main h-screen w-screen max-h-screen max-w-full overflow-hidden ">
     <ChatList />
-    {/* <Empty/> */}
-    <Chat/>
+    <Empty/>
    </div>
    </>
   );
