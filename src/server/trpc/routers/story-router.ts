@@ -37,18 +37,20 @@ export const storyRouter = router({
       z.object({
         mediaType: z.string(),
         mediaUrl: z.string(),
-        expiresAt: z.date(),
+        expiresAt: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       const { expiresAt, mediaType, mediaUrl } = input
+
+      const expiryDate = new Date(expiresAt)
 
       const story = await ctx.prisma.userStory.create({
         data: {
           userId: ctx.user.id,
           mediaType,
           mediaUrl,
-          expiresAt,
+          expiresAt: expiryDate,
         },
       })
 
