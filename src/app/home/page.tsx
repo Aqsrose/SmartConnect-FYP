@@ -6,7 +6,7 @@ import Post from "@/components/Post"
 import { Loader2 } from "lucide-react"
 import { useInView } from "react-intersection-observer"
 import { cn } from "@/lib/utils"
-
+import CreateStory from "@/components/story/createStory"
 function Home() {
   const {
     data,
@@ -33,21 +33,11 @@ function Home() {
     }, [fetchNextPage, inView])
 
   return (
+    
     <Layoutpage>
       <section id="Home" className="h-full flex flex-col   max-w-full mx-auto w-[240px] sbb:w-[300px] tb:w-[280px] tbbb:w-[350px] tbb:w-[512px] items-center ml-5 sb:ml-8 tb:ml-28 md:ml-[170px] mdd:ml-[150px] mddd:ml-[200px]  lgg:ml-[380px] border border-gray-200">
-          <div className=" pl-2 pt-4 pr-3  md:pt-3">
-            <div className=" w-[220px] sbb:w-[280px] tb:w-[260px] tbbb:w-[330px] tbb:w-[490px] ml-[7px] sb:ml-[10px] sbb:ml-[10px] tb:ml-[10px] tbbb:ml-[10px] tbb:ml-[10px] h-24 pl-3 pt-2 pb-3 rounded-md mb-4 border border-gray-200">
-              <div className="w-16 h-16 bg-white rounded-full overflow-hidden">
-                <img
-                  src="/Images/Ai.jpg"
-                  alt="Profile"
-                  className="w-full h-full object-cover "
-                />
-              </div>
-              <p className="text-gray-500 text-[10px] pl-3 w-16">your story</p>
-            </div>
-          </div>
-          {data?.pages.some((page) => page.posts.length > 0) ? (
+         <CreateStory/>
+         {data?.pages.some((page) => page.posts.length > 0) ? (
       data?.pages.map((response) =>
         response.posts.map((post) => (
                 <div className="">
