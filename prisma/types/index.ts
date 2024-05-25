@@ -6,6 +6,10 @@ export type PostWithRelations = Prisma.PostGetPayload<{
   isLikedByUser?: boolean
 }
 
+export type StoryWithRelations = Prisma.UserStoryGetPayload<{
+  include: {storyViews: true}
+}>
+
 export type ParentCommentsWithReplyCount = Prisma.CommentGetPayload<{
   include: { _count: { select: { replies: true } }; commentLikes: true }
 }> & {

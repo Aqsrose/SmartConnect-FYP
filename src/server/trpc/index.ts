@@ -4,6 +4,7 @@ import { eventRouter } from "./routers/event-router"
 import { groupRouter } from "./routers/group-router"
 import { postRouter } from "./routers/post-router"
 import { profileRouter } from "./routers/profile-router"
+import { storyRouter } from "./routers/story-router"
 import { router } from "./trpc"
 
 //pass sub routes into this main router
@@ -13,7 +14,8 @@ export const appRouter = router({
   profileRouter,
   groupRouter,
   chatRouter,
-  eventRouter
+  eventRouter,
+  storyRouter
 })
 
 //to get typesafety on front end

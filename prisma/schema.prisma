@@ -23,6 +23,7 @@ model UserStory {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
   expiresAt DateTime @map("expires_at") @db.Timestamptz()
   userId    String   @map("user_id") //clerk userId
+  views     Int      @default(0)
 
   storyViews StoryViews[]
 
