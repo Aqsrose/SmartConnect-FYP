@@ -1,9 +1,18 @@
-import React from "react"
+"use client"
+import React, { useState } from "react"
 import Logo from "../landingpage/Logo"
 import { SmallLogo } from "../landingpage/Logo"
 import { Search, Bell, BellDot, Send } from "lucide-react"
 import UserButtonComponent from "../UserButton"
+import { trpc } from "@/server/trpc/client"
+import Link from "next/link"
 function Header() {
+  const { data } = trpc.notificaitonRouter.fetchNotifcations.useQuery()
+  console.log("notifications: ", data)
+
+  const [openNotificationDropdown, setOpenNotificationDropdown] =
+    useState(false)
+
   return (
     <header className="fixed inset-x-0  mx-auto py-3 lg:py-3 px-4 sm:px-6 lg:px-8 bg-white border border-[#f4f2f2] z-50 flex ">
       <div className="w-full">
@@ -31,8 +40,42 @@ function Header() {
         <div className="w-10 h-10 border border-[#ced1d1]  rounded pt-2 pl-2  ">
           <Send className="w-5 text-[#10676B]" />
         </div>
-        <div className="w-10 h-10 border border-[#ced1d1]  rounded pt-2 pl-2  ">
-          <Bell className="w-5 text-[#10676B]" />
+        <div className="w-10 h-10 border border-[#ced1d1]  rounded pt-2 pl-2  relative">
+          <Bell
+            className="w-5 text-[#10676B] cursor-pointer"
+            onClick={() => setOpenNotificationDropdown((prev) => !prev)}
+          />
+          {openNotificationDropdown && (
+            <>
+              {data?.notifications.length !== 0 ? (
+                <div className="absolute bg-white w-[341px] z-50 right-0 top-11 border-black border-solid border shadow-sm p-2 flex flex-col gap-2">
+                  {data?.notifications.map((notification) => (
+                    <Link
+                      href={
+                        notification.notification.type.startsWith("POST")
+                          ? `/post/${notification.notification.entityId}`
+                          : ""
+                      }
+                    >
+                      <div className="flex gap-4 items-center border-b border-[#00000033] p-2 w-full cursor-pointer hover:bg-slate-200 rounded-md">
+                        <img
+                          src={notification.user?.imageUrl}
+                          alt="user img"
+                          className="object-cover rounded-full w-12"
+                        />
+                        <div>
+                          <p>{notification.user?.username}</p>
+                          <p>{notification.notification.content}</p>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="absolute bg-white w-[341px] z-50 right-0 top-11 border-black border-solid border shadow-sm p-2 flex flex-col gap-2">No notifications</div>
+              )}
+            </>
+          )}
         </div>
 
         <div className="mt-[6px]">

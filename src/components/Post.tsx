@@ -188,7 +188,11 @@ const Post = ({
       .map((segment, index) => {
         if (segment.match(regex)) {
           // Using the index as part of the key for simplicity; consider more unique keys for complex scenarios
-          return <strong key={`hashtag-${index}`}>{segment}</strong>
+          return (
+            <strong key={`hashtag-${index}`}>
+              <Link href={`/posts/hashtags?q=${segment}`} className="hover:underline">{segment}</Link>
+            </strong>
+          )
         } else {
           // Similarly, ensure the key is unique
           return <span key={`text-${index}`}>{segment}</span>
@@ -210,7 +214,7 @@ const Post = ({
               <img
                 src={userImageUrl}
                 alt="User Avatar"
-                className="w-8 h-8 rounded-full"
+                className="w-8 h-8 rounded-full object-cover"
               />
               <div className="absolute bg-transparent hover:bg-gray-200 inset-0 rounded-full opacity-20" />
             </Link>

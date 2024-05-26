@@ -281,3 +281,28 @@ model GroupUsers {
   @@id([userId, groupId])
   @@map("group_users")
 }
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  type      NotificationType
+  userId    String           @map("user_id") // The user who will receive the notification
+  senderId  String           @map("sender_id") // The user who triggered the notification
+  entityId  String?          @map("entity_id") // The ID of the related entity (e.g., post, comment, etc.)
+  content   String? // Optional content or message for the notification
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz()
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  FRIEND_REQUEST
+  NEW_MESSAGE
+  POST_LIKE
+  COMMENT_LIKE
+  STORY_VIEW
+  POST_COMMENT
+  COMMENT_REPLY
+  GROUP_INVITE
+  EVENT_REMINDER
+}

@@ -2,6 +2,7 @@ import { chatRouter } from "./routers/chat-router"
 import { commentRouter } from "./routers/comment-router"
 import { eventRouter } from "./routers/event-router"
 import { groupRouter } from "./routers/group-router"
+import { notificaitonRouter } from "./routers/notification-router"
 import { postRouter } from "./routers/post-router"
 import { profileRouter } from "./routers/profile-router"
 import { storyRouter } from "./routers/story-router"
@@ -15,7 +16,8 @@ export const appRouter = router({
   groupRouter,
   chatRouter,
   eventRouter,
-  storyRouter
+  storyRouter,
+  notificaitonRouter
 })
 
 //to get typesafety on front end

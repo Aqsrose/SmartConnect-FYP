@@ -118,6 +118,18 @@ export const profileRouter = router({
         },
       })
 
+      if (receiverId !== ctx.user.id) {
+        const notification = await ctx.prisma.notification.create({
+          data: {
+            type: "FRIEND_REQUEST",
+            userId: receiverId,
+            content: `${ctx.user.username} sent you a friend request`,
+            senderId: ctx.user.id,
+            entityId: null,
+          },
+        })
+      }
+
       return { success: true, request }
     }),
 
@@ -181,6 +193,16 @@ export const profileRouter = router({
         },
       })
 
+      const notification = await ctx.prisma.notification.create({
+        data: {
+          type: "FRIEND_REQUEST",
+          userId: senderId,
+          content: `${ctx.user.username} accepted your friend request`,
+          senderId: receiverId,
+          entityId: null,
+        },
+      })
+
       return { success: true }
     }),
 
@@ -202,6 +224,16 @@ export const profileRouter = router({
         },
         data: {
           status: "DENIED",
+        },
+      })
+
+      const notification = await ctx.prisma.notification.create({
+        data: {
+          type: "FRIEND_REQUEST",
+          userId,
+          content: `${ctx.user.username} rejected your friend request`,
+          senderId: ctx.user.id,
+          entityId: null,
         },
       })
     }),

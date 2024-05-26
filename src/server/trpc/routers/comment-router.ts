@@ -210,7 +210,40 @@ export const commentRouter = router({
             postId: postId,
             parentId: parentCommentId ?? null,
           },
+          include: {
+            post: true,
+          },
         })
+
+        const notification = await ctx.prisma.notification.create({
+          data: {
+            type: "POST_COMMENT",
+            userId: comment.post.userId,
+            content: `${ctx.user.username} commented on your post`,
+            senderId: ctx.user.id,
+            entityId: comment.postId,
+          },
+        })
+
+        if (parentCommentId) {
+          const parentComment = await ctx.prisma.comment.findFirst({
+            where: {
+              id: parentCommentId,
+            },
+          })
+
+          if (parentComment) {
+            const nofitication = await ctx.prisma.notification.create({
+              data: {
+                type: "COMMENT_REPLY",
+                content: `${ctx.user.username} replied to your comment`,
+                entityId: comment.postId,
+                senderId: ctx.user.id,
+                userId: parentComment.userId,
+              },
+            })
+          }
+        }
       } catch (error) {
         console.log("🔴 Prisma Error: ", error)
       }
@@ -324,7 +357,7 @@ export const commentRouter = router({
       }
 
       try {
-        await ctx.prisma.comment.update({
+        const comment = await ctx.prisma.comment.update({
           data: {
             likes: {
               increment: 1,
@@ -337,6 +370,16 @@ export const commentRouter = router({
           },
           where: {
             id: commentId,
+          },
+        })
+
+        const notification = await ctx.prisma.notification.create({
+          data: {
+            type: "COMMENT_LIKE",
+            userId: comment.userId,
+            content: `${ctx.user.username} liked your comment`,
+            senderId: ctx.user.id,
+            entityId: comment.postId,
           },
         })
       } catch (error) {

@@ -408,7 +408,7 @@ export const postRouter = router({
 
       try {
         //maybe make this more secure later by checking if the user has already liked the post
-        await ctx.prisma.post.update({
+        const post = await ctx.prisma.post.update({
           data: {
             likes: {
               increment: 1,
@@ -423,6 +423,21 @@ export const postRouter = router({
             id: postId,
           },
         })
+
+        const user = await clerk.users.getUser(ctx.user.id)
+        const filteredUser = filterUserForClient(user)
+        //because we don't want to insert notificaitons for our own posts
+        if (post.userId !== ctx.user.id) {
+          const notification = await ctx.prisma.notification.create({
+            data: {
+              type: "POST_LIKE",
+              userId: post.userId,
+              content: `${filteredUser.username} liked your post`,
+              entityId: post.id,
+              senderId: ctx.user.id,
+            },
+          })
+        }
       } catch (error) {
         console.log("🔴 Prisma Error: ", error)
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" })
