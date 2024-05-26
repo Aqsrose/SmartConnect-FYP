@@ -6,6 +6,7 @@ import {
   filterUserForClient,
   filterUsersForClient,
 } from "../../helpers/filterUserForClient"
+import { User } from "../../../../prisma/types"
 
 export const profileRouter = router({
   fetchFriendsForChat: privateProcedure
@@ -25,6 +26,10 @@ export const profileRouter = router({
         },
       })
 
+      if (friends.length === 0) {
+        return { sucess: true, message: "NO_FRIENDS" }
+      }
+
       // get all the userIds into a flat array and then take all except the user that's making the request
       const userIds = friends
         .map((friend) => [friend.userId, friend.friendId])
@@ -42,6 +47,35 @@ export const profileRouter = router({
 
       return { success: true, users: filteredUsers }
     }),
+  fetchFriends: privateProcedure.query(async ({ ctx }) => {
+    const user = ctx.user
+
+    const friends = await ctx.prisma.friend.findMany({
+      where: {
+        OR: [{ userId: user.id }, { friendId: user.id }],
+      },
+    })
+
+    console.log("friends: ", friends)
+
+    const userIds = friends
+      .map((friend) => [friend.userId, friend.friendId])
+      .flat()
+      .filter((id) => id !== user.id)
+
+    // this will get users by matching this key with userId, emailAddress, phoneNumber, username, web3Wallet, firstName and lastName
+
+    let friendsWithUserInfo: User[] = []
+    if (friends.length > 0) {
+      const users = await clerk.users.getUserList({
+        userId: userIds,
+      })
+      friendsWithUserInfo = filterUsersForClient(users)
+    }
+
+    // so now, we technically should have the users that we want to return
+    return { success: true, friendsWithUserInfo }
+  }),
   fetchUserInfo: publicProcedure
     .input(
       z.object({
@@ -88,7 +122,7 @@ export const profileRouter = router({
       return { success: true, coverImage }
     }),
 
-  fetchFriends: privateProcedure
+  fetchFriendsForRequest: privateProcedure
     .input(
       z.object({
         userId: z.string(),
@@ -125,7 +159,7 @@ export const profileRouter = router({
             userId: receiverId,
             content: `${ctx.user.username} sent you a friend request`,
             senderId: ctx.user.id,
-            entityId: null,
+            entityId: ctx.user.id, //notification will take the user to the sender's profile
           },
         })
       }
@@ -199,7 +233,7 @@ export const profileRouter = router({
           userId: senderId,
           content: `${ctx.user.username} accepted your friend request`,
           senderId: receiverId,
-          entityId: null,
+          entityId: receiverId, //take user to the profile of who accepted the request
         },
       })
 

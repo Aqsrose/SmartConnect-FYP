@@ -28,7 +28,7 @@ const Link: React.FC<LinkDetailsProps> = ({ activeLink = 'Discussion' , groupId}
         return <GroupDiscussion groupId={groupId}/>
         break;
       case 'Members':
-        return <GroupMembers/>
+        return <GroupMembers groupId={groupId}/>
         break;
       case 'Events':
         return <GroupEvents/>

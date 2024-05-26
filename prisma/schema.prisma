@@ -266,10 +266,41 @@ model Group {
   coverImageUrl String?  @map("cover_image_url")
   isPublic      Boolean
 
-  groupUsers GroupUsers[]
-  posts      Post[]
+  groupUsers        GroupUsers[]
+  posts             Post[]
+  groupJoinRequests GroupJoinRequests[]
 
   @@map("group")
+}
+
+model GroupJoinRequests {
+  userId    String          @map("user_id")
+  groupId   String          @map("group_id")
+  createdAt DateTime        @default(now()) @map("created_at") @db.Timestamptz()
+  isInvite  Boolean         @default(false) // Flag to distinguish between join requests and invitations
+  status    GroupJoinStatus @default(PENDING)
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([userId, groupId])
+  @@map("group_join_requests")
+}
+
+// this table will handle both invites and requets
+// if the user has been invited, we add a row and set status as WAITING
+// update to PENDING, if the user decides to join
+// if the user joins without an invite, the status goes straight to PENDING
+
+
+// isInvite can handle this, but only if we automatically make the user join the group after he accepts the invitation,
+// but we still want to wait for acceptance, because technically non admins can also invite the user to join the group
+enum GroupJoinStatus {
+  WAITING_INVITE_RESPONSE
+  PENDING
+  ACCEPTED
+  REJECTED
+
+  @@map("group_join_status")
 }
 
 model GroupUsers {
@@ -305,4 +336,5 @@ enum NotificationType {
   COMMENT_REPLY
   GROUP_INVITE
   EVENT_REMINDER
+  GROUP_JOIN_REQUEST
 }

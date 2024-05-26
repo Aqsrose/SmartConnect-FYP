@@ -57,7 +57,7 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
   } = trpc.profileRouter.fetchFriendRequests.useQuery()
 
   const { data: friends, isFetched: friendsFetched } =
-    trpc.profileRouter.fetchFriends.useQuery({ userId })
+    trpc.profileRouter.fetchFriendsForRequest.useQuery({ userId })
 
   console.log("friends: ", friends)
 

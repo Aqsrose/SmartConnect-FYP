@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client"
+import { EmailAddress } from "@clerk/clerk-sdk-node";
 
 export type PostWithRelations = Prisma.PostGetPayload<{
   include: { _count: {select: {comments: true, postLikes: true}}; postLikes: true; media: true }
@@ -24,9 +25,11 @@ export type ReplyComments = Prisma.CommentGetPayload<{
 
 export type User = {
   id: string
-  username: string | null
-  imageUrl: string | null
-  emailAddresses: string[]
+  username: string
+  imageUrl: string
+  emailAddresses: EmailAddress[]
+  fullname: string
+  bio: {}
 }
 
 // I will probably do something this, maybe I won't I really don't know REALLY

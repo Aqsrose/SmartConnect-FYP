@@ -1,40 +1,74 @@
-"use client";
-import Layoutpage from "@/components/Navbar/Layout";
-import {  useUser } from "@clerk/nextjs";
-import { trpc } from "@/server/trpc/client";
+"use client"
+import Layoutpage from "@/components/Navbar/Layout"
+import { useUser } from "@clerk/nextjs"
+import { trpc } from "@/server/trpc/client"
 import {
   Camera,
   Info,
+  Loader2,
   Lock,
   MoreHorizontal,
   Plus,
   Repeat,
   Search,
   Share2,
-} from "lucide-react";
-import React, { useRef, useState } from "react";
-import GroupLinks from "@/components/Group/GroupLinks";
-import Link from "@/components/Group/GroupContainers";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "lucide-react"
+import React, { useEffect, useRef, useState } from "react"
+import GroupLinks from "@/components/Group/GroupLinks"
+import Link from "@/components/Group/GroupContainers"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { Skeleton } from "@/components/ui/skeleton"
+import { toast } from "@/components/ui/use-toast"
 
 interface PageProps {
   params: {
-    groupId: string;
-  };
+    groupId: string
+  }
 }
 
 const page = ({ params: { groupId } }: PageProps) => {
-  const { data } = trpc.groupRouter.fetchGroupById.useQuery({ groupId });
-  console.log("foo: ", data);
-  const { user } = useUser();
-  const [activeLink, setActiveLink] = useState<string>("");
-  const [isCopied, setIsCopied] = useState(false);
-  const copyElement = useRef<HTMLInputElement | null>(null);
-  // console.log("group posts: ", groupPosts)
+  const { data } = trpc.groupRouter.fetchGroupById.useQuery({ groupId })
+
+  const utils = trpc.useUtils()
+
+  const { user } = useUser()
+  const [activeLink, setActiveLink] = useState<string>("")
+  const [isCopied, setIsCopied] = useState(false)
+  const copyElement = useRef<HTMLInputElement | null>(null)
+
+  const {
+    data: groupMembers,
+    isLoading,
+    isError,
+  } = trpc.groupRouter.fetchGroupMembers.useQuery({ groupId })
+
+  const isUserAMember =
+    groupMembers &&
+    groupMembers.groupMembersWithUserData.some((member) => {
+      return member.user.id === user?.id
+    })
+
+  const {
+    data: friends,
+    isLoading: fetchingFrieds,
+    isError: errorFetchingFriends,
+  } = trpc.profileRouter.fetchFriends.useQuery()
+
+  const {
+    mutate: inviteToGroup,
+    isLoading: invitingToGroup,
+    isError: inviteError,
+  } = trpc.groupRouter.inviteToGroup.useMutation()
+
+  const {
+    data: groupJoinRequests,
+    isLoading: loadingRequests,
+    isError: errorLoadingRequests,
+  } = trpc.groupRouter.fetchGroupJoinRequests.useQuery({ groupId })
+
   if (!user) {
     return (
       <Layoutpage>
@@ -63,7 +97,7 @@ const page = ({ params: { groupId } }: PageProps) => {
           </div>
         </div>
       </Layoutpage>
-    );
+    )
   }
   return (
     <Layoutpage>
@@ -125,9 +159,72 @@ const page = ({ params: { groupId } }: PageProps) => {
         <div className="mt-3  w-[340px] ">
           <div className="flex tbbb:absolute tbbb:right-0 tbbb:bottom-6 ">
             {" "}
-            <button className="bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500 px-4 py-2 mr-3 text-white rounded transition duration-200 ">
-              + invite
-            </button>
+            {isUserAMember && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500 px-4 py-2 mr-3 text-white rounded transition duration-200 ">
+                    + invite
+                  </button>
+                </DialogTrigger>
+                <DialogContent>
+                  {isLoading ? (
+                    <Loader2 className="animate-spin m-auto" />
+                  ) : friends?.friendsWithUserInfo.length === 0 ? (
+                    <div>you have no friends</div>
+                  ) : (
+                    friends?.friendsWithUserInfo.map((friend) => (
+                      <div
+                        className="flex gap-4 items-center border-b border-[#00000033] p-2 w-full cursor-pointer hover:bg-slate-200 rounded-md"
+                        key={friend.id}
+                      >
+                        <img
+                          src={friend.imageUrl}
+                          alt="user img"
+                          className="object-cover rounded-full w-12 h-12"
+                        />
+                        <p>{friend.username}</p>
+                        {groupJoinRequests &&
+                        groupJoinRequests.joinRequests.some((request) => {
+                          return request.userId === friend.id
+                        }) ? (
+                          <button
+                            className="ml-auto bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500 px-4 py-2 mr-3 text-white rounded transition duration-200"
+                            disabled={true}
+                          >
+                            invited
+                          </button>
+                        ) : (
+                          <button
+                            className="ml-auto bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500 px-4 py-2 mr-3 text-white rounded transition duration-200"
+                            onClick={() =>
+                              inviteToGroup({ groupId, userId: friend.id }, {
+                                onSuccess: ()=>{
+                                  toast({
+                                    variant: "default",
+                                    title: "Invition Sent",
+                                    description: "Your invite has been sent."
+                                  })
+                                  utils.groupRouter.fetchGroupJoinRequests.invalidate()
+                                },
+                                onError: ()=>{
+                                  toast({
+                                    variant: "destructive",
+                                    title: "Invition Failed",
+                                    description: "Your invite could not be sent.",
+                                  })
+                                }
+                              })
+                            }
+                          >
+                            {invitingToGroup ? "loading..." : "+ invite"}
+                          </button>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </DialogContent>
+              </Dialog>
+            )}
             <Dialog>
               <DialogTrigger asChild>
                 <button className="bg-gradient-to-r bg-[#349E8D] hover:from-[#488f84] hover:to-[#349E8D]  text-white px-4 py-2 rounded transition duration-200">
@@ -143,8 +240,8 @@ const page = ({ params: { groupId } }: PageProps) => {
                   </div>
                   <div className="max-w-sm">
                     <div>
-                      <div>Share Post</div>
-                      <div>Share the post with others.</div>
+                      <div>Share Group</div>
+                      <div>Share the group with others.</div>
                     </div>
                     <div>
                       <div className="flex items-center space-x-2">
@@ -163,17 +260,17 @@ const page = ({ params: { groupId } }: PageProps) => {
                           size="sm"
                           onClick={() => {
                             if (copyElement.current) {
-                              const link = copyElement.current.value;
+                              const link = copyElement.current.value
                               if (navigator.clipboard) {
                                 navigator.clipboard.writeText(link).then(() => {
-                                  setIsCopied(true);
-                                  setTimeout(() => setIsCopied(false), 3000);
-                                  return;
-                                });
-                                copyElement.current.select();
-                                document.execCommand("copy");
-                                setIsCopied(true);
-                                setTimeout(() => setIsCopied(false), 3000);
+                                  setIsCopied(true)
+                                  setTimeout(() => setIsCopied(false), 3000)
+                                  return
+                                })
+                                copyElement.current.select()
+                                document.execCommand("copy")
+                                setIsCopied(true)
+                                setTimeout(() => setIsCopied(false), 3000)
                               }
                             }
                           }}
@@ -188,12 +285,25 @@ const page = ({ params: { groupId } }: PageProps) => {
             </Dialog>
           </div>
         </div>
-       
       </div>
-      <GroupLinks setActiveLink={setActiveLink} />
-      <Link activeLink={activeLink} groupId={groupId} />
-    </Layoutpage>
-  );
-};
 
-export default page;
+      {groupMembers && (data?.group?.isPublic || isUserAMember) ? (
+        <>
+          <GroupLinks setActiveLink={setActiveLink} />
+          <Link activeLink={activeLink} groupId={groupId} />{" "}
+        </>
+      ) : isLoading ? (
+        <div className="flex justify-around w-full mt-40 space-x-7  p-3 left-7 top-3 border border-gray-100">
+          <Skeleton className=" bg-gray-200 dark:bg-gray-700   w-20 h-10 rounded " />
+          <Skeleton className=" bg-gray-200 dark:bg-gray-700   w-20 h-10 rounded " />
+          <Skeleton className=" bg-gray-200 dark:bg-gray-700  w-20 h-10 rounded " />
+          <Skeleton className=" bg-gray-200 dark:bg-gray-700   w-20 h-10 rounded " />
+        </div>
+      ) : (
+        <div>Request to join the group to see its posts and discussions</div>
+      )}
+    </Layoutpage>
+  )
+}
+
+export default page

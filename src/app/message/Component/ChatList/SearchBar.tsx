@@ -72,7 +72,7 @@ const SearchBar = () => {
             onBlur={() => setOpenDropDown(false)}
             onFocus={(e) => (e.target.value ? setOpenDropDown(true) : null)}
           />
-          {openDropDown && (
+          {/* {openDropDown && (
             <div className="absolute bg-white w-[341px] z-50 top-8 -left-12 border-black border-solid border shadow-sm p-2 flex gap-2">
               {isLoading ? (
                 <Loader2 className="animate-spin m-auto" />
@@ -93,7 +93,7 @@ const SearchBar = () => {
                 ))
               )}
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>

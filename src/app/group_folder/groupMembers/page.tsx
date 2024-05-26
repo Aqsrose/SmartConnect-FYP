@@ -1,4 +1,14 @@
-function GroupMembers() {
+"use client"
+
+import { trpc } from "@/server/trpc/client"
+
+interface GroupMemberProps {
+  groupId: string
+}
+
+function GroupMembers({ groupId }: GroupMemberProps) {
+
+
   return (
     <div className="absolute top-2 left-4 ">
       <div className="relative  border border-gray-100 rounded-sm h-[120px] tbb:h-[80px] w-[260px] sb:w-[300px] sbb:w-[350px] tb:w-[330px]  tbbb:w-[350px] tbb:w-[500px] md:w-[520px] lgg:w-[400px] lggg:w-[500px]  mb-3 bg-white">
@@ -26,6 +36,6 @@ function GroupMembers() {
         </button>
       </div>
     </div>
-  );
+  )
 }
-export default GroupMembers;
+export default GroupMembers

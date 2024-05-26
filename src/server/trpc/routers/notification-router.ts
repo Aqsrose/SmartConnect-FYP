@@ -45,6 +45,9 @@ export const notificaitonRouter = router({
       where: {
         userId: ctx.user.id,
       },
+      orderBy: {
+        createdAt: "desc"
+      }
     })
 
     const notifications = await addUserDataToNotifications(rawNotifications)
