@@ -85,7 +85,7 @@ export const groupRouter = router({
       })
 
       let rawGroupUsers: GroupUsers[]
-      if (group?.adminId === ctx.user.id) {
+       
         rawGroupUsers = await ctx.prisma.groupUsers.findMany({
           where: {
             groupId,
@@ -120,9 +120,9 @@ export const groupRouter = router({
         })
 
         return { success: true, groupMembersWithUserData }
-      }
+      
 
-      throw new TRPCError({ code: "UNAUTHORIZED" })
+      
     }),
 
   fetchGroups: privateProcedure.query(async ({ ctx }) => {
