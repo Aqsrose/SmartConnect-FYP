@@ -1,6 +1,10 @@
+"use client"
+
+import PostReel from "@/components/PostReel";
+
 function ProfilePostsPage(){
     return(
-        <p>ProfilePostsPage</p>
+        <div className="mt-[44rem]"><PostReel/></div>
     )
 }
 export default ProfilePostsPage;

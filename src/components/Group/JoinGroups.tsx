@@ -170,7 +170,7 @@ function JoinGroup({ id, name, description, isPublic }: GroupProps) {
             userRequest.isInvite ? (
               <button
                 className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-white h-10 w-32 rounded transition duration-200 absolute tbb:right-6 tbb:top-7"
-                onClick={handleJoinGroup}
+                onClick={handleAcceptInvitation}
                 disabled={joining}
               >
                 Accept Invitation

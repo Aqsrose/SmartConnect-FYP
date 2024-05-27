@@ -130,6 +130,11 @@ export const storyRouter = router({
         orderBy: {
           createdAt: "desc",
         },
+        where: {
+          createdAt: {
+            gte: new Date()
+          }
+        },
         include: {
           storyViews: true,
         },

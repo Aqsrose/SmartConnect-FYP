@@ -85,44 +85,40 @@ export const groupRouter = router({
       })
 
       let rawGroupUsers: GroupUsers[]
-      if (group?.adminId === ctx.user.id) {
-        rawGroupUsers = await ctx.prisma.groupUsers.findMany({
-          where: {
-            groupId,
-          },
+      rawGroupUsers = await ctx.prisma.groupUsers.findMany({
+        where: {
+          groupId,
+        },
+      })
+
+      const userIds = rawGroupUsers.map((groupUser) => groupUser.userId)
+
+      // Fetch user details from Clerk
+      const usersList = (
+        await clerk.users.getUserList({
+          userId: userIds,
         })
+      ).map(filterUserForClient)
 
-        const userIds = rawGroupUsers.map((groupUser) => groupUser.userId)
+      // Map user details to the corresponding group members
+      const groupMembersWithUserData = rawGroupUsers.map((groupUser) => {
+        const user = usersList.find((user) => user.id === groupUser.userId)
 
-        // Fetch user details from Clerk
-        const usersList = (
-          await clerk.users.getUserList({
-            userId: userIds,
+        if (!user) {
+          console.error("USER NOT FOUND", groupUser)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `User not found. USER ID: ${groupUser.userId}`,
           })
-        ).map(filterUserForClient)
+        }
 
-        // Map user details to the corresponding group members
-        const groupMembersWithUserData = rawGroupUsers.map((groupUser) => {
-          const user = usersList.find((user) => user.id === groupUser.userId)
+        return {
+          groupUser,
+          user,
+        }
+      })
 
-          if (!user) {
-            console.error("USER NOT FOUND", groupUser)
-            throw new TRPCError({
-              code: "INTERNAL_SERVER_ERROR",
-              message: `User not found. USER ID: ${groupUser.userId}`,
-            })
-          }
-
-          return {
-            groupUser,
-            user,
-          }
-        })
-
-        return { success: true, groupMembersWithUserData }
-      }
-
-      throw new TRPCError({ code: "UNAUTHORIZED" })
+      return { success: true, groupMembersWithUserData }
     }),
 
   fetchGroups: privateProcedure.query(async ({ ctx }) => {
