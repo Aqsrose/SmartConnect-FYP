@@ -1,43 +1,43 @@
-"use client"
-import { trpc } from "@/server/trpc/client"
-import Link from "next/link"
-import { toast } from "../ui/use-toast"
-import { useUser } from "@clerk/nextjs"
+"use client";
+import { trpc } from "@/server/trpc/client";
+import Link from "next/link";
+import { toast } from "../ui/use-toast";
+import { useUser } from "@clerk/nextjs";
 
 type GroupProps = {
-  id: string
-  name: string
-  description: string
-  isPublic: boolean
-}
+  id: string;
+  name: string;
+  description: string;
+  isPublic: boolean;
+};
 
 function JoinGroup({ id, name, description, isPublic }: GroupProps) {
-  const utils = trpc.useUtils()
-  const { user } = useUser()
+  const utils = trpc.useUtils();
+  const { user } = useUser();
 
   const {
     mutate: requestToJoin,
     isLoading: requesting,
     isError: errorRequesting,
-  } = trpc.groupRouter.requestToJoin.useMutation()
+  } = trpc.groupRouter.requestToJoin.useMutation();
 
   const {
     data: userRequestData,
     isLoading: loadingUserRequestData,
     isError: errorFetchingUserRequest,
-  } = trpc.groupRouter.fetchUserJoinRequest.useQuery({ groupId: id })
+  } = trpc.groupRouter.fetchUserJoinRequest.useQuery({ groupId: id });
 
   const {
     mutate: joinGroup,
     isLoading: joining,
     isError: errorJoining,
-  } = trpc.groupRouter.joinGroup.useMutation()
+  } = trpc.groupRouter.joinGroup.useMutation();
 
   const {
     mutate: acceptInvitation,
     isLoading: acceptingInvitation,
     isError: errorAcceptingInvitation,
-  } = trpc.groupRouter.acceptGroupInvitation.useMutation()
+  } = trpc.groupRouter.acceptGroupInvitation.useMutation();
 
   // const {
   //   mutate: cancelRequest,
@@ -55,19 +55,19 @@ function JoinGroup({ id, name, description, isPublic }: GroupProps) {
             title: "Invitation accepted",
             description:
               "Group Invitation has been accepted. Please wait for the admin to accept the request.",
-          })
-          utils.groupRouter.fetchUserJoinRequest.invalidate()
+          });
+          utils.groupRouter.fetchUserJoinRequest.invalidate();
         },
         onError: () => {
           toast({
             variant: "destructive",
             title: "Invitation Acceptance Failed",
             description: "The group invitation could not be accepted.",
-          })
+          });
         },
       }
-    )
-  }
+    );
+  };
 
   const handleJoinGroup = () => {
     joinGroup(
@@ -78,19 +78,19 @@ function JoinGroup({ id, name, description, isPublic }: GroupProps) {
             variant: "default",
             title: "Invitation Sent",
             description: "Your invite has been sent.",
-          })
-          utils.groupRouter.fetchUserJoinRequest.invalidate()
+          });
+          utils.groupRouter.fetchUserJoinRequest.invalidate();
         },
         onError: () => {
           toast({
             variant: "destructive",
             title: "Invitation Failed",
             description: "Your invite could not be sent.",
-          })
+          });
         },
       }
-    )
-  }
+    );
+  };
 
   const handleRequestToJoin = () => {
     requestToJoin(
@@ -102,8 +102,8 @@ function JoinGroup({ id, name, description, isPublic }: GroupProps) {
             title: "Request sent successfully",
             description:
               "Your request has been sent. Please wait for the admin to accept.",
-          })
-          utils.groupRouter.fetchUserJoinRequest.invalidate()
+          });
+          utils.groupRouter.fetchUserJoinRequest.invalidate();
         },
         onError: () => {
           toast({
@@ -111,11 +111,11 @@ function JoinGroup({ id, name, description, isPublic }: GroupProps) {
             title: "Error sending request",
             description:
               "Your request could not be sent. Please try again later.",
-          })
+          });
         },
       }
-    )
-  }
+    );
+  };
 
   const handleCancelRequest = () => {
     // cancelRequest(
@@ -139,9 +139,9 @@ function JoinGroup({ id, name, description, isPublic }: GroupProps) {
     //     },
     //   }
     // )
-  }
+  };
 
-  const userRequest = userRequestData?.joinRequest
+  const userRequest = userRequestData?.joinRequest;
 
   return (
     <div className="relative space-x-4 border border-gray-100 rounded-sm h-[120px] tbb:h-[80px] tbbb:w-[350px] tbb:w-[500px] md:w-[520px] lggg:w-[870px] mb-3 bg-white">
@@ -203,7 +203,7 @@ function JoinGroup({ id, name, description, isPublic }: GroupProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default JoinGroup
+export default JoinGroup;

@@ -5,8 +5,8 @@ import ProfilePostsPage from '@/app/Profile_folder/profile_posts/page'
 import ProfileNFTsPage from "@/app/Profile_folder/profile_NFTs/page";
 import ProfileMediaPage from "@/app/Profile_folder/profile_media/page";
 import ProfileFriendsPage from "@/app/Profile_folder/profile_friends/page";
-
-
+import ProfileAboutPage from "@/app/Profile_folder/profile_about/page";
+import SavedPostPage from "@/app/Profile_folder/saved_posts/page";
 interface LinkDetailsProps {
   activeLink?: string;
   
@@ -36,6 +36,12 @@ const ProfileDetails: React.FC<LinkDetailsProps> = ({ activeLink = 'Posts'}) => 
       case 'Friends':
         return <ProfileFriendsPage/>
         break;
+        case 'Saved':
+          return <SavedPostPage/>
+          break;
+          case 'About':
+            return <ProfileAboutPage/>
+            break;
       default:
         return <ProfilePostsPage/>
         break;

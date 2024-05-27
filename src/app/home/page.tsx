@@ -1,12 +1,12 @@
-"use client"
-import React, { useEffect } from "react"
-import Layoutpage from "@/components/Navbar/Layout"
-import { trpc } from "@/server/trpc/client"
-import Post from "@/components/Post"
-import { Loader2 } from "lucide-react"
-import { useInView } from "react-intersection-observer"
-import { cn } from "@/lib/utils"
-import CreateStory from "@/components/story/createStory"
+"use client";
+import React, { useEffect } from "react";
+import Layoutpage from "@/components/Navbar/Layout";
+import { trpc } from "@/server/trpc/client";
+import Post from "@/components/Post";
+import { Loader2 } from "lucide-react";
+import { useInView } from "react-intersection-observer";
+import { cn } from "@/lib/utils";
+import CreateStory from "@/components/story/createStory";
 
 function Home() {
   const {
@@ -21,22 +21,21 @@ function Home() {
     {
       getNextPageParam: (lastPageResponse) => lastPageResponse.nextCursor,
     }
-  )
+  );
 
-
-  const { ref, inView, entry } = useInView()
+  const { ref, inView, entry } = useInView();
 
   useEffect(() => {
     if (inView && hasNextPage) {
-      fetchNextPage()
+      fetchNextPage();
     }
-  }, [fetchNextPage, inView])
+  }, [fetchNextPage, inView]);
 
   return (
     <Layoutpage>
       <section
         id="Home"
-        className="h-full flex flex-col   max-w-full mx-auto w-[240px] sbb:w-[300px] tb:w-[280px] tbbb:w-[350px] tbb:w-[512px] items-center ml-5 sb:ml-8 tb:ml-28 md:ml-[170px] mdd:ml-[150px] mddd:ml-[200px]  lgg:ml-[380px] border border-gray-200"
+        className="h-full flex flex-col   max-w-full mx-auto w-[240px] sbb:w-[300px] tb:w-[280px] tbbb:w-[350px] tbb:w-[512px] items-center ml-5 sb:ml-8 tb:ml-28 md:ml-[170px] mdd:ml-[150px] mddd:ml-[200px]  lgg:ml-[380px] border border-gray-50"
       >
         <CreateStory />
         {data?.pages.some((page) => page.posts.length > 0) ? (
@@ -92,7 +91,7 @@ function Home() {
         <div className=" md:mt-[-35px] tb:mt-[-35px] lg:mt-[-35px]"></div>
       </section>
     </Layoutpage>
-  )
+  );
 }
 
-export default Home
+export default Home;

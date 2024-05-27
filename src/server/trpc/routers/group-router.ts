@@ -90,6 +90,12 @@ export const groupRouter = router({
           groupId,
         },
       })
+       
+        rawGroupUsers = await ctx.prisma.groupUsers.findMany({
+          where: {
+            groupId,
+          },
+        })
 
       const userIds = rawGroupUsers.map((groupUser) => groupUser.userId)
 
