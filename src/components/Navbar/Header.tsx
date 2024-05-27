@@ -1,29 +1,29 @@
-"use client"
-import React, { useState } from "react"
-import Logo from "../landingpage/Logo"
-import { SmallLogo } from "../landingpage/Logo"
-import { Search, Bell, BellDot, Send } from "lucide-react"
-import UserButtonComponent from "../UserButton"
-import { trpc } from "@/server/trpc/client"
-import Link from "next/link"
-import { formatRelativeTime } from "@/lib/utils"
+"use client";
+import React, { useState } from "react";
+import Logo from "../landingpage/Logo";
+import { SmallLogo } from "../landingpage/Logo";
+import { Search, Bell, BellDot, Send } from "lucide-react";
+import UserButtonComponent from "../UserButton";
+import { trpc } from "@/server/trpc/client";
+import Link from "next/link";
+import { formatRelativeTime } from "@/lib/utils";
 function Header() {
-  const { data } = trpc.notificaitonRouter.fetchNotifcations.useQuery()
-  console.log("notifications: ", data)
+  const { data } = trpc.notificaitonRouter.fetchNotifcations.useQuery();
+  console.log("notifications: ", data);
 
   const [openNotificationDropdown, setOpenNotificationDropdown] =
-    useState(false)
+    useState(false);
 
   const getNotificationDestinationUrl = (
     type: string,
     entityID: string | null
   ) => {
     if (type.startsWith("POST") || type.startsWith("COMMENT")) {
-      return `/post/${entityID}`
+      return `/post/${entityID}`;
     }
     if (type === "FRIEND_REQUEST") {
-      if (entityID) return `/profile/${entityID}`
-      else return ``
+      if (entityID) return `/profile/${entityID}`;
+      else return ``;
     }
 
     // FRIEND_REQUEST
@@ -36,8 +36,8 @@ function Header() {
     // GROUP_INVITE
     // EVENT_REMINDER
 
-    return ""
-  }
+    return "";
+  };
 
   return (
     <header className="fixed inset-x-0  mx-auto py-3 lg:py-3 px-4 sm:px-6 lg:px-8 bg-white border border-[#f4f2f2] z-50 flex ">
@@ -72,7 +72,7 @@ function Header() {
             onClick={() => setOpenNotificationDropdown((prev) => !prev)}
           />
           {openNotificationDropdown && (
-            <div className="absolute bg-white w-[341px] z-50 right-0 top-11 border-black border-solid border shadow-sm p-2 flex flex-col gap-2">
+            <div className="absolute bg-white w-[440px] z-50 right-0 top-11 border-gray-200 rounded border-solid border shadow-sm p-2 flex flex-col gap-2 max-h-96 overflow-y-auto">
               {data && data?.notifications.length > 0
                 ? data?.notifications.map((notification) => (
                     <Link
@@ -81,16 +81,21 @@ function Header() {
                         notification.notification.entityId
                       )}
                     >
-                      <div className="flex gap-4 items-center border-b border-[#00000033] p-2 w-full cursor-pointer hover:bg-slate-200 rounded-md">
+                      <div className="flex gap-4 mb-3 items-center  border-b border-[#00000033] p-3 w-full cursor-pointer hover:bg-slate-200 rounded-md">
                         <img
                           src={notification.user?.imageUrl}
                           alt="user img"
                           className="object-cover rounded-full w-12"
                         />
                         <div>
-                          <p>{notification.user?.username}</p>
-                          <p>{notification.notification.content}</p>
-                          <p>{formatRelativeTime(notification.notification.createdAt)}</p>
+                          <p className="font-semibold text-gray-500">
+                            {notification.notification.content}
+                          </p>
+                          <p className="text-sm text-gray-400">
+                            {formatRelativeTime(
+                              notification.notification.createdAt
+                            )}
+                          </p>
                         </div>
                       </div>
                     </Link>
@@ -107,7 +112,7 @@ function Header() {
 
       {/* <div><BellDot/></div> */}
     </header>
-  )
+  );
 }
 
-export default Header
+export default Header;

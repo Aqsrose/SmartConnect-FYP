@@ -16,12 +16,12 @@ const GroupPageLinks: React.FC<GroupLinksProps> = ({ setActiveLink }) => {
 
   return (
     <section
-      className="flex relative flex-col sm:flex-row justify-between items-center border border-gray-100 tb:ml-[130px] md:ml-[160px] tb:w-[290px] tbbb:w-[370px] tbb:w-[570px] md:w-[540px] mdc:w-[570px] mdd:w-[760px] lg:w-[770px] mddd:w-[570px] lgg:w-[750px] lggg:w-[940px]
+      className="flex relative flex-col sm:flex-row justify-between items-center border border-gray-100 tb:ml-[110px] tbbb:ml-[130px] md:ml-[160px] tb:w-[310px] tbbb:w-[370px] tbb:w-[570px] md:w-[540px] mdc:w-[570px] mdd:w-[760px] lg:w-[770px] mddd:w-[570px] lgg:w-[750px] lggg:w-[940px]
     shadow-sm bg-white px-4 py-2"
     >
       <nav>
-        <ul className="flex justify-around w-full text-sm space-x-2 sb:space-x-3 sbb:space-x-4 tb:space-x-2 tbbb:space-x-4 tbb:space-x-10 md:space-x-7 lggg:space-x-16  p-3 left-7 top-3 ">
-          {["Discussion", "Events", "Members", "Media"].map((link) => (
+        <ul className="flex justify-around w-full text-sm space-x-1 sbb:space-x-2  tb:space-x-0 tbbb:space-x-4 tbb:space-x-6 md:space-x-4 lggg:space-x-7  p-3 left-7 top-3 ">
+          {["Discussion", "Events", "Members", "Media","Requests"].map((link) => (
             <li key={link}>
               <div
                 className={`${linkClass} ${

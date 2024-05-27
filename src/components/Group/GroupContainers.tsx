@@ -5,7 +5,7 @@ import GroupDiscussion from "@/app/group_folder/groupDiscussion/page";
 import GroupMembers from "@/app/group_folder/groupMembers/page";
 import GroupEvents from "@/app/group_folder/groupEvents/page";
 import GroupMedia from "@/app/group_folder/groupMedia/page";
-
+import GroupRequestsPage from "@/app/groups/groupRequests/page";
 
 interface LinkDetailsProps {
   activeLink?: string;
@@ -31,11 +31,14 @@ const Link: React.FC<LinkDetailsProps> = ({ activeLink = 'Discussion' , groupId}
         return <GroupMembers groupId={groupId}/>
         break;
       case 'Events':
-        return <GroupEvents/>
+        return <GroupEvents />
         break;
       case 'Media':
         return <GroupMedia groupId={groupId}/>
         break;
+        case 'Requests':
+          return <GroupRequestsPage groupId={groupId}/>
+          break;
       default:
         return <GroupDiscussion groupId={groupId}/>
         break;
