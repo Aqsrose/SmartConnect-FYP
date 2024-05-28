@@ -7,6 +7,9 @@ import ProfileMediaPage from "@/app/Profile_folder/profile_media/page";
 import ProfileFriendsPage from "@/app/Profile_folder/profile_friends/page";
 import ProfileAboutPage from "@/app/Profile_folder/profile_about/page";
 import SavedPostPage from "@/app/Profile_folder/saved_posts/page";
+import EditBioModal from "@/components/Profile/editBioModal";
+import Modal from "../Modal";
+
 interface LinkDetailsProps {
   activeLink?: string;
   userId: string
@@ -15,6 +18,15 @@ interface LinkDetailsProps {
 const ProfileDetails: React.FC<LinkDetailsProps> = ({ activeLink = 'Posts', userId}) => {
   const [currentLink, setCurrentLink] = useState<string>(activeLink);
   const [Component, setComponent] = useState<React.FC | null>(null);
+  const [showEditBioModal, setShowEditBioModal] = useState(false);
+
+  const handleOpenEditBioModal = () => {
+    setShowEditBioModal(true);
+  };
+
+  const handleCloseEditBioModal = () => {
+    setShowEditBioModal(false);
+  };
 
   useEffect(() => {
     if (activeLink) {
@@ -78,6 +90,7 @@ const ProfileDetails: React.FC<LinkDetailsProps> = ({ activeLink = 'Posts', user
         
         <div className='ml-9 mt-8'>
           <button
+             onClick={handleOpenEditBioModal}
             className="bg-gradient-to-r flex from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-white px-14 lggg:px-24 py-2 rounded transition duration-200"
           >
             Edit Bio <Pencil className="w-5 ml-1"/>
@@ -85,7 +98,9 @@ const ProfileDetails: React.FC<LinkDetailsProps> = ({ activeLink = 'Posts', user
         </div>
       </div>
       </div>
-      
+      <Modal isOpen={showEditBioModal} close={handleCloseEditBioModal}>
+        <EditBioModal close={handleCloseEditBioModal} />
+      </Modal>
       
     </section>
   );

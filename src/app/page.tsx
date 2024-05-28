@@ -1,10 +1,10 @@
-"use client"
-import GetStarted from "@/components/GetStarted"
-import Landingpage_nav from "@/components/LandingPageNav"
-import AboutSection from "@/components/landingpage/AboutSection"
-import FeaturesSection from "@/components/landingpage/FeaturesSection"
-import HomeSection from "@/components/landingpage/HomeSection"
-import { UserButton } from "@clerk/nextjs"
+"use client";
+import GetStarted from "@/components/landingpage/GetStarted";
+import Landingpage_nav from "@/components/landingpage/Landingpage_nav";
+import AboutSection from "@/components/landingpage/AboutSection";
+import FeaturesSection from "@/components/landingpage/FeaturesSection";
+import HomeSection from "@/components/landingpage/HomeSection";
+import { UserButton } from "@clerk/nextjs";
 
 export default function Home() {
   return (
@@ -23,5 +23,5 @@ export default function Home() {
         <AboutSection />
       </div>
     </section>
-  )
+  );
 }

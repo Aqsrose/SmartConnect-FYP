@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Logo from "./Logo";
 import { SmallLogo } from "./Logo";
 import Link from "next/link";
-
+import { useUser } from "@clerk/nextjs";
 
 type LandingPageNavProps = {};
 
@@ -35,6 +35,8 @@ function smoothScroll(target: string, duration: number): void {
 }
 
 const Landingpage_nav: React.FC<LandingPageNavProps> = (props) => {
+  const { isSignedIn } = useUser();
+
   const [header, setHeader] = useState<boolean>(false);
 
   const scrollHeader = (): void => {
@@ -66,15 +68,19 @@ const Landingpage_nav: React.FC<LandingPageNavProps> = (props) => {
         }
       >
         <nav className="pt-5 mt-0 flex justify-between w-[100%] mx-auto rounded-xl ">
-          <Link href="#GetStarted" scroll={true}>
-            <a className="hidden tb:block md:block xl:block">
-              <Logo />
-            </a>
+          <Link
+            href="#GetStarted"
+            scroll={true}
+            className="hidden tb:block md:block xl:block"
+          >
+            <Logo />
           </Link>
-          <Link href="#GetStarted" scroll={true}>
-            <a className="w-14 h-14 tb:hidden md:hidden xl:hidden tbb:hidden">
-              <SmallLogo />
-            </a>
+          <Link
+            href="#GetStarted"
+            scroll={true}
+            className="w-14 h-14 tb:hidden md:hidden xl:hidden tbb:hidden"
+          >
+            <SmallLogo />
           </Link>
           <div className="md:block">
             <ul className="text-[12px] tb:text-[14px] tbb:text-[16px] tb:space-x-2 tbb:space-x-4 mt-4 tb:mt-5 flex mr-40 sb:mr-2 md:text-lg md:space-x-6 lg:space-x-8 xl:space-x-10 md:mr-30 mdd:mr-4">
@@ -100,17 +106,27 @@ const Landingpage_nav: React.FC<LandingPageNavProps> = (props) => {
                 About us
               </li>
               <p className=" md:hidden xl:hidden tbb:hidden">|</p>
-              <Link href="/sign-in">
-                <a className="cursor-pointer hover:text-[#85b3b6] rounded-xl hover:scale-110 duration-300 mr-2 tb:mr-2">
+              {!isSignedIn ? (
+                <Link
+                  href="/sign-in"
+                  className="cursor-pointer hover:text-[#85b3b6] rounded-xl hover:scale-110 duration-300 mr-2 tb:mr-2"
+                >
                   Sign In
-                </a>
-              </Link>
+                </Link>
+              ) : (
+                <Link
+                  href="/explore"
+                  className="cursor-pointer hover:text-[#85b3b6] rounded-xl hover:scale-110 duration-300 mr-2 tb:mr-2"
+                >
+                  Explore
+                </Link>
+              )}
             </ul>
           </div>
         </nav>
       </div>
     </header>
   );
-}
+};
 
 export default Landingpage_nav;

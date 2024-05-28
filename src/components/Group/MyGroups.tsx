@@ -1,7 +1,6 @@
 "use client"
 import { trpc } from '@/server/trpc/client';
-import { Edit2 } from 'lucide-react';
-import Link from "next/link"
+import { LucideUnlock, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 type GroupProps = {
@@ -28,7 +27,7 @@ function MyGroups() {
                         </button>
                         <div className="absolute top-2 right-2 flex space-x-2">
                             <button className="text-purple-500 hover:text-blue-700">
-                                <Edit2 />
+                                {group.isPublic ? <LucideUnlock />: <Lock />}
                             </button>
                         </div>
                     </div>
