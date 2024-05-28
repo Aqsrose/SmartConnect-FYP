@@ -9,8 +9,8 @@ function NftCards() {
   console.log("Owned nfts: ", allNfts)
 
   return (
-    <div className="container mx-auto px-2 tb:ml-24 tb:mr-60 pr-24 pl-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mdd: gap-[2.25rem] justify-items-center ">
+    <div className="container ml-10 tb:ml-24 tbb:ml-20 lg:ml-32  lg:w-[900px] mddd:ml-40 mddd:w-[670px] lgg:w-[850px] lggg:w-[1050px] px-2  tb:mr-60 pr-24 pl-8">
+      <div className="grid grid-cols-1 tbb:grid-cols-2 lggg:grid-cols-3 justify-items-center ">
         {allNfts?.map((nft) => (
           <NFTCard nft={nft} />
         ))}
