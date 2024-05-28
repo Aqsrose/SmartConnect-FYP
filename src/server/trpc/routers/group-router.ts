@@ -78,12 +78,6 @@ export const groupRouter = router({
     .query(async ({ input, ctx }) => {
       const { groupId } = input
 
-      const group = await ctx.prisma.group.findFirst({
-        where: {
-          id: groupId,
-        },
-      })
-
       let rawGroupUsers: GroupUsers[]
       rawGroupUsers = await ctx.prisma.groupUsers.findMany({
         where: {
@@ -544,23 +538,23 @@ export const groupRouter = router({
         groupId: z.string(),
       })
     )
-    .query(async ({ctx, input}) => {
-
-      const {groupId} = input
+    .query(async ({ ctx, input }) => {
+      const { groupId } = input
 
       const media = await ctx.prisma.post.findMany({
         where: {
-          groupId
+          groupId,
         },
         select: {
           media: {
             include: {
               moderation: true,
-              labels: true
-            }
+              labels: true,
+            },
           },
-          id: true
-        }
+          id: true,
+        },
       })
+      return { success: true, media }
     }),
 })

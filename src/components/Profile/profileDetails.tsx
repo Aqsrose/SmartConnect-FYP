@@ -43,7 +43,7 @@ const ProfileDetails: React.FC<LinkDetailsProps> = ({ activeLink = 'Posts', user
         return <ProfileNFTsPage/>
         break;
       case 'Media':
-        return <ProfileMediaPage/>
+        return <ProfileMediaPage userId={userId}/>
         break;
       case 'Friends':
         return <ProfileFriendsPage userId={userId}/>

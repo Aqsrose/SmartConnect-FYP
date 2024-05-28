@@ -54,24 +54,23 @@ export const profileRouter = router({
         userId: z.string(),
       })
     )
-    .query(async ({ctx, input}) => {
-
-      const {userId} = input
+    .query(async ({ ctx, input }) => {
+      const { userId } = input
 
       const media = await ctx.prisma.media.findMany({
         where: {
           userId,
         },
         orderBy: {
-          createdAt: "desc"
+          createdAt: "desc",
         },
         include: {
           labels: true,
-          moderation: true
-        }
+          moderation: true,
+        },
       })
 
-      return {success: true, media}
+      return { success: true, media }
     }),
 
   searchUsers: privateProcedure
@@ -143,6 +142,32 @@ export const profileRouter = router({
     // so now, we technically should have the users that we want to return
     return { success: true, friendsWithUserInfo }
   }),
+
+  fetchNonFriends: privateProcedure.query(async ({ ctx }) => {
+    const user = ctx.user
+
+    const friends = await ctx.prisma.friend.findMany({
+      where: {
+        OR: [{ userId: user.id }, { friendId: user.id }],
+      },
+    })
+
+    const friendIds = friends
+      .map((friend) => [friend.userId, friend.friendId])
+      .flat()
+      .filter((id) => id !== user.id)
+
+    const allUsers = await clerk.users.getUserList()
+
+    const nonFriends = allUsers.filter(
+      (u) => u.id !== user.id && !friendIds.includes(u.id)
+    )
+
+    const nonFriendsForClient = filterUsersForClient(nonFriends)
+
+    return { success: true, nonFriends: nonFriendsForClient }
+  }),
+
   fetchUserInfo: privateProcedure
     .input(
       z.object({

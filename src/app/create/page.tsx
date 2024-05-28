@@ -12,7 +12,6 @@ import { useToast } from "@/components/ui/use-toast"
 import Layoutpage from "@/components/Navbar/Layout"
 import Link from "next/link"
 
-
 const CreatePost = () => {
   const { toast } = useToast()
   const utils = trpc.useUtils()
@@ -166,22 +165,21 @@ const CreatePost = () => {
   }
 
   return (
-
     <Layoutpage>
-     <div className="flex flex-col  relative items-center justify-center mt-0 pl-5 pr-5 md:pl-[200px] md:pr-[200px] tb:pl-32 tbb:pl-[300px] tbb:pr-[250px]">
-     <div className="absolute top-0 tbbb:right-[300px]">
-      <Link href="/createads">
-        <button
-              className=" hover:from-[#6F8AE1] hover:to-[#4D3BE6] px-4 py-2  text-white rounded transition duration-200 "style={{ backgroundImage: 'linear-gradient(to right, #4D3BE6, #6F8AE1)' }}
-              >
-              {loading || isLoading ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                "Ad Center"
-              )}
-            </button></Link>
+      <div className="flex flex-col  relative items-center justify-center mt-0 pl-5 pr-5 md:pl-[200px] md:pr-[200px] tb:pl-32 tbb:pl-[300px] tbb:pr-[250px]">
+        <div className="absolute top-0 tbbb:right-[300px]">
+          <Link href="/createads">
+            <button
+              className=" hover:from-[#6F8AE1] hover:to-[#4D3BE6] px-4 py-2  text-white rounded transition duration-200 "
+              style={{
+                backgroundImage: "linear-gradient(to right, #4D3BE6, #6F8AE1)",
+              }}
+            >
+              Ad Center
+            </button>
+          </Link>
         </div>
-     <div className="mt-14 w-[270px] sbb:w-[300px] tb:w-[300px] tbb:w-[400px] md:w-[500px] mdd:-ml-32 lg:w-[500px] lgg:lg:w-[600px] max-w-2xl bg-white rounded-lg shadow p-4">
+        <div className="mt-14 w-[270px] sbb:w-[300px] tb:w-[300px] tbb:w-[400px] md:w-[500px] mdd:-ml-32 lg:w-[500px] lgg:lg:w-[600px] max-w-2xl bg-white rounded-lg shadow p-4">
           <Textarea
             className="w-full border rounded-lg p-4 h-16 resize-none mt-3"
             placeholder="Share your thoughts..."
@@ -246,8 +244,9 @@ const CreatePost = () => {
               title="Add media"
               className="cursor-pointer hover:cursor-pointer"
             >
-                <div className="flex justify-between items-center mt-4">
-              <ImagePlus className="text-green-500 cursor-pointer"/></div>
+              <div className="flex justify-between items-center mt-4">
+                <ImagePlus className="text-green-500 cursor-pointer" />
+              </div>
               <input
                 id="mediaInput"
                 type="file"
@@ -264,7 +263,7 @@ const CreatePost = () => {
                 loading || isLoading || (!caption && selectedFiles.length === 0)
               }
               className="bg-gradient-to-r  bg-[#349E8D] hover:from-[#2EC7AB] hover:to-[#349E8D] px-4 py-2  text-white rounded transition duration-200 mr-2"
-              >
+            >
               {loading || isLoading ? (
                 <Loader2 className="animate-spin" />
               ) : (
@@ -273,7 +272,6 @@ const CreatePost = () => {
             </button>
           </div>
         </div>
-       
       </div>
     </Layoutpage>
   )

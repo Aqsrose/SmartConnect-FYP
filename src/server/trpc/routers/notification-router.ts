@@ -55,12 +55,23 @@ export const notificaitonRouter = router({
         userId: ctx.user.id,
       },
       orderBy: {
-        createdAt: "desc"
-      }
+        createdAt: "desc",
+      },
     })
 
     const notifications = await addUserDataToNotifications(rawNotifications)
 
     return { success: true, notifications }
+  }),
+
+  markAsRead: privateProcedure.mutation(async ({ ctx }) => {
+    await ctx.prisma.notification.updateMany({
+      where: {
+        userId: ctx.user.id,
+      },
+      data: {
+        isRead: true,
+      },
+    })
   }),
 })

@@ -6,13 +6,14 @@ import { Search, Bell, BellDot, Send, Loader2, AlertCircle } from "lucide-react"
 import UserButtonComponent from "../UserButton"
 import { trpc } from "@/server/trpc/client"
 import Link from "next/link"
-import { formatRelativeTime } from "@/lib/utils"
+import { cn, formatRelativeTime } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 
 function Header() {
   const [openDropDown, setOpenDropDown] = useState(false)
   const [searchKey, setSearchKey] = useState<string>("")
   const router = useRouter()
+  const utils = trpc.useUtils()
 
   const { data } = trpc.notificaitonRouter.fetchNotifcations.useQuery()
 
@@ -50,7 +51,12 @@ function Header() {
     isError: errorLoadingUsers,
   } = trpc.profileRouter.searchUsers.useQuery({ key: searchKey })
 
-  console.log("searched users: ", users)
+  const unreadCount = data?.notifications.reduce((count, item) => {
+    return item.notification.isRead ? count : count + 1
+  }, 0) ?? 0
+
+  const { mutate: markAsRead } =
+    trpc.notificaitonRouter.markAsRead.useMutation()
 
   return (
     <header className="fixed inset-x-0  mx-auto py-3 lg:py-3 px-4 sm:px-6 lg:px-8 bg-white border border-[#f4f2f2] z-50 flex ">
@@ -106,11 +112,23 @@ function Header() {
         <div className="w-10 h-10 border border-[#ced1d1]  rounded pt-2 pl-2  ">
           <Send className="w-5 text-[#10676B]" />
         </div>
-        <div className="w-10 h-10 border border-[#ced1d1]  rounded pt-2 pl-2  relative">
+        <div className="w-10 h-10 border border-[#ced1d1]  rounded pt-2 pl-2 relative">
           <Bell
             className="w-5 text-[#10676B] cursor-pointer"
-            onClick={() => setOpenNotificationDropdown((prev) => !prev)}
+            onClick={() => {
+              setOpenNotificationDropdown((prev) => !prev)
+              markAsRead(undefined, {
+                onSuccess: () => {
+                  utils.notificaitonRouter.fetchNotifcations.invalidate()
+                },
+              })
+            }}
           />
+          {unreadCount > 0 && (
+            <span className="absolute top-[1px] left-[1px] font-bold text-[10px] w-4 h-4 pt-[1px] bg-red-600 rounded-full justify-center items-center text-white flex">
+              {unreadCount}
+            </span>
+          )}
           {openNotificationDropdown && (
             <div className="absolute bg-white w-[440px] z-50 right-0 top-11 border-gray-200 rounded border-solid border shadow-sm p-2 flex flex-col gap-2 max-h-96 overflow-y-auto">
               {data && data?.notifications.length > 0
