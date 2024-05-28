@@ -6,6 +6,256 @@ import clerk from "@clerk/clerk-sdk-node"
 import { PostWithRelations } from "../../../../prisma/types"
 import { filterUserForClient } from "../../../server/helpers/filterUserForClient"
 import { observable } from "@trpc/server/observable"
+import {
+  DetectLabelsCommand,
+  RekognitionClient,
+  DetectModerationLabelsCommand,
+  StartContentModerationCommand,
+  GetContentModerationCommand,
+  StartLabelDetectionCommand,
+  GetLabelDetectionCommand,
+} from "@aws-sdk/client-rekognition"
+import type { PrismaClient } from "@prisma/client"
+
+const getFileNameFromUrl = (url: string) => {
+  const parts = url.split("/")
+  return parts[parts.length - 1]
+}
+
+const getLabels = async (prisma: PrismaClient, postId: string) => {
+  console.log("region: ", process.env.AWS_BUCKET_REGION)
+  console.log("bucket name: ", process.env.AWS_BUCKET_NAME)
+
+  try {
+    const client = new RekognitionClient({
+      region: process.env.AWS_BUCKET_REGION,
+      credentials: {
+        accessKeyId: process.env.AWS_BUCKET_ACCESS_KEY!,
+        secretAccessKey: process.env.AWS_BUCKET_SECRET_ACCESS_KEY!,
+      },
+    })
+
+    const mediaItems = await prisma.media.findMany({
+      where: { postId },
+      select: { id: true, url: true, type: true },
+    })
+
+    for (const media of mediaItems) {
+      if (media.type === "image") {
+        // Image Label Detection
+        const detectionParams = {
+          Image: {
+            S3Object: {
+              Bucket: process.env.AWS_BUCKET_NAME,
+              Name: getFileNameFromUrl(media.url),
+            },
+          },
+          MaxLabels: 10,
+          MinConfidence: 75,
+        }
+
+        const detectLabelsCommand = new DetectLabelsCommand(detectionParams)
+        const response = await client.send(detectLabelsCommand)
+
+        if (response.Labels) {
+          await prisma.mediaLabels.createMany({
+            data: response.Labels.map((label) => ({
+              label: label.Name ?? "",
+              confidence: label.Confidence ?? 0,
+              mediaId: media.id,
+            })),
+          })
+
+          console.log("labels for media id", media.id, ":", response.Labels)
+        }
+      } else if (media.type === "video") {
+        // Video Label Detection
+        const startLabelDetectionParams = {
+          Video: {
+            S3Object: {
+              Bucket: process.env.AWS_BUCKET_NAME,
+              Name: getFileNameFromUrl(media.url),
+            },
+          },
+          MinConfidence: 75,
+        }
+
+        const startLabelDetectionCommand = new StartLabelDetectionCommand(
+          startLabelDetectionParams
+        )
+        const startResponse = await client.send(startLabelDetectionCommand)
+
+        if (startResponse.JobId) {
+          let labelDetectionComplete = false
+          let response
+
+          while (!labelDetectionComplete) {
+            const getLabelDetectionCommand = new GetLabelDetectionCommand({
+              JobId: startResponse.JobId,
+            })
+            response = await client.send(getLabelDetectionCommand)
+
+            if (response.JobStatus === "SUCCEEDED") {
+              labelDetectionComplete = true
+            } else if (response.JobStatus === "FAILED") {
+              throw new Error("Video label detection job failed.")
+            } else {
+              // Wait before polling again
+              await new Promise((resolve) => setTimeout(resolve, 5000))
+            }
+          }
+
+          if (response && response.Labels) {
+            // Process only up to 10 labels
+            const limitedLabels = response.Labels.slice(0, 10)
+
+            await prisma.mediaLabels.createMany({
+              data: limitedLabels.map((label) => ({
+                label: label.Label?.Name ?? "",
+                confidence: label.Label?.Confidence ?? 0,
+                mediaId: media.id,
+              })),
+            })
+
+            console.log("labels for media id", media.id, ":", limitedLabels)
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.log("error: ", error)
+  }
+}
+
+const getModerationLabels = async (prisma: PrismaClient, postId: string) => {
+  console.log("region: ", process.env.AWS_BUCKET_REGION)
+  console.log("bucket name: ", process.env.AWS_BUCKET_NAME)
+
+  try {
+    const client = new RekognitionClient({
+      region: process.env.AWS_BUCKET_REGION,
+      credentials: {
+        accessKeyId: process.env.AWS_BUCKET_ACCESS_KEY!,
+        secretAccessKey: process.env.AWS_BUCKET_SECRET_ACCESS_KEY!,
+      },
+    })
+
+    const mediaItems = await prisma.media.findMany({
+      where: { postId },
+    })
+
+    for (const media of mediaItems) {
+      if (media.type === "image") {
+        // Image Moderation
+        const detectionParams = {
+          Image: {
+            S3Object: {
+              Bucket: process.env.AWS_BUCKET_NAME,
+              Name: getFileNameFromUrl(media.url),
+            },
+          },
+          MinConfidence: 75,
+        }
+
+        const detectModerationLabelsCommand = new DetectModerationLabelsCommand(
+          detectionParams
+        )
+        const response = await client.send(detectModerationLabelsCommand)
+
+        if (response.ModerationLabels) {
+          await prisma.mediaModeration.createMany({
+            data: response.ModerationLabels.map((label) => ({
+              confidence: label.Confidence ?? 0,
+              moderationLabel: label.Name ?? "",
+              mediaId: media.id,
+            })),
+          })
+
+          const labelsString = response.ModerationLabels.map(
+            (label) => label.Name
+          ).join(", ")
+          const notificationContent = `Your post has been flagged for the following reasons: ${labelsString}`
+
+          await prisma.notification.create({
+            data: {
+              type: "POST_FLAGGED",
+              userId: media.userId,
+              content: notificationContent,
+              entityId: media.postId,
+              senderId: "system",
+            },
+          })
+        }
+      } else if (media.type === "video") {
+        // Video Moderation
+        const startModerationParams = {
+          Video: {
+            S3Object: {
+              Bucket: process.env.AWS_BUCKET_NAME,
+              Name: getFileNameFromUrl(media.url),
+            },
+          },
+          MinConfidence: 75,
+        }
+
+        const startContentModerationCommand = new StartContentModerationCommand(
+          startModerationParams
+        )
+        const startResponse = await client.send(startContentModerationCommand)
+
+        if (startResponse.JobId) {
+          let moderationComplete = false
+          let response
+
+          while (!moderationComplete) {
+            const getContentModerationCommand = new GetContentModerationCommand(
+              {
+                JobId: startResponse.JobId,
+              }
+            )
+            response = await client.send(getContentModerationCommand)
+
+            if (response.JobStatus === "SUCCEEDED") {
+              moderationComplete = true
+            } else if (response.JobStatus === "FAILED") {
+              throw new Error("Video moderation job failed.")
+            } else {
+              // Wait before polling again
+              await new Promise((resolve) => setTimeout(resolve, 5000))
+            }
+          }
+
+          if (response && response.ModerationLabels) {
+            await prisma.mediaModeration.createMany({
+              data: response.ModerationLabels.splice(0, 10).map((label) => ({
+                confidence: label.ModerationLabel?.Confidence ?? 0,
+                moderationLabel: label.ModerationLabel?.Name ?? "",
+                mediaId: media.id,
+              })),
+            })
+
+            const labelsString = response.ModerationLabels.splice(0, 10)
+              .map((label) => label.ModerationLabel?.Name)
+              .join(", ")
+            const notificationContent = `Your post has been flagged for the following reasons: ${labelsString}`
+
+            await prisma.notification.create({
+              data: {
+                type: "POST_FLAGGED",
+                userId: media.userId,
+                content: notificationContent,
+                entityId: media.postId,
+                senderId: "system",
+              },
+            })
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.log("error: ", error)
+  }
+}
 
 export const addUserDataToPosts = async (posts: PostWithRelations[]) => {
   const userIds = posts.map((post) => post.userId)
@@ -102,7 +352,12 @@ export const postRouter = router({
               },
             },
             postLikes: true,
-            media: true,
+            media: {
+              include: {
+                labels: true,
+                moderation: true,
+              },
+            },
           },
         })
       } catch (error) {
@@ -183,7 +438,12 @@ export const postRouter = router({
               },
             },
             postLikes: true,
-            media: true,
+            media: {
+              include: {
+                moderation: true,
+                labels: true,
+              },
+            },
           },
         })
       } catch (error) {
@@ -238,7 +498,12 @@ export const postRouter = router({
             },
           },
           postLikes: true,
-          media: true,
+          media: {
+            include: {
+              moderation: true,
+              labels: true,
+            },
+          },
         },
       })
 
@@ -286,7 +551,12 @@ export const postRouter = router({
               },
             },
             postLikes: true,
-            media: true,
+            media: {
+              include: {
+                moderation: true,
+                labels: true,
+              },
+            },
           },
         })
       } catch (error) {
@@ -353,6 +623,15 @@ export const postRouter = router({
             },
           },
         })
+
+        console.log("created post: ", post) //this post doesn't include relations by default
+        // so we will need to fetch it again
+
+        await getLabels(ctx.prisma, post.id)
+        await getModerationLabels(ctx.prisma, post.id)
+
+        // await storeLabels(media.id, labels)
+        // await storeModerationLabels(media.id, moderationLabels)
       } catch (error) {
         console.log("🔴 Prisma Error: ", error)
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" })
@@ -442,6 +721,7 @@ export const postRouter = router({
         console.log("🔴 Prisma Error: ", error)
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" })
       }
+
       return { success: true }
     }),
   unlikePost: privateProcedure
@@ -546,7 +826,12 @@ export const postRouter = router({
                 },
               },
               postLikes: true,
-              media: true,
+              media: {
+                include: {
+                  moderation: true,
+                  labels: true,
+                },
+              },
             },
           },
         },

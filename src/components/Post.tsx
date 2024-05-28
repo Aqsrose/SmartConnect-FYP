@@ -1,6 +1,14 @@
 "use client"
 import { cn, formatRelativeTime } from "@/lib/utils"
-import { Bookmark, Heart, Repeat, Trash2, Users,MoreVertical,MessageCircle} from "lucide-react"
+import {
+  Bookmark,
+  Heart,
+  Repeat,
+  Trash2,
+  Users,
+  MoreVertical,
+  MessageCircle,
+} from "lucide-react"
 import React, { useEffect, useRef, useState } from "react"
 import {
   Carousel,
@@ -36,6 +44,22 @@ import Link from "next/link"
 
 type MediaWithStringDate = Omit<Media, "createdAt"> & {
   createdAt: string // Modified type
+  moderation:
+    | {
+        moderationLabel: string
+        confidence: number
+        id: string
+        mediaId: string
+      }[]
+    | undefined
+  labels:
+    | {
+        label: string
+        confidence: number
+        id: string
+        mediaId: string
+      }[]
+    | undefined
 }
 
 interface PostProps {
@@ -190,7 +214,12 @@ const Post = ({
           // Using the index as part of the key for simplicity; consider more unique keys for complex scenarios
           return (
             <strong key={`hashtag-${index}`}>
-              <Link href={`/posts/hashtags?q=${segment}`} className="hover:underline">{segment}</Link>
+              <Link
+                href={`/posts/hashtags?q=${segment}`}
+                className="hover:underline"
+              >
+                {segment}
+              </Link>
             </strong>
           )
         } else {
@@ -199,11 +228,25 @@ const Post = ({
         }
       })
   }
+
+  const [showMedia, setShowMedia] = useState(
+    media!.map((_, index) => ({ show: false, index }))
+  )
+  const handleShowContent = (index: number) => {
+    setShowMedia((prev) =>
+      prev.map((item) =>
+        item.index === index ? { ...item, show: true } : item
+      )
+    )
+  }
+
+  useEffect(() => {
+    setShowMedia(media!.map((_, index) => ({ show: false, index })))
+  }, [media])
+
   return (
-   
     <div className="bg-white p-3 m-3 rounded-lg shadow-md max-w-lg  mt-2 sbb:p-5 md:ml-[20px]   mddd:ml-[20px]  lgg:ml-[20px] ">
       <div className="">
-     
         {/* <!-- User Info with Three-Dot Menu --> */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
@@ -249,7 +292,7 @@ const Post = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="hover:bg-gray-50 rounded-full p-1">
-                <MoreVertical />
+                  <MoreVertical />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-40 shadow-lg">
@@ -325,36 +368,81 @@ const Post = ({
           <p className="text-gray-800 text-left">{parseCaption(caption)}</p>
         </div>
         {media && (
-          <div className="mb-4">
+          <div className="mb-4 relative">
             <Carousel setApi={setApi} orientation="horizontal">
               <CarouselContent>
-                {" "}
-                {/* this should adjust height based on CaroselItem */}
-                {media.map((media, index: number) => {
-                  return (
-                    <CarouselItem key={index} className="align-middle">
-                      {media.type === "image" ? (
+                {media.map((media, index) => (
+                  <CarouselItem key={index} className="align-middle">
+                    {media.type === "image" ? (
+                      <div>
                         <img
                           onLoad={() =>
                             setMediaLoaded((prev) => (prev ? prev : !prev))
                           }
                           src={media.url}
                           alt="post image"
-                          className="w-full h-auto rounded-md align-middle"
+                          className={cn(
+                            "w-full h-auto rounded-md align-middle",
+                            {
+                              "blur-xl":
+                                media.moderation &&
+                                media.moderation.length > 0 &&
+                                !showMedia[index].show,
+                            }
+                          )}
                         />
-                      ) : (
+                        {media.moderation &&
+                          media.moderation.length > 0 &&
+                          !showMedia[index].show && (
+                            <div className="absolute z-50 top-1/2 text-center px-3 -translate-y-1/2 text-white bg-black bg-opacity-50 mx-2 border border-black py-2 rounded-md">
+                              <p>
+                                This content has been marked as sensitive.
+                                Viewer discretion is advised
+                              </p>
+                              <Button
+                                variant="ghost"
+                                onClick={() => handleShowContent(index)}
+                              >
+                                Show Content
+                              </Button>
+                            </div>
+                          )}
+                      </div>
+                    ) : (
+                      <div className="relative">
                         <video
                           onLoadedData={() =>
                             setMediaLoaded((prev) => (prev ? prev : !prev))
                           }
                           src={media.url}
                           controls
-                          className="w-full rounded-md align-middle"
+                          className={cn("w-full rounded-md align-middle", {
+                            "blur-xl":
+                              media.moderation &&
+                              media.moderation.length > 0 &&
+                              !showMedia[index].show,
+                          })}
                         />
-                      )}
-                    </CarouselItem>
-                  )
-                })}
+                        {media.moderation &&
+                          media.moderation.length > 0 &&
+                          !showMedia[index].show && (
+                            <div className="absolute z-50 top-1/2 text-center px-3 -translate-y-1/2 text-white">
+                              <p>
+                                This content has been marked as sensitive.
+                                Viewer discretion is advised
+                              </p>
+                              <Button
+                                variant="ghost"
+                                onClick={() => handleShowContent(index)}
+                              >
+                                Show Content
+                              </Button>
+                            </div>
+                          )}
+                      </div>
+                    )}
+                  </CarouselItem>
+                ))}
               </CarouselContent>
               <CarouselPrevious
                 className={cn("ml-14", {
@@ -372,7 +460,6 @@ const Post = ({
         {/* <!-- Like and Comment Section --> */}
         <div className="flex items-center justify-between text-green-700">
           <div className="flex items-center space-x-2">
-        
             <button
               className="flex justify-center items-center gap-2 px-2 hover:bg-gray-50 rounded-full p-1"
               onClick={updateLikeStatus}
@@ -392,9 +479,13 @@ const Post = ({
           <Dialog>
             <DialogTrigger asChild>
               <button className="flex justify-center items-center gap-2 px-2 hover:bg-gray-50 rounded-full p-1 text-green-800 ml-2">
-             < MessageCircle/>
-                <span className="flex" >
-                  <div>{commentCount} </div><div className="hidden  tbb:block  md:block lg:block ml-2 mr-2">Comment(s)</div></span>
+                <MessageCircle />
+                <span className="flex">
+                  <div>{commentCount} </div>
+                  <div className="hidden  tbb:block  md:block lg:block ml-2 mr-2">
+                    Comment(s)
+                  </div>
+                </span>
               </button>
             </DialogTrigger>
             <DialogContent className="w-[270px] sbb:w-[330px] tb:ml-14 tb:w-[270px] tbbb:ml-8 tbb:w-[400px] mddd:-ml-12  lgg:-ml-14  md:ml-32 mdd:-ml-8  ">
@@ -411,8 +502,10 @@ const Post = ({
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="ghost" className="flex">
-                  <div className="hidden  tbb:block  md:block lg:block mr-2">Share Post</div>
-                   <Repeat className="h-4 w-4 ml-1.5" />
+                  <div className="hidden  tbb:block  md:block lg:block mr-2">
+                    Share Post
+                  </div>
+                  <Repeat className="h-4 w-4 ml-1.5" />
                 </Button>
               </DialogTrigger>
               <DialogContent>

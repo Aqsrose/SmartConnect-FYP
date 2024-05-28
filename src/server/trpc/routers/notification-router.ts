@@ -6,12 +6,14 @@ import { filterUserForClient } from "../../helpers/filterUserForClient"
 import clerk from "@clerk/clerk-sdk-node"
 
 const addUserDataToNotifications = async (notifications: Notification[]) => {
-  const userIds = notifications.map((notification) => notification.senderId)
+  const userIds = notifications
+    .filter((notification) => notification.senderId !== "system")
+    .map((notification) => notification.senderId)
 
   if (userIds.length === 0) {
     return notifications.map((notification) => ({
       notification,
-      user: null,
+      user: notification.senderId === "system" ? null : null,
     }))
   }
 
@@ -22,6 +24,13 @@ const addUserDataToNotifications = async (notifications: Notification[]) => {
   ).map(filterUserForClient)
 
   return notifications.map((notification) => {
+    if (notification.senderId === "system") {
+      return {
+        notification,
+        user: null,
+      }
+    }
+
     const user = usersList.find((user) => user.id === notification.senderId)
 
     if (notification.senderId && !user) {
