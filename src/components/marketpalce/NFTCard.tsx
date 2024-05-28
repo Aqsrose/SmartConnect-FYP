@@ -14,14 +14,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import SellModal from "./SellModal";
-import {
-  Clock,
-  Divide,
-  Heart,
-  Loader,
-  Loader2,
-  MoreHorizontal,
-} from "lucide-react";
+import { Divide, Heart, Loader, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import useNFTMarketplace from "@/web3/useMarketplace";
 import { connect } from "cookies";
@@ -131,9 +124,7 @@ const NFTCard = ({ nft }: NFTCardProps) => {
           <p className="text-lg font-semibold absolute top-2 left-3">
             {nftMeta?.name}
           </p>
-          <p className="text-purple-700  absolute top-10 left-3">
-            {nft.price}
-          </p>
+          <p className="text-purple-700  absolute top-10 left-3">{nft.price}</p>
           <div className="absolute bottom-0 left-3">
             <AddressAvatar seed={nft.owner} />
           </div>
@@ -155,7 +146,10 @@ const NFTCard = ({ nft }: NFTCardProps) => {
               {loading ? "loading..." : "List nft"}
             </button>
           ) : (
-            <Badge className="w-fit self-end absolute bottom-3 right-3 hover:text-white" style={{ fontSize: "xx-small" }}>
+            <Badge
+              className="w-fit self-end absolute bottom-3 right-3 hover:text-white"
+              style={{ fontSize: "xx-small" }}
+            >
               not listed
             </Badge>
           )}

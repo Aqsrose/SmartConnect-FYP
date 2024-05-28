@@ -286,7 +286,7 @@ const Post = ({
                 </DropdownMenuItem>
                 {user?.id === userId && (
                   <DropdownMenuItem className="flex gap-2 items-center cursor-pointer">
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-4 h-4 " />
                     <button
                       className="text-base font-medium"
                       onClick={() => {
