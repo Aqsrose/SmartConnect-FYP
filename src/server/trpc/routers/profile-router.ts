@@ -48,6 +48,32 @@ export const profileRouter = router({
       return { success: true, users: filteredUsers }
     }),
 
+  fetchUserMedia: privateProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
+    .query(async ({ctx, input}) => {
+
+      const {userId} = input
+
+      const media = await ctx.prisma.media.findMany({
+        where: {
+          userId,
+        },
+        orderBy: {
+          createdAt: "desc"
+        },
+        include: {
+          labels: true,
+          moderation: true
+        }
+      })
+
+      return {success: true, media}
+    }),
+
   searchUsers: privateProcedure
     .input(
       z.object({

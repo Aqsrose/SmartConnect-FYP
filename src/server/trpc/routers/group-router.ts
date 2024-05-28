@@ -537,4 +537,30 @@ export const groupRouter = router({
 
       return { success: true, joinRequest }
     }),
+
+  fetchGroupMedia: privateProcedure
+    .input(
+      z.object({
+        groupId: z.string(),
+      })
+    )
+    .query(async ({ctx, input}) => {
+
+      const {groupId} = input
+
+      const media = await ctx.prisma.post.findMany({
+        where: {
+          groupId
+        },
+        select: {
+          media: {
+            include: {
+              moderation: true,
+              labels: true
+            }
+          },
+          id: true
+        }
+      })
+    }),
 })
