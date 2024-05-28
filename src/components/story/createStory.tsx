@@ -27,7 +27,7 @@ const CreateStory: React.FC = () => {
       getNextPageParam: (lastPageResponse) => lastPageResponse.nextCursor,
     }
   );
-
+console.log('stories:', data)
   useEffect(() => {
     const checkScroll = () => {
       if (scrollContainerRef.current) {
@@ -82,7 +82,7 @@ const CreateStory: React.FC = () => {
             </Link>
           </div>
           <div
-            className="flex-shrink-0 w-5 h-5 mt-12 -ml-5 bg-[#003C43] rounded-full cursor-pointer"
+            className="flex-shrink-0 w-5 h-5 mt-12 -ml-8 bg-[#003C43] rounded-full cursor-pointer"
             onClick={handleOpenModal}
           >
             <Plus className="w-5 h-5 p-1 text-white font-bold" />
@@ -116,7 +116,6 @@ const CreateStory: React.FC = () => {
             <ChevronRight className="w-5 h-5 text-gray-500" />
           </div>
         )}
-        <p className="text-gray-500 text-[10px] pl-3 w-16 -mt-4">Your Story</p>
       </div>
       <Modal isOpen={showModal} close={handleCloseModal}>
         <StoryModal close={handleCloseModal} />

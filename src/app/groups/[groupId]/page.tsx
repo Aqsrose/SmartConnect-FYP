@@ -12,6 +12,7 @@ import {
   Repeat,
   Search,
   Share2,
+  Trash2,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import GroupLinks from "@/components/Group/GroupLinks";
@@ -22,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/use-toast";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 
 interface PageProps {
   params: {
@@ -106,7 +108,7 @@ const Page = ({ params: { groupId } }: PageProps) => {
 
   return (
     <Layoutpage>
-      <div className="bg-white relative h-full -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3  lggg:ml-[20px] md:w-[680px] mdc:w-[730px] mdd:w-[930px] lg:w-[950px] mddd:w-[730px] lgg:w-[900px] lggg:w-9/12">
+      <div className="bg-white relative h-full -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3  lggg:ml-[20px] md:w-[680px] mdc:w-[810px] mdd:w-[930px] lg:w-[950px] mddd:w-[730px] lgg:w-[900px] lggg:w-9/12">
         <div className="w-full h-72 rounded-md  relative bg-gray-100">
           {data?.group?.coverImageUrl && (
             <img
@@ -158,11 +160,23 @@ const Page = ({ params: { groupId } }: PageProps) => {
             </div>
           </div>
         </div>
-        <div className="flex absolute right-3 bottom-20 ">
-          <MoreHorizontal size={20} />
+        <div className="flex absolute right-3 bottom-[100px] ">
+        <DropdownMenu >
+            <DropdownMenuTrigger>
+              <MoreHorizontal size={20} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-40 shadow-lg mr-32">
+              <DropdownMenuItem className="flex gap-2 items-center cursor-pointer p-2">
+                <Trash2 className="w-4 h-4 text-red-500" />
+                <button className="text-sm font-medium">
+                  Delete Account
+                </button>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="mt-3  w-[340px] ">
-          <div className="flex tbbb:absolute tbbb:right-0 tbbb:bottom-6 ">
+          <div className="flex tbbb:absolute tbbb:right-0 tbbb:bottom-5 ">
             {isUserAMember && (
               <Dialog>
                 <DialogTrigger asChild>

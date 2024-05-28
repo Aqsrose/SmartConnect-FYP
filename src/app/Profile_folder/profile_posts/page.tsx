@@ -40,6 +40,7 @@ function ProfilePostsPage({ userId }: Props) {
 
   if (isLoading) {
     return (
+      <div className="absolute top-2 left-4 border border-gray-100  w-[260px] sb:w-[300px] sbb:w-[350px] tb:w-[330px] tbbb:w-[350px] tbb:w-[500px] md:w-[520px] lgg:w-[400px] lggg:w-[500px]">
       <Skeleton className="flex flex-col max-w-full mx-auto w-[450px] h-[550px] items-center bg-gray-200 border rounded-sm shadow-sm  gap-4 ">
         <div className="flex items-center gap-4 ml-[200px] mt-3">
           <Skeleton className="w-16 h-16 rounded-full -ml-[200px]" />
@@ -61,12 +62,13 @@ function ProfilePostsPage({ userId }: Props) {
           </div>
         </div>
       </Skeleton>
+      </div>
     )
   }
 
   return (
-    <div className="absolute top-2 left-4 border border-gray-100  w-[260px] sb:w-[300px] sbb:w-[350px] tb:w-[330px] tbbb:w-[350px] tbb:w-[500px] md:w-[520px] lgg:w-[400px] lggg:w-[500px]">
-      <div className="flex flex-col max-w-full mx-auto w-[512px] items-center">
+    <div className="absolute top-2 left-4 border border-gray-100  w-[260px] sb:w-[300px] sbb:w-[350px] tb:w-[330px] tbbb:w-[350px] tbb:w-[500px] md:w-[470px] lg:w-[470px] lgg:w-[440px] lggg:w-[500px]">
+      <div className="flex flex-col">
         {data?.pages.map((response) =>
           response.posts.map((post) => {
             return (
