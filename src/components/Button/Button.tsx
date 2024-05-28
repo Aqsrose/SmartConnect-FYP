@@ -22,11 +22,5 @@ function Button() {
     </button>
   );
 }
-export function SignIn() {
-  return (
-    <button className="bg-[#40D2DA] ml:2 px-2 flex py-2  rounded-xl text-white hover:text-[#3b4849] hover:bg-[#57d2db] hover:scale-110 duration-300">
-      Sign In
-    </button>
-  );
-}
+
 export default Button;

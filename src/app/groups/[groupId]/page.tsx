@@ -23,7 +23,12 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/use-toast";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
 
 interface PageProps {
   params: {
@@ -78,7 +83,7 @@ const Page = ({ params: { groupId } }: PageProps) => {
   if (!user) {
     return (
       <Layoutpage>
-        <div className="bg-white relative h-full -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3  lggg:ml-[20px] md:w-[680px] mdc:w-[730px] mdd:w-[930px] lg:w-[950px] mddd:w-[730px] lgg:w-[900px] lggg:w-9/12">
+        <div className="bg-white relative h-full -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3  lggg:ml-[20px] md:w-[680px] mdc:w-[730px] mdd:w-[930px] lg:w-[950px] mddd:w-[800px] lgg:w-[900px] lggg:w-9/12">
           <Skeleton className="w-full h-72 rounded-md  relative bg-gray-200 dark:bg-gray-700 " />
           <Skeleton className="w-32 h-32 bg-gray-200 dark:bg-gray-700 rounded-full ml-2 tb:ml-4 -mt-10 border-4 border-white relative" />
           <div className="-mt-20 -ml-6 tb:-ml-6 ">
@@ -108,7 +113,7 @@ const Page = ({ params: { groupId } }: PageProps) => {
 
   return (
     <Layoutpage>
-      <div className="bg-white relative h-full -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3  lggg:ml-[20px] md:w-[680px] mdc:w-[810px] mdd:w-[930px] lg:w-[950px] mddd:w-[730px] lgg:w-[900px] lggg:w-9/12">
+      <div className="bg-white relative h-full -mt-6 pt-0 p-4 pl-2 tb:pl-32 pr-3  lggg:ml-[20px] md:w-[690px] mdc:w-[820px] mdd:w-[930px] lg:w-[950px] mddd:w-[760px] lgg:w-[900px] lggg:w-9/12">
         <div className="w-full h-72 rounded-md  relative bg-gray-100">
           {data?.group?.coverImageUrl && (
             <img
@@ -161,16 +166,14 @@ const Page = ({ params: { groupId } }: PageProps) => {
           </div>
         </div>
         <div className="flex absolute right-3 bottom-[100px] ">
-        <DropdownMenu >
+          <DropdownMenu>
             <DropdownMenuTrigger>
               <MoreHorizontal size={20} />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-40 shadow-lg mr-32">
               <DropdownMenuItem className="flex gap-2 items-center cursor-pointer p-2">
                 <Trash2 className="w-4 h-4 text-red-500" />
-                <button className="text-sm font-medium">
-                  Delete Account
-                </button>
+                <button className="text-sm font-medium">Delete Account</button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -222,8 +225,7 @@ const Page = ({ params: { groupId } }: PageProps) => {
                                     toast({
                                       variant: "default",
                                       title: "Invitation Sent",
-                                      description:
-                                        "Your invite has been sent.",
+                                      description: "Your invite has been sent.",
                                     });
                                     utils.groupRouter.fetchGroupJoinRequests.invalidate();
                                   },
@@ -234,7 +236,7 @@ const Page = ({ params: { groupId } }: PageProps) => {
                                       description:
                                         "Your invite could not be sent.",
                                     });
-                                  }
+                                  },
                                 }
                               )
                             }
@@ -327,7 +329,17 @@ const Page = ({ params: { groupId } }: PageProps) => {
           <Skeleton className=" bg-gray-200 dark:bg-gray-700   w-20 h-10 rounded " />
         </div>
       ) : (
-        <div>Request to join the group to see its posts and discussions</div>
+        <div className="bg-white relative h-full  pt-0 p-4 pl-2 tb:pl-32 pr-3  lggg:ml-[20px] md:w-[680px] mdc:w-[730px] mdd:w-[930px] lg:w-[950px] mddd:w-[760px] lgg:w-[900px] lggg:w-9/12">
+          <div className="w-20 h-20 rounded-md ml-32 tb:ml-[120px] tbbb:ml-[170px]  tbb:ml-[250px] mdc:ml-[300px] mdd:ml-[350px] mddd:ml-[280px] lgg:ml-[340px] lggg:ml-[440px]">
+            <img
+              src='/Images/lock1.png'
+              alt="Cover"
+              className="w-20 h-20 object-cover rounded-md"
+            />
+          </div>
+          <div className="absolute top-20 ml-[90px] tb:ml-[80px] tbbb:ml-[130px]  tbb:ml-[210px] mdc:ml-[260px] mdd:ml-[310px] mddd:ml-[240px] lgg:ml-[300px] lggg:ml-[410px] font-semibold text-blue-500">This group is private</div>
+          <div className="absolute top-[110px] tb:ml-[20px] tbb:ml-[110px] mdc:ml-[160px] mdd:ml-[210px] mddd:ml-[140px] lgg:ml-[200px] lggg:ml-[310px] text-sm text-green-400">Request to join the group to see its posts and discussions</div>
+        </div>
       )}
     </Layoutpage>
   );
