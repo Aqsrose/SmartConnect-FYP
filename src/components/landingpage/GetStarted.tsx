@@ -1,7 +1,10 @@
+"use client";
 import React from "react";
 import Button from "../Button/Button";
 import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
 function GetStarted() {
+  const { isSignedIn } = useUser();
   return (
     <main className="grid gap-8 ml-10 lg:ml-44 xl:ml-52 lg:bg-red xd:border-x-red-950">
       <div className="main md:flex">
@@ -16,7 +19,7 @@ function GetStarted() {
             Take matters into your own hands
           </h1>
           <div className="buttons ml-10 mt-6 md:ml-14 md:mt-8 lg:ml-5">
-            <Link href="/SignUpPage">
+            <Link href={!isSignedIn ? "/sign-up" : "/home"}>
               <Button />
             </Link>
           </div>

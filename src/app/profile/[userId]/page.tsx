@@ -41,7 +41,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
-import EditProfileModal from "@/components/Profile/EditProfileModal";
+import EditProfileModal from "@/components/Profile/editProfileModal";
 
 interface PageProps {
   params: {
@@ -52,6 +52,7 @@ interface PageProps {
 const UserProfilePage = ({ params: { userId } }: PageProps) => {
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+ 
   const handleOpenEditModal = () => {
     setShowEditModal(true);
   };
