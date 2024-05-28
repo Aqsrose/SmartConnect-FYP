@@ -131,7 +131,7 @@ export const storyRouter = router({
           createdAt: "desc",
         },
         where: {
-          createdAt: {
+          expiresAt: {
             gte: new Date()
           }
         },

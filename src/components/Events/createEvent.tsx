@@ -12,7 +12,7 @@ function CreateEventpage () {
       <div className=" text-white -mt-5 relative  tb:w-[370px] tbbb:w-[470px]  tbb:w-[500px] md:w-[500px] mdc:w-[580px] mdd:w-[650px] mddd:w-[600px] lgg:w-[650px] h-[120px] tb:h-[140px] ">
         
           <button
-            className="font-bold   hover:from-purple-500 hover:to-blue-500 md:absolute md:top-2 md:left-[30px] mt-8 ml-[50px] sb:ml-[70px] sbb:ml-[90px] tb:ml-[100px]  tbbb:ml-[150px]  tbb:ml-[170px]  tb:text-[15px] sb:text-sm  border text-white py-3 px-3 tb:py-5 tb:px-5 rounded"style={{ backgroundImage: 'linear-gradient(to right,#EC74A2,#51CEB6,#DBBDF5)' }}
+            className="font-bold   hover:from-[#8ED1DB] hover:to-[#4D3BE6] md:absolute md:top-2 md:left-[30px] mt-8 ml-[50px] sb:ml-[70px] sbb:ml-[90px] tb:ml-[100px]  tbbb:ml-[150px]  tbb:ml-[170px]  tb:text-[15px] sb:text-sm  border-2 border-[#8ED1DB] text-white py-3 px-3 tb:py-5 tb:px-5 rounded"style={{ backgroundImage: 'linear-gradient(to right, #4D3BE6, #6F8AE1, #8ED1DB)' }}
             type="button"
             onClick={() => setShowModal((prev) => !prev)}
           >

@@ -7,7 +7,7 @@ function Createpart() {
   const [showModal, setShowModal] = useState<boolean>(false);
 
   return (
-    <div className="w-[280px] sb:w-[300px] sbb:w-[350px] tb:w-[350px] tbbb:w-[420px]  tbb:w-[500px] md:w-[550px] sb:ml-3 sbb:ml-3  lgg:w-[650px] tb:ml-32 mddd:ml-44  lgg:ml-72 mt-10 mb-10">
+    <div className="w-[280px] sb:w-[300px] sbb:w-[350px] tb:w-[350px] tbbb:w-[420px]  tbb:w-[520px] md:w-[550px] sb:ml-3 sbb:ml-3 mdc:ml-40 mdc:w-[650px] lg:w-[700px] mddd:w-[570px] lgg:w-[650px] lggg:w-[900px] tb:ml-32 lg:ml-[200px] mddd:ml-44  lgg:ml-[200px] mt-10 mb-10">
       <div
         className=" text-white  h-[220px] m-3 flex rounded-lg border-2 border-[#D20062]"
         style={{

@@ -23,7 +23,7 @@ const ProfilePageLinks: React.FC<ProfilePageLinksProps> = ({
 
   return (
     <section
-      className="flex relative flex-col sm:flex-row justify-between items-center border border-gray-100 tb:ml-[100px] tbbb:ml-[130px] md:ml-[160px] tb:w-[310px] tbbb:w-[370px] tbb:w-[490px] md:w-[540px] mdc:w-[570px] mdd:w-[760px] lg:w-[770px] mddd:w-[570px] lgg:w-[750px] lggg:w-[940px]
+      className="flex relative flex-col sm:flex-row justify-between items-center border border-gray-100 tb:ml-[120px] tbbb:ml-[130px] md:ml-[160px] tb:w-[320px] tbbb:w-[370px] tbb:w-[490px] md:w-[540px] mdc:w-[570px] mdd:w-[760px] lg:w-[770px] mddd:w-[570px] lgg:w-[750px] lggg:w-[940px]
     shadow-sm bg-white px-4 py-2"
     >
       <nav>

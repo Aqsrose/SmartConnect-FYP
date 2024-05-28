@@ -115,7 +115,7 @@ const config = {
         tb: "407px",
         tbbb: "510px",
         tbb: "650px",
-        mdc:"800px",
+        mdc:"900px",
         mdd: "1024px",
         lg:"1050px",
         mddd:"1100px",

@@ -10,7 +10,7 @@ import { trpc } from "@/server/trpc/client";
 const CreateStory: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleOpenModal = () => {
@@ -27,7 +27,7 @@ const CreateStory: React.FC = () => {
       getNextPageParam: (lastPageResponse) => lastPageResponse.nextCursor,
     }
   );
-
+console.log('stories:', data)
   useEffect(() => {
     const checkScroll = () => {
       if (scrollContainerRef.current) {
@@ -61,6 +61,8 @@ const CreateStory: React.FC = () => {
     }
   };
 
+
+
   return (
     <div className="pl-2 pt-4 pr-3 md:pt-3">
       <div className="w-[220px] relative sbb:w-[280px] tb:w-[260px] tbbb:w-[330px] tbb:w-[490px] ml-[7px] sb:ml-[10px] sbb:ml-[10px] tb:ml-[10px] tbbb:ml-[10px] tbb:ml-[10px] h-24 pl-3 pt-2 pb-3 rounded-md mb-4 border border-gray-200">
@@ -80,7 +82,7 @@ const CreateStory: React.FC = () => {
             </Link>
           </div>
           <div
-            className="flex-shrink-0 w-5 h-5 mt-12 -ml-5 bg-[#003C43] rounded-full cursor-pointer"
+            className="flex-shrink-0 w-5 h-5 mt-12 -ml-8 bg-[#003C43] rounded-full cursor-pointer"
             onClick={handleOpenModal}
           >
             <Plus className="w-5 h-5 p-1 text-white font-bold" />
@@ -114,7 +116,6 @@ const CreateStory: React.FC = () => {
             <ChevronRight className="w-5 h-5 text-gray-500" />
           </div>
         )}
-        <p className="text-gray-500 text-[10px] pl-3 w-16 -mt-4">Your Story</p>
       </div>
       <Modal isOpen={showModal} close={handleCloseModal}>
         <StoryModal close={handleCloseModal} />
