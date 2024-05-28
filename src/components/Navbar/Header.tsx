@@ -1,29 +1,33 @@
-"use client";
-import React, { useState } from "react";
-import Logo from "../landingpage/Logo";
-import { SmallLogo } from "../landingpage/Logo";
-import { Search, Bell, BellDot, Send } from "lucide-react";
-import UserButtonComponent from "../UserButton";
-import { trpc } from "@/server/trpc/client";
-import Link from "next/link";
-import { formatRelativeTime } from "@/lib/utils";
+"use client"
+import React, { useState } from "react"
+import Logo from "../landingpage/Logo"
+import { SmallLogo } from "../landingpage/Logo"
+import { Search, Bell, BellDot, Send, Loader2 } from "lucide-react"
+import UserButtonComponent from "../UserButton"
+import { trpc } from "@/server/trpc/client"
+import Link from "next/link"
+import { formatRelativeTime } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 function Header() {
-  const { data } = trpc.notificaitonRouter.fetchNotifcations.useQuery();
-  console.log("notifications: ", data);
+  const [openDropDown, setOpenDropDown] = useState(false)
+  const [searchKey, setSearchKey] = useState<string>("")
+  const router = useRouter()
+
+  const { data } = trpc.notificaitonRouter.fetchNotifcations.useQuery()
 
   const [openNotificationDropdown, setOpenNotificationDropdown] =
-    useState(false);
+    useState(false)
 
   const getNotificationDestinationUrl = (
     type: string,
     entityID: string | null
   ) => {
     if (type.startsWith("POST") || type.startsWith("COMMENT")) {
-      return `/post/${entityID}`;
+      return `/post/${entityID}`
     }
     if (type === "FRIEND_REQUEST") {
-      if (entityID) return `/profile/${entityID}`;
-      else return ``;
+      if (entityID) return `/profile/${entityID}`
+      else return ``
     }
 
     // FRIEND_REQUEST
@@ -36,8 +40,16 @@ function Header() {
     // GROUP_INVITE
     // EVENT_REMINDER
 
-    return "";
-  };
+    return ""
+  }
+
+  const {
+    data: users,
+    isLoading: loadingUsers,
+    isError: errorLoadingUsers,
+  } = trpc.profileRouter.searchUsers.useQuery({ key: searchKey })
+
+  console.log("searched users: ", users)
 
   return (
     <header className="fixed inset-x-0  mx-auto py-3 lg:py-3 px-4 sm:px-6 lg:px-8 bg-white border border-[#f4f2f2] z-50 flex ">
@@ -51,13 +63,40 @@ function Header() {
         </div>
         <div className="flex-row">
           <div className="mb-4 pl-[50px] tbb:pl-32 pt-2 pr-2 md:pl-0 md:pr-0 md:ml-48 md:mr-8 mt-[-50px] lg:ml-48  lg:pl-0 lg:pr-0 flex">
-            <div className="w-full border text-sm md:text-lg p-2 rounded flex">
+            <div className="w-full border text-sm md:text-lg p-2 rounded flex relative">
               <Search className="text-[#10676B] w-5" />
               <input
                 type="text"
                 placeholder="Search..."
                 className="ml-2 text-sm hidden tbbb:block md:block lg:block"
+                onChange={(e) => {
+                  setSearchKey(e.currentTarget.value)
+                }}
+                onInput={() => setOpenDropDown(true)}
+                onFocus={(e) => (e.target.value ? setOpenDropDown(true) : null)}
               />
+              {openDropDown && (
+                <div className="absolute bg-white w-[341px] z-50 top-8 -left-12 border-black border-solid border shadow-sm p-2 flex gap-2 flex-col">
+                  {loadingUsers ? (
+                    <Loader2 className="animate-spin m-auto" />
+                  ) : (
+                    users?.users.map((user) => (
+                      <div
+                        className="flex gap-4 items-center border-b border-[#00000033] p-2 w-full cursor-pointer hover:bg-slate-200 rounded-md"
+                        key={user.id}
+                        onClick={() => router.push(`/profile/${user.id}`)}
+                      >
+                        <img
+                          src={user.imageUrl}
+                          alt="user img"
+                          className="object-cover rounded-full w-12"
+                        />
+                        <p>{user.username}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -80,6 +119,7 @@ function Header() {
                         notification.notification.type,
                         notification.notification.entityId
                       )}
+                      key={notification.notification.id}
                     >
                       <div className="flex gap-4 mb-3 items-center  border-b border-[#00000033] p-3 w-full cursor-pointer hover:bg-slate-200 rounded-md">
                         <img
@@ -112,7 +152,7 @@ function Header() {
 
       {/* <div><BellDot/></div> */}
     </header>
-  );
+  )
 }
 
-export default Header;
+export default Header

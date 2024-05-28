@@ -47,6 +47,47 @@ export const profileRouter = router({
 
       return { success: true, users: filteredUsers }
     }),
+
+  searchUsers: privateProcedure
+    .input(
+      z.object({
+        key: z.string(),
+      })
+    )
+    .query(async ({ ctx, input: { key } }) => {
+      // first we check which user is sending the search request
+      const user = ctx.user
+
+      // this will get users by matching this key with userId, emailAddress, phoneNumber, username, web3Wallet, firstName and lastName
+      const users = await clerk.users.getUserList({
+        query: key,
+      })
+
+      // so now, we technically should have the users that we want to return
+      const filteredUsers = filterUsersForClient(users)
+
+      return { success: true, users: filteredUsers }
+    }),
+
+  removeFriend: privateProcedure
+    .input(
+      z.object({
+        friendId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input: { friendId } }) => {
+      const deletedFriend = await ctx.prisma.friend.deleteMany({
+        where: {
+          OR: [
+            { userId: ctx.user.id, friendId },
+            { friendId: ctx.user.id, userId: friendId },
+          ],
+        },
+      })
+
+      return { success: true }
+    }),
+
   fetchFriends: privateProcedure.query(async ({ ctx }) => {
     const user = ctx.user
 
@@ -76,7 +117,7 @@ export const profileRouter = router({
     // so now, we technically should have the users that we want to return
     return { success: true, friendsWithUserInfo }
   }),
-  fetchUserInfo: publicProcedure
+  fetchUserInfo: privateProcedure
     .input(
       z.object({
         userId: z.string(),
@@ -92,7 +133,13 @@ export const profileRouter = router({
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" })
       }
 
-      return { success: true, user: filteredUser }
+      const friendCount = await ctx.prisma.friend.count({
+        where: {
+          OR: [{ userId: ctx.user.id }, { friendId: ctx.user.id }],
+        },
+      })
+
+      return { success: true, user: filteredUser, friendCount }
     }),
 
   fetchCoverImage: publicProcedure
@@ -178,6 +225,55 @@ export const profileRouter = router({
     })
 
     return { success: true, requests }
+  }),
+
+  fetchCompleteFriendRequests: privateProcedure.query(async ({ ctx }) => {
+    const { id } = ctx.user
+
+    const rawRequests = await ctx.prisma.friendRequests.findMany({
+      where: { OR: [{ receiverId: id }, { senderId: id }], status: "PENDING" },
+    })
+
+    const otherUserIds = [
+      ...new Set(
+        rawRequests.map((request) =>
+          request.senderId === id ? request.receiverId : request.senderId
+        )
+      ),
+    ]
+
+    if (otherUserIds.length === 0) {
+      return { success: true, completeRequests: [] }
+    }
+
+    // Fetch user information for these IDs
+    const usersList = (
+      await clerk.users.getUserList({
+        userId: otherUserIds,
+      })
+    ).map(filterUserForClient)
+
+    // Map user information to friend requests, only for the other user
+    const completeRequests = rawRequests.map((request) => {
+      const otherUserId =
+        request.senderId === id ? request.receiverId : request.senderId
+      const otherUser = usersList.find((user) => user.id === otherUserId)
+
+      if (!otherUser) {
+        console.error("USER NOT FOUND", request)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `User not found for friend request. REQUEST: ${request}, OTHER USER ID: ${otherUserId}`,
+        })
+      }
+
+      return {
+        ...request,
+        otherUser,
+      }
+    })
+
+    return { success: true, completeRequests }
   }),
 
   // not correct I think

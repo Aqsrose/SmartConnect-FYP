@@ -9,10 +9,10 @@ import ProfileAboutPage from "@/app/Profile_folder/profile_about/page";
 import SavedPostPage from "@/app/Profile_folder/saved_posts/page";
 interface LinkDetailsProps {
   activeLink?: string;
-  
+  userId: string
 }
 
-const ProfileDetails: React.FC<LinkDetailsProps> = ({ activeLink = 'Posts'}) => {
+const ProfileDetails: React.FC<LinkDetailsProps> = ({ activeLink = 'Posts', userId}) => {
   const [currentLink, setCurrentLink] = useState<string>(activeLink);
   const [Component, setComponent] = useState<React.FC | null>(null);
 
@@ -25,7 +25,7 @@ const ProfileDetails: React.FC<LinkDetailsProps> = ({ activeLink = 'Posts'}) => 
   const loadComponent = ()=>{
     switch (currentLink) {
       case 'Posts':
-        return <ProfilePostsPage/>
+        return <ProfilePostsPage userId={userId}/>
         break;
       case 'NFTs':
         return <ProfileNFTsPage/>
@@ -34,16 +34,16 @@ const ProfileDetails: React.FC<LinkDetailsProps> = ({ activeLink = 'Posts'}) => 
         return <ProfileMediaPage/>
         break;
       case 'Friends':
-        return <ProfileFriendsPage/>
+        return <ProfileFriendsPage userId={userId}/>
         break;
         case 'Saved':
-          return <SavedPostPage/>
+          return <SavedPostPage userId={userId}/>
           break;
           case 'About':
             return <ProfileAboutPage/>
             break;
       default:
-        return <ProfilePostsPage/>
+        return <ProfilePostsPage userId={userId}/>
         break;
     }
   }
@@ -53,7 +53,7 @@ const ProfileDetails: React.FC<LinkDetailsProps> = ({ activeLink = 'Posts'}) => 
       <div className="flex tb:ml-[130px] md:ml-[150px] ">
       {/* Left dynamic div */}
       <div className="relative h-80 w-[600px] md:w-[660px] mdd:w-[490px] lg:w-[490px] mddd:w-[600px] lgg:w-[470px] lggg:w-[550px] bg-white  rounded-md flex items-center justify-center  border border-gray-50  p-5">
-        {currentLink ? loadComponent() : <ProfilePostsPage/>}
+        {currentLink ? loadComponent() : <ProfilePostsPage userId={userId}/>}
         </div>
       {/* Right static div */}
       <div className=" mr-[200px] w-[400px] h-80 bg-white shadow-md rounded-md  items-center justify-center  border border-gray-50 p-5 hidden lg:block mddd:hidden mdd:block lgg:block lggg:block mdd:w-[280px] lg:w-[290px] lgg:w-[290px] lggg:w-[400px]">

@@ -62,14 +62,7 @@ model FriendRequests {
   @@map("friend_requests")
 }
 
-model Friend {
-  userId    String   @map("user_id")
-  friendId  String   @map("friend_id")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
-  @@id([userId, friendId])
-  @@map("friend")
-}
 
 model Post {
   id        String   @id @default(uuid()) @db.Uuid

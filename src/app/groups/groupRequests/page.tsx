@@ -1,8 +1,16 @@
+"use client"
+
+import { trpc } from "@/server/trpc/client";
+
 interface GroupRequestsProps {
   groupId: string;
 }
 
 function GroupRequestsPage({ groupId }: GroupRequestsProps) {
+
+  const {data, isLoading, isError} = trpc.groupRouter.fetchGroupJoinRequests.useQuery({groupId})
+  console.log("data: ", data)
+
   return (
     <div className="absolute top-2 left-4 border border-gray-100  w-[260px] sb:w-[300px] sbb:w-[350px] tb:w-[330px] tbbb:w-[350px] tbb:w-[500px] md:w-[520px] lgg:w-[400px] lggg:w-[500px]">
       {/* No of requests */}

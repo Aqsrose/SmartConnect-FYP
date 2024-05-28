@@ -90,12 +90,12 @@ export const groupRouter = router({
           groupId,
         },
       })
-       
-        rawGroupUsers = await ctx.prisma.groupUsers.findMany({
-          where: {
-            groupId,
-          },
-        })
+
+      rawGroupUsers = await ctx.prisma.groupUsers.findMany({
+        where: {
+          groupId,
+        },
+      })
 
       const userIds = rawGroupUsers.map((groupUser) => groupUser.userId)
 
@@ -480,17 +480,42 @@ export const groupRouter = router({
         },
       })
 
-      if (group && group.adminId === ctx.user.id) {
-        const joinRequests = await ctx.prisma.groupJoinRequests.findMany({
-          where: {
-            groupId,
-          },
+      // Fetch join requests for the group
+      const joinRequests = await ctx.prisma.groupJoinRequests.findMany({
+        where: {
+          groupId,
+        },
+      })
+
+      // Extract user IDs from join requests
+      const userIds = joinRequests.map((request) => request.userId)
+
+      // Fetch user details from Clerk
+      const usersList = (
+        await clerk.users.getUserList({
+          userId: userIds,
         })
+      ).map(filterUserForClient)
 
-        return { success: true, joinRequests }
-      }
+      // Map user details to the corresponding join requests
+      const joinRequestsWithUserData = joinRequests.map((request) => {
+        const user = usersList.find((user) => user.id === request.userId)
 
-      throw new TRPCError({ code: "UNAUTHORIZED" })
+        if (!user) {
+          console.error("USER NOT FOUND", request)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `User not found. USER ID: ${request.userId}`,
+          })
+        }
+
+        return {
+          request,
+          user,
+        }
+      })
+
+      return { success: true, joinRequests: joinRequestsWithUserData }
     }),
 
   fetchUserJoinRequest: privateProcedure

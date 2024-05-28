@@ -59,7 +59,6 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
   const { data: friends, isFetched: friendsFetched } =
     trpc.profileRouter.fetchFriendsForRequest.useQuery({ userId })
 
-  console.log("friends: ", friends)
 
   const [requestButtonState, setRequestButtonState] = useState({
     showCancel: false,
@@ -143,7 +142,6 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
     }
   )
 
-  console.log("saved posts: ", savedPosts)
 
   const {
     mutate: sendFriendRequest,
@@ -479,7 +477,7 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
           </p>
         </div>
         <div className="text-sm text-gray-700 mt-7 tb:ml-[65px] ml-12">
-          <p> 0 friends </p>
+          <p> {userFromBackend?.friendCount ?? 0} friends</p>
         </div>
         <div className="flex absolute right-3 bottom-32 ">
           <MoreHorizontal size={20} />
@@ -507,8 +505,8 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
         </div>
         <div className="border-t bg-gradient-to-r from-blue-500 to-purple-500  my-4 mt-16 tbb:mt-12 md:mt-16 mdd:mt-10"></div>
       </div>
-      <ProfilePageLinks setActiveLink={setActiveLink} />
-      <ProfileDetails activeLink={activeLink} />
+      <ProfilePageLinks setActiveLink={setActiveLink} profilePageUserId={userId} loggedInUserId={user.id}/>
+      <ProfileDetails activeLink={activeLink} userId={userId}/>
     </Layoutpage>
   )
 }
