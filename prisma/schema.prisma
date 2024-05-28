@@ -62,7 +62,14 @@ model FriendRequests {
   @@map("friend_requests")
 }
 
+model Friend {
+  userId    String   @map("user_id")
+  friendId  String   @map("friend_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
+  @@id([userId, friendId])
+  @@map("friend")
+}
 
 model Post {
   id        String   @id @default(uuid()) @db.Uuid
@@ -135,9 +142,33 @@ model Media {
   postId    String   @map("post_id") @db.Uuid
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post       Post              @relation(fields: [postId], references: [id], onDelete: Cascade)
+  labels     MediaLabels[]
+  moderation MediaModeration[]
 
   @@map("media")
+}
+
+model MediaLabels {
+  id         String @id @default(uuid()) @db.Uuid
+  label      String
+  confidence Float
+  mediaId    String @map("media_id")
+
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@map("media_labels")
+}
+
+model MediaModeration {
+  id              String @id @default(uuid()) @db.Uuid
+  moderationLabel String
+  confidence      Float
+  mediaId         String @map("media_id")
+
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@map("media_moderation")
 }
 
 model Comment {
@@ -284,7 +315,6 @@ model GroupJoinRequests {
 // update to PENDING, if the user decides to join
 // if the user joins without an invite, the status goes straight to PENDING
 
-
 // isInvite can handle this, but only if we automatically make the user join the group after he accepts the invitation,
 // but we still want to wait for acceptance, because technically non admins can also invite the user to join the group
 enum GroupJoinStatus {
@@ -330,4 +360,5 @@ enum NotificationType {
   GROUP_INVITE
   EVENT_REMINDER
   GROUP_JOIN_REQUEST
+  POST_FLAGGED
 }

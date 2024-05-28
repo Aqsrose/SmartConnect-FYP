@@ -2,12 +2,13 @@
 import React, { useState } from "react"
 import Logo from "../landingpage/Logo"
 import { SmallLogo } from "../landingpage/Logo"
-import { Search, Bell, BellDot, Send, Loader2 } from "lucide-react"
+import { Search, Bell, BellDot, Send, Loader2, AlertCircle } from "lucide-react"
 import UserButtonComponent from "../UserButton"
 import { trpc } from "@/server/trpc/client"
 import Link from "next/link"
 import { formatRelativeTime } from "@/lib/utils"
 import { useRouter } from "next/navigation"
+
 function Header() {
   const [openDropDown, setOpenDropDown] = useState(false)
   const [searchKey, setSearchKey] = useState<string>("")
@@ -122,11 +123,15 @@ function Header() {
                       key={notification.notification.id}
                     >
                       <div className="flex gap-4 mb-3 items-center  border-b border-[#00000033] p-3 w-full cursor-pointer hover:bg-slate-200 rounded-md">
-                        <img
-                          src={notification.user?.imageUrl}
-                          alt="user img"
-                          className="object-cover rounded-full w-12"
-                        />
+                        {notification.notification.senderId === "system" ? (
+                          <AlertCircle fill="red" className="w-12 h-12" />
+                        ) : (
+                          <img
+                            src={notification.user?.imageUrl}
+                            alt="user img"
+                            className="object-cover rounded-full w-12"
+                          />
+                        )}
                         <div>
                           <p className="font-semibold text-gray-500">
                             {notification.notification.content}
