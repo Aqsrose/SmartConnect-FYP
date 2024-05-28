@@ -10,7 +10,7 @@ import { trpc } from "@/server/trpc/client";
 const CreateStory: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleOpenModal = () => {
@@ -60,6 +60,8 @@ const CreateStory: React.FC = () => {
       scrollContainerRef.current.scrollBy({ left: 100, behavior: 'smooth' });
     }
   };
+
+
 
   return (
     <div className="pl-2 pt-4 pr-3 md:pt-3">
