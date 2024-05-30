@@ -18,7 +18,6 @@ const config = {
       },
     },
     extend: {
-      
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -115,13 +114,12 @@ const config = {
         tb: "407px",
         tbbb: "510px",
         tbb: "650px",
-        mdc:"900px",
+        mdc: "900px",
         mdd: "1024px",
-        lg:"1050px",
-        mddd:"1100px",
-        lgg:"1280px",
-        lggg:"1290px"
-        
+        lg: "1050px",
+        mddd: "1100px",
+        lgg: "1280px",
+        lggg: "1290px",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

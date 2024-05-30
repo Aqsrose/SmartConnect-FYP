@@ -230,9 +230,9 @@ model Message {
   to        String
   text      String
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  chatId    String?  @map("chat_id") @db.Uuid
+  chatId    String  @map("chat_id") @db.Uuid
 
-  Chat Chat? @relation(fields: [chatId], references: [id])
+  Chat Chat @relation(fields: [chatId], references: [id])
 
   @@map("message")
 }

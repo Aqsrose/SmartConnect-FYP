@@ -1,8 +1,65 @@
 import { string, z } from "zod"
 import { privateProcedure, publicProcedure, router } from "../trpc"
 import { TRPCError } from "@trpc/server"
+import { filterUsersForClient } from "../../helpers/filterUserForClient"
+import clerk from "@clerk/clerk-sdk-node"
+import { observable } from "@trpc/server/observable"
+import { Message } from "@prisma/client"
+import { text } from "stream/consumers"
 
 export const chatRouter = router({
+  //make a subscription router here which actives whenever a new message is sent
+  //and then sends the message (or notification) to the client
+  //this will be a separate router from the chat router
+  onMessageCreated: publicProcedure
+    .input(
+      z.object({
+        senderId: z.string(),
+      })
+    )
+    .subscription(({ ctx, input }) => {
+      const { senderId } = input
+
+      return observable((emit) => {
+        const sendMessageCreatedToClient = async (message: Message) => {
+          if (message.from !== senderId) {
+            emit.next(message)
+          }
+        }
+
+        ctx.ee.on("onMessageCreatedInChat", sendMessageCreatedToClient)
+
+        return () => {
+          ctx.ee.off("onMessageCreatedInChat", sendMessageCreatedToClient)
+        }
+      })
+    }),
+
+  messageSocketSubscription: publicProcedure
+    .input(
+      z.object({
+        chatId: z.string().uuid(),
+        senderId: z.string(),
+        receiverId: z.string(),
+        text: z.string(),
+      })
+    )
+    .subscription(({ ctx, input }) => {
+      const { chatId, senderId, receiverId, text } = input
+
+      return observable((emit) => {
+        const sendMessageCreatedInstantlyToClient = async () => {
+          emit.next({ chatId, senderId, receiverId, text })
+        }
+
+        ctx.ee.on("getMessageInstantly", sendMessageCreatedInstantlyToClient)
+
+        return () => {
+          ctx.ee.off("getMessageInstantly", sendMessageCreatedInstantlyToClient)
+        }
+      })
+    }),
+
   createChat: privateProcedure
     .input(
       z.object({
@@ -43,12 +100,82 @@ export const chatRouter = router({
     }),
 
   getChats: privateProcedure.query(async ({ ctx, input }) => {
+    // Fetch chats involving the current user
     const chats = await ctx.prisma.chat.findMany({
       where: {
         OR: [{ userA: ctx.user.id }, { userB: ctx.user.id }],
       },
+      include: {
+        message: true,
+      },
     })
 
-    return { success: true, chats }
+    if (chats.length === 0) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "No chats found",
+      })
+    }
+
+    // Extract user IDs involved in these chats
+    const userIds = chats
+      .map((chat) => [chat.userA, chat.userB])
+      .flat()
+      .filter(
+        (id, index, self) => id !== ctx.user.id && self.indexOf(id) === index
+      ) // remove duplicates and exclude the current user
+
+    // Fetch user details from Clerk
+    const users = await clerk.users.getUserList({
+      userId: userIds,
+    })
+
+    // Function to filter users for the client
+    const filteredUsers = filterUsersForClient(users)
+
+    // Create a map of userId to user details for easy lookup
+    const userMap = new Map(filteredUsers.map((user) => [user.id, user]))
+
+    // Attach user details to each chat
+    const chatsWithUsers = chats.map((chat) => ({
+      ...chat,
+      userA: userMap.get(chat.userA),
+      userB: userMap.get(chat.userB),
+    }))
+
+    return { success: true, chats: chatsWithUsers }
   }),
+
+  sendMessage: privateProcedure
+    .input(
+      z.object({
+        chatId: z.string().uuid(),
+        text: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { chatId, text } = input
+
+      const chat = await ctx.prisma.chat.findFirst({
+        where: {
+          id: chatId,
+        },
+      })
+
+      let sentMessage
+      if (chat) {
+        sentMessage = await ctx.prisma.message.create({
+          data: {
+            from: ctx.user.id,
+            to: chat.userA === ctx.user.id ? chat.userB : chat.userA,
+            text,
+            chatId,
+          },
+        })
+      }
+
+      ctx.ee.emit("onMessageCreatedInChat", sentMessage)
+
+      return { success: true, sentMessage }
+    }),
 })

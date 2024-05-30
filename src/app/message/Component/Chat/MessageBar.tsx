@@ -1,30 +1,33 @@
-import EmojiPicker from "emoji-picker-react";
-import React, { useEffect, useRef, useState } from "react";
-import { BsEmojiSmile } from "react-icons/bs";
-import { FaMicrophone } from "react-icons/fa";
-import { MdSend } from "react-icons/md";
+import EmojiPicker from "emoji-picker-react"
+import React, { useEffect, useRef, useState } from "react"
+import { BsEmojiSmile } from "react-icons/bs"
+import { FaMicrophone } from "react-icons/fa"
+import { MdSend } from "react-icons/md"
 
-import dynamic from "next/dynamic";
+import dynamic from "next/dynamic"
+import { trpc } from "@/server/trpc/client"
+import { toast } from "@/components/ui/use-toast"
 
 const CaptureAudio = dynamic(() => import("../CaptureAudio"), {
   ssr: false,
-});
+})
 
 interface MessageBarProps {
-  addMessage: (message: string) => void;
+  chatId: string
 }
 
-const MessageBar: React.FC<MessageBarProps> = ({ addMessage }) => {
+const MessageBar: React.FC<MessageBarProps> = ({ chatId }) => {
   interface EmojiData {
-    emoji: string;
-    // other properties...
+    emoji: string
   }
-  const [message, setMessage] = useState("");
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showAudioRecorder, setShowAudioRecorder] = useState(false);
 
-  const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const [message, setMessage] = useState("")
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [showAudioRecorder, setShowAudioRecorder] = useState(false)
 
+  const emojiPickerRef = useRef<HTMLDivElement>(null)
+
+  // the only this is doing is to close the emoji picker when the user clicks outside of it
   useEffect(() => {
     const handleOutSideClick = (event: MouseEvent) => {
       if (
@@ -35,29 +38,49 @@ const MessageBar: React.FC<MessageBarProps> = ({ addMessage }) => {
           emojiPickerRef.current &&
           !emojiPickerRef.current.contains(event.target as Node)
         ) {
-          setShowEmojiPicker(false);
+          setShowEmojiPicker(false)
         }
       }
-    };
-    document.addEventListener("click", handleOutSideClick);
+    }
+    document.addEventListener("click", handleOutSideClick)
     return () => {
-      document.removeEventListener("click", handleOutSideClick);
-    };
-  }, []);
+      document.removeEventListener("click", handleOutSideClick)
+    }
+  }, [])
 
   const handleEmojiModal = () => {
-    setShowEmojiPicker(!showEmojiPicker);
-  };
+    setShowEmojiPicker(!showEmojiPicker)
+  }
 
   const handleEmojiClick = (emoji: EmojiData) => {
-    setMessage((prevMessage) => (prevMessage += emoji.emoji));
-  };
+    setMessage((prevMessage) => (prevMessage += emoji.emoji))
+  }
 
-  const sendMessage = async () => {
-    addMessage(message);
-    setMessage("");
-    // alert(message);
-  };
+ const {mutate, isLoading, isError} = trpc.chatRouter.sendMessage.useMutation()
+ const utils = trpc.useUtils()
+
+  const handleSendMessage = () => {
+    mutate({ chatId, text: message, }, {
+      onSuccess: () => {
+        setMessage("")
+        toast({
+          title: "Message sent",
+          description: "Your message has been sent",
+          variant: "default"
+        })
+        utils.chatRouter.getMessages.invalidate({ chatId })
+
+      },
+      onError: (error) => {
+        toast({
+          title: "Error",
+          description: "Something went wrong",
+          variant: "destructive"
+        })
+        console.log("error: ", error)
+      },
+    })
+  }
 
   return (
     <div className="bg-white  h-20  px-4 flex items-center gap-6 relative ">
@@ -98,7 +121,7 @@ const MessageBar: React.FC<MessageBarProps> = ({ addMessage }) => {
                 <MdSend
                   className="text-panel-header-icon cursor-pointer text-xl"
                   title="Send Message"
-                  onClick={sendMessage}
+                  onClick={()=>handleSendMessage()}
                 />
               ) : (
                 <FaMicrophone
@@ -114,7 +137,7 @@ const MessageBar: React.FC<MessageBarProps> = ({ addMessage }) => {
 
       {showAudioRecorder && <CaptureAudio hide={setShowAudioRecorder} />}
     </div>
-  );
-};
+  )
+}
 
-export default MessageBar;
+export default MessageBar
