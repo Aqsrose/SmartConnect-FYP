@@ -7,7 +7,7 @@ function GroupPage() {
   return (
     <Layoutpage>
       <CreateGroup />
-      <GroupPostsSection />
+      {/* <GroupPostsSection /> */}
     </Layoutpage>
   )
 }
