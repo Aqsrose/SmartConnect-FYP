@@ -1,35 +1,43 @@
-"use client"
-import React, { useState } from "react"
-import Logo from "../landingpage/Logo"
-import { SmallLogo } from "../landingpage/Logo"
-import { Search, Bell, BellDot, Send, Loader2, AlertCircle } from "lucide-react"
-import UserButtonComponent from "../UserButton"
-import { trpc } from "@/server/trpc/client"
-import Link from "next/link"
-import { cn, formatRelativeTime } from "@/lib/utils"
-import { useRouter } from "next/navigation"
+"use client";
+import React, { useState } from "react";
+import Logo from "../landingpage/Logo";
+import { SmallLogo } from "../landingpage/Logo";
+import {
+  Search,
+  Bell,
+  BellDot,
+  Send,
+  Loader2,
+  AlertCircle,
+  Megaphone,
+} from "lucide-react";
+import UserButtonComponent from "../UserButton";
+import { trpc } from "@/server/trpc/client";
+import Link from "next/link";
+import { cn, formatRelativeTime } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 function Header() {
-  const [openDropDown, setOpenDropDown] = useState(false)
-  const [searchKey, setSearchKey] = useState<string>("")
-  const router = useRouter()
-  const utils = trpc.useUtils()
+  const [openDropDown, setOpenDropDown] = useState(false);
+  const [searchKey, setSearchKey] = useState<string>("");
+  const router = useRouter();
+  const utils = trpc.useUtils();
 
-  const { data } = trpc.notificaitonRouter.fetchNotifcations.useQuery()
+  const { data } = trpc.notificaitonRouter.fetchNotifcations.useQuery();
 
   const [openNotificationDropdown, setOpenNotificationDropdown] =
-    useState(false)
+    useState(false);
 
   const getNotificationDestinationUrl = (
     type: string,
     entityID: string | null
   ) => {
     if (type.startsWith("POST") || type.startsWith("COMMENT")) {
-      return `/post/${entityID}`
+      return `/post/${entityID}`;
     }
     if (type === "FRIEND_REQUEST") {
-      if (entityID) return `/profile/${entityID}`
-      else return ``
+      if (entityID) return `/profile/${entityID}`;
+      else return ``;
     }
 
     // FRIEND_REQUEST
@@ -42,21 +50,22 @@ function Header() {
     // GROUP_INVITE
     // EVENT_REMINDER
 
-    return ""
-  }
+    return "";
+  };
 
   const {
     data: users,
     isLoading: loadingUsers,
     isError: errorLoadingUsers,
-  } = trpc.profileRouter.searchUsers.useQuery({ key: searchKey })
+  } = trpc.profileRouter.searchUsers.useQuery({ key: searchKey });
 
-  const unreadCount = data?.notifications.reduce((count, item) => {
-    return item.notification.isRead ? count : count + 1
-  }, 0) ?? 0
+  const unreadCount =
+    data?.notifications.reduce((count, item) => {
+      return item.notification.isRead ? count : count + 1;
+    }, 0) ?? 0;
 
   const { mutate: markAsRead } =
-    trpc.notificaitonRouter.markAsRead.useMutation()
+    trpc.notificaitonRouter.markAsRead.useMutation();
 
   return (
     <header className="fixed inset-x-0  mx-auto py-3 lg:py-3 px-4 sm:px-6 lg:px-8 bg-white border border-[#f4f2f2] z-50 flex ">
@@ -77,7 +86,7 @@ function Header() {
                 placeholder="Search..."
                 className="ml-2 text-sm hidden tbbb:block md:block lg:block"
                 onChange={(e) => {
-                  setSearchKey(e.currentTarget.value)
+                  setSearchKey(e.currentTarget.value);
                 }}
                 onInput={() => setOpenDropDown(true)}
                 onFocus={(e) => (e.target.value ? setOpenDropDown(true) : null)}
@@ -108,20 +117,34 @@ function Header() {
           </div>
         </div>
       </div>
-      <div className="lggg:ml-[800px] ml-5  mt-4 flex space-x-2">
-        <div className="w-10 h-10 border border-[#ced1d1]  rounded pt-2 pl-2  ">
-          <Send className="w-5 text-[#10676B]" />
-        </div>
+
+      <div className="lggg:ml-[800px]   mt-4 flex space-x-2">
+        <Link href="/createads">
+          <button
+            className=" hover:from-[#6F8AE1] hover:to-[#4D3BE6] px-4 py-2  text-white rounded transition duration-200 flex"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, #086972, #44679F, #005691, #004A7C, #22577E)",
+            }}
+          >
+            <Megaphone className="w-5 text-white mr-2" /> Ad
+          </button>
+        </Link>
+        <Link href="/chats">
+          <div className="w-10 h-10 border border-[#ced1d1]  rounded pt-2 pl-2  ">
+            <Send className="w-5 text-[#10676B]" />
+          </div>
+        </Link>
         <div className="w-10 h-10 border border-[#ced1d1]  rounded pt-2 pl-2 relative">
           <Bell
             className="w-5 text-[#10676B] cursor-pointer"
             onClick={() => {
-              setOpenNotificationDropdown((prev) => !prev)
+              setOpenNotificationDropdown((prev) => !prev);
               markAsRead(undefined, {
                 onSuccess: () => {
-                  utils.notificaitonRouter.fetchNotifcations.invalidate()
+                  utils.notificaitonRouter.fetchNotifcations.invalidate();
                 },
-              })
+              });
             }}
           />
           {unreadCount > 0 && (
@@ -175,7 +198,7 @@ function Header() {
 
       {/* <div><BellDot/></div> */}
     </header>
-  )
+  );
 }
 
-export default Header
+export default Header;

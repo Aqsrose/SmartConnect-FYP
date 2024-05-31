@@ -1,10 +1,10 @@
-"use client"
-import { trpc } from "@/server/trpc/client"
-import Link from "next/link"
-import React from "react"
+"use client";
+import { trpc } from "@/server/trpc/client";
+import Link from "next/link";
+import React from "react";
 
 function RightBar() {
-  const { data } = trpc.profileRouter.fetchNonFriends.useQuery()
+  const { data } = trpc.profileRouter.fetchNonFriends.useQuery();
 
   return (
     <div className="w-[270px] fixed right-0  h-full shadow-md hidden mdd:hidden md:hidden lg:hidden mddd:block lgg:block bg-white">
@@ -23,7 +23,7 @@ function RightBar() {
         </p>
       </div>
 
-      <div className="mt-4 pl-4 overflow-auto">
+      <div className="mt-4 pl-4 overflow-auto h-96">
         <h3 className="text-lg font-semibold mb-4 text-[#4D869C]">
           Who to follow
         </h3>
@@ -32,7 +32,11 @@ function RightBar() {
           data.nonFriends.map((nonFriend) => {
             return (
               <div className="flex items-center gap-3 mb-4 border border-[#b5d8da] rounded-sm pt-2 pl-2 bg-gray-50">
-                <img src={nonFriend.imageUrl} alt="" className="w-9 h-9 rounded-full mb-2 ml-3" />
+                <img
+                  src={nonFriend.imageUrl}
+                  alt=""
+                  className="w-9 h-9 rounded-full mb-2 ml-3"
+                />
                 <div className="flex">
                   <div>
                     <p className="font-medium ml-1">{nonFriend.fullname}</p>
@@ -50,11 +54,11 @@ function RightBar() {
                   </div>
                 </div>
               </div>
-            )
+            );
           })}
       </div>
     </div>
-  )
+  );
 }
 
-export default RightBar
+export default RightBar;
