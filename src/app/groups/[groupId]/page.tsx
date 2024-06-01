@@ -1,7 +1,7 @@
-"use client"
-import Layoutpage from "@/components/Navbar/Layout"
-import { useUser } from "@clerk/nextjs"
-import { trpc } from "@/server/trpc/client"
+"use client";
+import Layoutpage from "@/components/Navbar/Layout";
+import { useUser } from "@clerk/nextjs";
+import { trpc } from "@/server/trpc/client";
 import {
   Camera,
   Info,
@@ -13,72 +13,72 @@ import {
   Search,
   Share2,
   Trash2,
-} from "lucide-react"
-import React, { useEffect, useRef, useState } from "react"
-import GroupLinks from "@/components/Group/GroupLinks"
-import Link from "@/components/Group/GroupContainers"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
-import { Skeleton } from "@/components/ui/skeleton"
-import { toast } from "@/components/ui/use-toast"
+} from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import GroupLinks from "@/components/Group/GroupLinks";
+import Link from "@/components/Group/GroupContainers";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "@/components/ui/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu"
+} from "@radix-ui/react-dropdown-menu";
 
 interface PageProps {
   params: {
-    groupId: string
-  }
+    groupId: string;
+  };
 }
 
 const Page = ({ params: { groupId } }: PageProps) => {
-  const { data } = trpc.groupRouter.fetchGroupById.useQuery({ groupId })
-  console.log("Group data: ", data)
-  const utils = trpc.useUtils()
+  const { data } = trpc.groupRouter.fetchGroupById.useQuery({ groupId });
+  console.log("Group data: ", data);
+  const utils = trpc.useUtils();
 
-  const { user } = useUser()
-  const [activeLink, setActiveLink] = useState<string>("")
-  const [isCopied, setIsCopied] = useState(false)
-  const copyElement = useRef<HTMLInputElement | null>(null)
+  const { user } = useUser();
+  const [activeLink, setActiveLink] = useState<string>("");
+  const [isCopied, setIsCopied] = useState(false);
+  const copyElement = useRef<HTMLInputElement | null>(null);
 
   const {
     data: groupMembers,
     isLoading,
     isError,
-  } = trpc.groupRouter.fetchGroupMembers.useQuery({ groupId })
+  } = trpc.groupRouter.fetchGroupMembers.useQuery({ groupId });
 
-  console.log("Group members: ", groupMembers)
+  console.log("Group members: ", groupMembers);
 
   const isUserAMember =
     groupMembers &&
     groupMembers.groupMembersWithUserData.some((member) => {
-      return member.user.id === user?.id
-    })
+      return member.user.id === user?.id;
+    });
 
   const {
     data: friends,
     isLoading: fetchingFriends,
     isError: errorFetchingFriends,
-  } = trpc.profileRouter.fetchFriends.useQuery()
+  } = trpc.profileRouter.fetchFriends.useQuery();
 
   const {
     mutate: inviteToGroup,
     isLoading: invitingToGroup,
     isError: inviteError,
-  } = trpc.groupRouter.inviteToGroup.useMutation()
+  } = trpc.groupRouter.inviteToGroup.useMutation();
 
   const {
     data: groupJoinRequests,
     isLoading: loadingRequests,
     isError: errorLoadingRequests,
-  } = trpc.groupRouter.fetchGroupJoinRequests.useQuery({ groupId })
+  } = trpc.groupRouter.fetchGroupJoinRequests.useQuery({ groupId });
 
-  console.log("Group join requests: ", groupJoinRequests)
+  console.log("Group join requests: ", groupJoinRequests);
 
   if (!user) {
     return (
@@ -108,7 +108,7 @@ const Page = ({ params: { groupId } }: PageProps) => {
           </div>
         </div>
       </Layoutpage>
-    )
+    );
   }
 
   return (
@@ -155,11 +155,11 @@ const Page = ({ params: { groupId } }: PageProps) => {
                       className="w-full h-full object-cover rounded-full"
                     />
                   </div>
-                )
+                );
               })}
           </div>
         </div>
-        <div className="flex absolute right-3 bottom-[100px] ">
+        {/* <div className="flex absolute right-3 bottom-[100px] ">
           <DropdownMenu>
             <DropdownMenuTrigger>
               <MoreHorizontal size={20} />
@@ -171,7 +171,7 @@ const Page = ({ params: { groupId } }: PageProps) => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
+        </div> */}
         <div className="mt-3  w-[340px] ">
           <div className="flex tbbb:absolute tbbb:right-0 tbbb:bottom-5 ">
             {isUserAMember && (
@@ -200,7 +200,7 @@ const Page = ({ params: { groupId } }: PageProps) => {
                         <p>{friend.username}</p>
                         {groupJoinRequests &&
                         groupJoinRequests.joinRequests.some((request) => {
-                          return request.user.id === friend.id
+                          return request.user.id === friend.id;
                         }) ? (
                           <button
                             className="ml-auto bg-gradient-to-r  bg-blue-500 hover:from-blue-600 hover:to-blue-500 px-4 py-2 mr-3 text-white rounded transition duration-200"
@@ -220,8 +220,8 @@ const Page = ({ params: { groupId } }: PageProps) => {
                                       variant: "default",
                                       title: "Invitation Sent",
                                       description: "Your invite has been sent.",
-                                    })
-                                    utils.groupRouter.fetchGroupJoinRequests.invalidate()
+                                    });
+                                    utils.groupRouter.fetchGroupJoinRequests.invalidate();
                                   },
                                   onError: () => {
                                     toast({
@@ -229,7 +229,7 @@ const Page = ({ params: { groupId } }: PageProps) => {
                                       title: "Invitation Failed",
                                       description:
                                         "Your invite could not be sent.",
-                                    })
+                                    });
                                   },
                                 }
                               )
@@ -279,21 +279,21 @@ const Page = ({ params: { groupId } }: PageProps) => {
                           size="sm"
                           onClick={() => {
                             if (copyElement.current) {
-                              const link = copyElement.current.value
+                              const link = copyElement.current.value;
                               if (navigator.clipboard) {
                                 navigator.clipboard
                                   .writeText(link)
                                   .then(() => {
-                                    setIsCopied(true)
-                                    setTimeout(() => setIsCopied(false), 3000)
+                                    setIsCopied(true);
+                                    setTimeout(() => setIsCopied(false), 3000);
                                   })
                                   .catch((error) => {
-                                    console.error("Copy failed:", error)
-                                  })
-                                copyElement.current.select()
-                                document.execCommand("copy")
-                                setIsCopied(true)
-                                setTimeout(() => setIsCopied(false), 3000)
+                                    console.error("Copy failed:", error);
+                                  });
+                                copyElement.current.select();
+                                document.execCommand("copy");
+                                setIsCopied(true);
+                                setTimeout(() => setIsCopied(false), 3000);
                               }
                             }
                           }}
@@ -340,7 +340,7 @@ const Page = ({ params: { groupId } }: PageProps) => {
         </div>
       )}
     </Layoutpage>
-  )
-}
+  );
+};
 
-export default Page
+export default Page;

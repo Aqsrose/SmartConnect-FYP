@@ -76,20 +76,22 @@ const MessagesPage: React.FC<ChatContainerProps> = ({ messages }) => {
         <div className="mx-10 my-6 relative  bottom-0 -z-40 left-0">
           <div className="flex w-full">
             <div className="flex flex-col justify-end w-full gap-1 overflow-auto">
-              <div className="flex flex-col gap-2 overflow-auto">
+              <div className="flex flex-col gap-2 overflow-auto border  border-black">
                 {messagesOptimistic &&
                   messagesOptimistic.map((message) => (
                     <div
                       key={message.id}
                       className={cn(
-                        "text-white bg-[#435585] px-2 py-[5px] text-md rounded-md flex gap-2 items-end max-w-screen-sb break-words",
+                        "text-white bg-[#435585] px-2 py-[5px] text-md rounded-md flex gap-2 items-end max-w-screen-sb  break-words whitespace-pre-wrap",
                         {
                           "ml-auto bg-[#116D6E] text-white":
                             message.from === user?.id,
                         }
                       )}
                     >
-                      <p>{message.text}</p>
+                      <p className="break-words whitespace-pre-wrap">
+                        {message.text}
+                      </p>
                     </div>
                   ))}
                 <div ref={endOfMessagesRef} />
