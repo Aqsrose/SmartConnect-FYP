@@ -1,48 +1,48 @@
-"use client"
-import { cn } from "@/lib/utils"
-import { trpc } from "@/server/trpc/client"
-import { useUser } from "@clerk/nextjs"
-import { useState, useEffect, useRef } from "react"
+"use client";
+import { cn } from "@/lib/utils";
+import { trpc } from "@/server/trpc/client";
+import { useUser } from "@clerk/nextjs";
+import { useState, useEffect, useRef } from "react";
 
 interface ChatContainerProps {
-  messages: messages
+  messages: messages;
 }
 
 type messages =
   | {
-      chatId: string
-      id: string
-      from: string
-      to: string
-      text: string
-      createdAt: string
+      chatId: string;
+      id: string;
+      from: string;
+      to: string;
+      text: string;
+      createdAt: string;
     }[]
-  | undefined
+  | undefined;
 
 const MessagesPage: React.FC<ChatContainerProps> = ({ messages }) => {
-  const { user } = useUser()
+  const { user } = useUser();
 
-  const [messagesOptimistic, setMessagesOptimistic] = useState(messages)
-   const endOfMessagesRef = useRef<HTMLDivElement>(null)
+  const [messagesOptimistic, setMessagesOptimistic] = useState(messages);
+  const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setMessagesOptimistic(messages)
-  }, [messages])
+    setMessagesOptimistic(messages);
+  }, [messages]);
 
   useEffect(() => {
     if (endOfMessagesRef.current) {
       endOfMessagesRef.current.scrollIntoView({
         behavior: "smooth",
         block: "end",
-      })
+      });
     }
-  }, [messagesOptimistic])
+  }, [messagesOptimistic]);
 
   trpc.chatRouter.onMessageCreated.useSubscription(
     { senderId: user?.id! },
     {
       onData: (data) => {
-        console.log("message received through socket: ", data)
+        console.log("message received through socket: ", data);
         setMessagesOptimistic((prev) => {
           return [
             // @ts-expect-error
@@ -61,14 +61,14 @@ const MessagesPage: React.FC<ChatContainerProps> = ({ messages }) => {
               // @ts-ignore
               createdAt: data.createdAt,
             },
-          ]
-        })
+          ];
+        });
       },
       onError: (error) => {
-        console.log("error on receiving message through socket: ", error)
+        console.log("error on receiving message through socket: ", error);
       },
     }
-  )
+  );
 
   return (
     <div className=" h-full w-full relative flex-grow overflow-auto custom-scrollbar bg-pink-1000 mb-2">
@@ -99,7 +99,7 @@ const MessagesPage: React.FC<ChatContainerProps> = ({ messages }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MessagesPage
+export default MessagesPage;
