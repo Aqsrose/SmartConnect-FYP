@@ -1,43 +1,43 @@
-"use client"
-import Layoutpage from "@/components/Navbar/Layout"
-import MessagesPage from "../messages/page"
-import { MoreHorizontal, Search, SmilePlus } from "lucide-react"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import SearchBar from "../SearchBar"
-import { trpc } from "@/server/trpc/client"
-import { formatRelativeTime } from "@/lib/utils"
-import { useEffect, useRef, useState } from "react"
-import { toast } from "@/components/ui/use-toast"
-import { BsEmojiSmile } from "react-icons/bs"
-import EmojiPicker from "emoji-picker-react"
+"use client";
+import Layoutpage from "@/components/Navbar/Layout";
+import MessagesPage from "../messages/page";
+import { MoreHorizontal, Search, SmilePlus } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import SearchBar from "../SearchBar";
+import { trpc } from "@/server/trpc/client";
+import { formatRelativeTime } from "@/lib/utils";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "@/components/ui/use-toast";
+import { BsEmojiSmile } from "react-icons/bs";
+import EmojiPicker from "emoji-picker-react";
 
 interface PageProps {
   params: {
-    chatId: string
-  }
+    chatId: string;
+  };
 }
 
 function ChatPage({ params: { chatId } }: PageProps) {
-  const router = useRouter()
+  const router = useRouter();
 
   const {
     data: chats,
     isLoading,
     isError,
-  } = trpc.chatRouter.getChats.useQuery()
+  } = trpc.chatRouter.getChats.useQuery();
 
-  const { data } = trpc.chatRouter.getMessages.useQuery({ chatId })
+  const { data } = trpc.chatRouter.getMessages.useQuery({ chatId });
 
   interface EmojiData {
-    emoji: string
+    emoji: string;
   }
 
-  const [message, setMessage] = useState("")
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
-  const [showAudioRecorder, setShowAudioRecorder] = useState(false)
+  const [message, setMessage] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showAudioRecorder, setShowAudioRecorder] = useState(false);
 
-  const emojiPickerRef = useRef<HTMLDivElement>(null)
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   // the only this is doing is to close the emoji picker when the user clicks outside of it
   useEffect(() => {
@@ -50,62 +50,62 @@ function ChatPage({ params: { chatId } }: PageProps) {
           emojiPickerRef.current &&
           !emojiPickerRef.current.contains(event.target as Node)
         ) {
-          setShowEmojiPicker(false)
+          setShowEmojiPicker(false);
         }
       }
-    }
-    document.addEventListener("click", handleOutSideClick)
+    };
+    document.addEventListener("click", handleOutSideClick);
     return () => {
-      document.removeEventListener("click", handleOutSideClick)
-    }
-  }, [])
+      document.removeEventListener("click", handleOutSideClick);
+    };
+  }, []);
 
   const handleEmojiModal = () => {
-    setShowEmojiPicker(!showEmojiPicker)
-  }
+    setShowEmojiPicker(!showEmojiPicker);
+  };
 
   const handleEmojiClick = (emoji: EmojiData) => {
-    setMessage((prevMessage) => (prevMessage += emoji.emoji))
-  }
+    setMessage((prevMessage) => (prevMessage += emoji.emoji));
+  };
 
   const {
     mutate,
     isLoading: sendingMessage,
     isError: messageError,
-  } = trpc.chatRouter.sendMessage.useMutation()
-  const utils = trpc.useUtils()
+  } = trpc.chatRouter.sendMessage.useMutation();
+  const utils = trpc.useUtils();
 
   const handleSendMessage = () => {
-    if (message.length === 0) return
-    setMessage("")
+    if (message.length === 0) return;
+    setMessage("");
     mutate(
       { chatId, text: message },
       {
         onSuccess: () => {
-          utils.chatRouter.getMessages.invalidate({ chatId })
+          utils.chatRouter.getMessages.invalidate({ chatId });
         },
         onError: (error) => {
           toast({
             title: "Error",
             description: "Something went wrong",
             variant: "destructive",
-          })
-          console.log("error: ", error)
+          });
+          console.log("error: ", error);
         },
       }
-    )
-  }
+    );
+  };
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
-      handleSendMessage()
+      handleSendMessage();
     }
-  }
+  };
 
   return (
     <Layoutpage showRightBar={false}>
-      <div className="flex  min-h-screen ml-6 tb:ml-[130px] tbb:ml-[100px] md:ml-[130px] md:mr-10 -mt-5 border border-gray-200 fixed ">
-        <div className="w-[300px] hidden tbb:block sbb:w-[340px] tb:w-[300px] tbbb:w-[400px] tbb:w-[210px] md:w-[250px] lg:w-[300px] xl:w-[350px] border-r border-gray-200">
+      <div className="flex  min-h-screen ml-6  tb:ml-[100px] md:ml-[130px] md:mr-10 -mt-5 border border-gray-200 tb:fixed ">
+        <div className="w-[300px] hidden tbb:block  sbb:w-[340px] tb:w-[300px] tbbb:w-[400px] tbb:w-[250px] md:w-[260px] lg:w-[300px] xl:w-[350px] border-r border-gray-200">
           {/* top left part*/}
           <div className="flex items-center justify-between px-3 py-4">
             <SearchBar />
@@ -141,17 +141,17 @@ function ChatPage({ params: { chatId } }: PageProps) {
                       {chat.message[chat.message.length - 1]?.text}
                     </div>
                   </div>
-                  <div className="text-xs text-gray-500 ">
+                  <div className="text-xs text-gray-500 ml-1">
                     {formatRelativeTime(
                       chat.message[chat.message.length - 1]?.createdAt
                     )}
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         </div>
-        <main className="flex-grow tbb:flex flex-col tbb:w-[350px] mdc:w-[450px] mdd:w-[500px] mddd:w-[600px] lgg:w-[700px] lggg:w-[950px] ">
+        <main className="flex-grow flex flex-col w-[300px] sbb:w-[350px] tbbb:w-[410px] tbb:w-[370px] mdc:w-[450px] mdd:w-[500px] mddd:w-[600px] lgg:w-[700px] lggg:w-[950px] ">
           <header className="flex items-center justify-between bg-white border-b border-gray-200 ">
             <div className="flex flex-grow items-center border border-gray-100 p-4 relative">
               <div className="flex-shrink-0 w-10 h-10 md:w-16 md:h-16 bg-white rounded-full overflow-hidden border-2 border-[#003C43]">
@@ -174,12 +174,12 @@ function ChatPage({ params: { chatId } }: PageProps) {
           </header>
 
           {/* Messages part */}
-          <div className="flex-grow p-4  tb:max-h-[450px] overflow-y-auto">
+          <div className="flex-grow p-4   tb:max-h-[450px] overflow-y-auto">
             <MessagesPage messages={data?.messages} />
           </div>
 
           {/* footer */}
-          <footer className="p-4 bg-white border-t border-gray-200 flex items-center sticky bottom-0">
+          <footer className="p-4 bg-white border-t border-gray-200 flex items-center  mb-44 tb:mb-0 tb:sticky tb:bottom-0">
             <BsEmojiSmile
               className="text-panel-header-icon cursor-pointer text-xl"
               title="Emoji"
@@ -189,12 +189,12 @@ function ChatPage({ params: { chatId } }: PageProps) {
 
             {showEmojiPicker && (
               <div
-                className="bottom-24 left-128 z-40 fixed "
+                className="bottom-24 left-128  tb:fixed "
                 ref={emojiPickerRef}
               >
                 <EmojiPicker
                   onEmojiClick={handleEmojiClick}
-                  className="z-[9999999]"
+                  className="z-[9999999] flex-shrink-0 w-7 h-7"
                 />
               </div>
             )}
@@ -218,6 +218,6 @@ function ChatPage({ params: { chatId } }: PageProps) {
         </main>
       </div>
     </Layoutpage>
-  )
+  );
 }
-export default ChatPage
+export default ChatPage;

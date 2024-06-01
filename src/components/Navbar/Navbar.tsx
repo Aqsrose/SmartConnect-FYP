@@ -1,7 +1,7 @@
-"use client"
-import React from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+"use client";
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Home,
   PlusCircle,
@@ -11,18 +11,17 @@ import {
   CalendarCheck,
   User,
   LogOut,
-} from "lucide-react"
-import { useUser } from "@clerk/nextjs"
+} from "lucide-react";
+import { useUser } from "@clerk/nextjs";
 
 function Navbar() {
+  const { user } = useUser();
 
-  const {user} = useUser()
-
-  const pathname = usePathname()
-  const isActive = (path: string) => pathname === path
-  const activeLinkClass = "text-[#10676B]"
+  const pathname = usePathname();
+  const isActive = (path: string) => pathname === path;
+  const activeLinkClass = "text-[#10676B]";
   const linkClass =
-    "flex items-center px-2 py-1 sb:px-2 sb:ml-1 sbb:px-2 sbb:ml-3 tb:px-4 tb:py-2 tb:mr-5 md:ml-0 md:mr-3 rounded md:px-4 md:py-2  lg:px-4 lg:py-2 lg:mr-3  hover:text-[#85b3b6] hover:bg-[#F2F2F2]"
+    "flex items-center px-2 py-1 sb:px-2 sb:ml-1 sbb:px-2 sbb:ml-3 tb:px-4 tb:py-2 tb:mr-5 md:ml-0 md:mr-3 rounded md:px-4 md:py-2  lg:px-4 lg:py-2 lg:mr-3  hover:text-[#85b3b6] hover:bg-[#F2F2F2]";
   return (
     <nav className="fixed bottom-0 shadow-md tb:mt-20 md:mt-24 lg:mt-24 md:inset-y-0 tb:inset-y-0 left-0 w-full pt-3 pb-3 tb:w-24 tb:pt-5 md:pt-5  md:w-48 lg:pt-5  lg:w-48 bg-white border border-[#e0e0e0] z-50">
       <ul className="flex flex-row md:flex-col tb:flex-col tb:ml-1 md:ml-5 lg:ml-5 md:space-x-0 tb:space-x-0 md:space-y-4  tb:space-y-4 ml-1">
@@ -40,7 +39,7 @@ function Navbar() {
             </div>
           </Link>
         </li>
-  
+
         <li>
           <Link href="/explore">
             <div
@@ -129,22 +128,21 @@ function Navbar() {
         </li>
       </ul>
 
-      <div className="hidden lg:block md:block tb:mt-32 md:mt-32 lg:mt-32 tb:ml-2 md:ml-8 lg:ml-8">
-        <Link href="/">
-          <button className=" text-white px-4 py-2 rounded" style={{ backgroundImage: 'linear-gradient(to right, #086972, #44679F, #005691, #004A7C, #22577E)' }}>
-            Logout
-          </button>
-        </Link>
-      </div>
-      <div className="md:hidden lg:hidden hidden sb:hidden sbb:hidden tbbb:block tbb:block tb:block tb:mt-32 md:mt-32 lg:mt-32 tb:ml-3 md:ml-5 lg:ml-5">
-        <Link href="/">
-          <button className=" text-white px-4 py-2 rounded" style={{ backgroundImage: 'linear-gradient(to right, #086972, #44679F, #005691, #004A7C, #22577E)' }}>
-            <LogOut />
-          </button>
-        </Link>
+      <div className=" hidden tb:block tb:mt-12 tb:ml-3 md:ml-14">
+        <div className="flex-shrink-0 w-16 h-16 md:ml-2">
+          <img
+            src="/Images/login.png"
+            alt="Profile"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div>
+          <p className="text-sm text-gray-400 ml-2">login 22m</p>
+          <p className="text-sm text-gray-400">login device </p>
+        </div>
       </div>
     </nav>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;
