@@ -39,7 +39,6 @@ function ChatPage({ params: { chatId } }: PageProps) {
 
   const emojiPickerRef = useRef<HTMLDivElement>(null);
 
-  // the only this is doing is to close the emoji picker when the user clicks outside of it
   useEffect(() => {
     const handleOutSideClick = (event: MouseEvent) => {
       if (
@@ -104,9 +103,8 @@ function ChatPage({ params: { chatId } }: PageProps) {
 
   return (
     <Layoutpage showRightBar={false}>
-      <div className="flex  min-h-screen ml-6  tb:ml-[100px] md:ml-[130px] md:mr-10 -mt-5 border border-gray-200 tb:fixed ">
-        <div className="w-[300px] hidden tbb:block  sbb:w-[340px] tb:w-[300px] tbbb:w-[400px] tbb:w-[250px] md:w-[260px] lg:w-[300px] xl:w-[350px] border-r border-gray-200">
-          {/* top left part*/}
+      <div className="flex min-h-screen ml-6 tb:ml-[100px] md:ml-[130px] md:mr-10 -mt-5 border border-gray-200 tb:fixed">
+        <div className="w-[300px] hidden tbb:block sbb:w-[340px] tb:w-[300px] tbbb:w-[400px] tbb:w-[250px] md:w-[260px] lg:w-[300px] xl:w-[350px] border-r border-gray-200">
           <div className="flex items-center justify-between px-3 py-4">
             <SearchBar />
           </div>
@@ -116,13 +114,12 @@ function ChatPage({ params: { chatId } }: PageProps) {
             <div className="font-semibold text-blue-500">Messages</div>
           </div>
 
-          {/* users */}
-          <div className=" max-h-[500px] overflow-y-auto">
+          <div className="max-h-[500px] overflow-y-auto">
             {chats?.chats.map((chat) => {
               return (
                 <div
                   onClick={() => router.push(`/chats/${chat.id}`)}
-                  className="flex items-center p-1  tbb:p-3 hover:bg-gray-50 bg-white border-none tbb:bg-gray-50 cursor-pointer tbb:border tbb:border-gray-200"
+                  className="flex items-center p-1 tbb:p-3 hover:bg-gray-50 bg-white border-none tbb:bg-gray-50 cursor-pointer tbb:border tbb:border-gray-200"
                 >
                   <div className="flex-shrink-0 w-14 h-14 tbb:w-16 tbb:h-16 bg-white rounded-full overflow-hidden border-2 border-[#003C43]">
                     <Image
@@ -133,7 +130,7 @@ function ChatPage({ params: { chatId } }: PageProps) {
                       className="object-cover"
                     />
                   </div>
-                  <div className="ml-4 flex-grow ">
+                  <div className="ml-4 flex-grow">
                     <div className="text-sm font-semibold">
                       {chat.userB?.username ?? chat.userA?.username}
                     </div>
@@ -151,8 +148,8 @@ function ChatPage({ params: { chatId } }: PageProps) {
             })}
           </div>
         </div>
-        <main className="flex-grow flex flex-col w-[300px] sbb:w-[350px] tbbb:w-[410px] tbb:w-[370px] mdc:w-[450px] mdd:w-[500px] mddd:w-[600px] lgg:w-[700px] lggg:w-[950px] ">
-          <header className="flex items-center justify-between bg-white border-b border-gray-200 ">
+        <main className="flex-grow flex flex-col  w-[300px] sbb:w-[350px] tbbb:w-[410px] tbb:w-[370px] mdc:w-[450px] mdd:w-[500px] mddd:w-[600px] lgg:w-[700px] lggg:w-[950px] ">
+          <header className="flex items-center justify-between bg-white border-b border-gray-200">
             <div className="flex flex-grow items-center border border-gray-100 p-4 relative">
               <div className="flex-shrink-0 w-10 h-10 md:w-16 md:h-16 bg-white rounded-full overflow-hidden border-2 border-[#003C43]">
                 <Image
@@ -164,22 +161,20 @@ function ChatPage({ params: { chatId } }: PageProps) {
                 />
               </div>
               <div className="ml-4">
-                <div className="text-sm font-semibold">Muhammad Ali</div>
+                <div className="text-sm font-semibold">anya_forger</div>
                 <div className="text-xs text-green-500">Active now</div>
               </div>
-              <div className="flex absolute right-3  ">
+              <div className="flex absolute right-3">
                 <MoreHorizontal size={20} />
               </div>
             </div>
           </header>
 
-          {/* Messages part */}
-          <div className="flex-grow p-4   tb:max-h-[450px] overflow-y-auto">
+          <div className="flex-grow max-h-[420px] tb:max-h-[450px] overflow-y-auto">
             <MessagesPage messages={data?.messages} />
           </div>
 
-          {/* footer */}
-          <footer className="p-4 bg-white border-t border-gray-200 flex items-center  mb-44 tb:mb-0 tb:sticky tb:bottom-0">
+          <footer className="p-4 bg-white border-t border-gray-200 flex items-center sticky bottom-0">
             <BsEmojiSmile
               className="text-panel-header-icon cursor-pointer text-xl"
               title="Emoji"
@@ -188,10 +183,7 @@ function ChatPage({ params: { chatId } }: PageProps) {
             />
 
             {showEmojiPicker && (
-              <div
-                className="bottom-24 left-128  tb:fixed "
-                ref={emojiPickerRef}
-              >
+              <div className="bottom-24 left-128 tb:fixed" ref={emojiPickerRef}>
                 <EmojiPicker
                   onEmojiClick={handleEmojiClick}
                   className="z-[9999999] flex-shrink-0 w-7 h-7"
@@ -208,7 +200,7 @@ function ChatPage({ params: { chatId } }: PageProps) {
               onKeyDown={handleKeyPress}
             />
             <button
-              className="ml-4 bg-gradient-to-r from-[#349E8D] to-[#2EC7AB] hover:from-[#2EC7AB] hover:to-[#349E8D] text-white px-4 py-2 rounded-lg disabled:opacity-50"
+              className="ml-4 bg-gradient-to-r from-[#349E8D] to-[#2EC7AB] hover:from-[#2EC7AB] hover:to-[#349E8D] text-white px-4 py-2 rounded-lg"
               onClick={handleSendMessage}
               disabled={message.length === 0}
             >
@@ -220,4 +212,5 @@ function ChatPage({ params: { chatId } }: PageProps) {
     </Layoutpage>
   );
 }
+
 export default ChatPage;

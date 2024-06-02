@@ -127,20 +127,6 @@ function Navbar() {
           </Link>
         </li>
       </ul>
-
-      <div className=" hidden tb:block tb:mt-12 tb:ml-3 md:ml-14">
-        <div className="flex-shrink-0 w-16 h-16 md:ml-2">
-          <img
-            src="/Images/login.png"
-            alt="Profile"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div>
-          <p className="text-sm text-gray-400 ml-2">login 22m</p>
-          <p className="text-sm text-gray-400">login device </p>
-        </div>
-      </div>
     </nav>
   );
 }

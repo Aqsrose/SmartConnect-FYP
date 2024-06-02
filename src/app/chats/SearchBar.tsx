@@ -20,7 +20,7 @@ const SearchBar = () => {
     isLoading: creatingChat,
     isError: errorCreatingChat,
   } = trpc.chatRouter.createChat.useMutation();
-
+  console.log(friends);
   const router = useRouter();
 
   const [openDropDown, setOpenDropDown] = useState(false);
@@ -61,10 +61,10 @@ const SearchBar = () => {
       />
       {openDropDown && (
         <div className="absolute bg-white w-[280px] z-50 top-10 -left-6 border-black border-solid border shadow-sm p-2 flex gap-2">
-          {isLoading && !friends ? (
+          {isLoading ? (
             <Loader2 className="animate-spin m-auto" />
-          ) : (
-            friends?.users.map((user) => (
+          ) : friends && friends.users.length > 0 ? (
+            friends.users.map((user) => (
               <div
                 className="flex gap-4 items-center border-b border-[#00000033] p-2 w-full cursor-pointer hover:bg-slate-200 rounded-md"
                 key={user.id}
@@ -73,11 +73,15 @@ const SearchBar = () => {
                 <img
                   src={user.imageUrl}
                   alt="user img"
-                  className="object-cover rounded-full w-12"
+                  className="object-cover rounded-full w-12 h-12"
                 />
                 <p>{user.username}</p>
               </div>
             ))
+          ) : (
+            <div className="m-auto text-center p-2 text-gray-500">
+              No friends found
+            </div>
           )}
         </div>
       )}

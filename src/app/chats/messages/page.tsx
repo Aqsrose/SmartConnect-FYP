@@ -71,35 +71,29 @@ const MessagesPage: React.FC<ChatContainerProps> = ({ messages }) => {
   );
 
   return (
-    <div className=" h-full w-full relative flex-grow overflow-auto custom-scrollbar bg-pink-1000 mb-2">
-      <div className=" bg-fixed h-full w-full opacity-100 left-0 top-0 z-0 ">
-        <div className="mx-10 my-6 relative  bottom-0 -z-40 left-0">
-          <div className="flex w-full">
-            <div className="flex flex-col justify-end w-full gap-1 overflow-auto">
-              <div className="flex flex-col gap-2 overflow-auto border  border-black">
-                {messagesOptimistic &&
-                  messagesOptimistic.map((message) => (
-                    <div
-                      key={message.id}
-                      className={cn(
-                        "text-white bg-[#435585] px-2 py-[5px] text-md rounded-md flex gap-2 items-end max-w-screen-sb  break-words whitespace-pre-wrap",
-                        {
-                          "ml-auto bg-[#116D6E] text-white":
-                            message.from === user?.id,
-                        }
-                      )}
-                    >
-                      <p className="break-words whitespace-pre-wrap">
-                        {message.text}
-                      </p>
-                    </div>
-                  ))}
-                <div ref={endOfMessagesRef} />
-              </div>
-            </div>
+    <div className="flex flex-col gap-2 p-2 max-w-full">
+      {messagesOptimistic &&
+        messagesOptimistic.map((message) => (
+          <div
+            key={message.id}
+            style={{ wordBreak: "break-word", whiteSpace: "pre-wrap" }}
+            className={cn(
+              " text-white bg-[#435585] px-2 py-1 text-md rounded-md flex-wrap  gap-2 max-w-[50%]",
+              {
+                "ml-auto bg-[#116D6E] px-2 py-1 text-md rounded-md flex-wrap gap-2 text-white max-w-[50%]":
+                  message.from === user?.id,
+              },
+              {
+                "mr-auto": message.from !== user?.id,
+              }
+            )}
+          >
+            <p style={{ wordBreak: "break-word", whiteSpace: "pre-wrap" }}>
+              {message.text}
+            </p>
           </div>
-        </div>
-      </div>
+        ))}
+      <div ref={endOfMessagesRef} />
     </div>
   );
 };

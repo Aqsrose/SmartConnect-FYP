@@ -1,24 +1,24 @@
-"use client"
-import { Search } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import React from "react"
-import { useRouter } from "next/navigation"
-import SearchBar from "../SearchBar"
-import { trpc } from "@/server/trpc/client"
-import { formatRelativeTime } from "@/lib/utils"
+"use client";
+import { Search } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+import { useRouter } from "next/navigation";
+import SearchBar from "../SearchBar";
+import { trpc } from "@/server/trpc/client";
+import { formatRelativeTime } from "@/lib/utils";
 
 function ChatList() {
-  const router = useRouter()
+  const router = useRouter();
 
   const {
     data: chats,
     isLoading,
     isError,
-  } = trpc.chatRouter.getChats.useQuery()
+  } = trpc.chatRouter.getChats.useQuery();
 
   return (
-    <div className="w-[300px] sbb:w-[340px] tb:w-[300px] tbbb:w-[400px] tbb:w-[210px] md:w-[250px] lg:w-[300px] xl:w-[350px] border-r border-gray-200">
+    <div className="w-[300px]  sbb:w-[340px] tb:w-[300px] tbbb:w-[400px] tbb:w-[290px] md:w-[260px] lg:w-[300px] xl:w-[350px]  border-r border-gray-200">
       {/* top left part*/}
       <div className="flex items-center justify-between px-3 py-4">
         <SearchBar />
@@ -60,10 +60,10 @@ function ChatList() {
                 )}
               </div>
             </div>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }
-export default ChatList
+export default ChatList;
