@@ -73,7 +73,7 @@ const SearchBar = () => {
                 <img
                   src={user.imageUrl}
                   alt="user img"
-                  className="object-cover rounded-full w-12"
+                  className="object-cover rounded-full w-12 h-12"
                 />
                 <p>{user.username}</p>
               </div>

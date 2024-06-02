@@ -162,7 +162,8 @@ const getModerationLabels = async (prisma: PrismaClient, postId: string) => {
         )
         const response = await client.send(detectModerationLabelsCommand)
 
-        if (response.ModerationLabels) {
+        if (response.ModerationLabels && response.ModerationLabels?.length > 0) {
+          console.log(response)
           await prisma.mediaModeration.createMany({
             data: response.ModerationLabels.map((label) => ({
               confidence: label.Confidence ?? 0,
@@ -225,7 +226,7 @@ const getModerationLabels = async (prisma: PrismaClient, postId: string) => {
             }
           }
 
-          if (response && response.ModerationLabels) {
+          if (response && response.ModerationLabels && response.ModerationLabels?.length > 0) {
             await prisma.mediaModeration.createMany({
               data: response.ModerationLabels.splice(0, 10).map((label) => ({
                 confidence: label.ModerationLabel?.Confidence ?? 0,

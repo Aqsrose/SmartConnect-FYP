@@ -78,10 +78,13 @@ const MessagesPage: React.FC<ChatContainerProps> = ({ messages }) => {
             key={message.id}
             style={{ wordBreak: "break-word", whiteSpace: "pre-wrap" }}
             className={cn(
-              "text-white bg-[#435585] px-2 py-1 text-md rounded-md flex gap-2 max-w-[50%]",
+              " text-white bg-[#435585] px-2 py-1 text-md rounded-md flex-wrap  gap-2 max-w-[50%]",
               {
-                "ml-auto bg-[#116D6E] px-2 py-1 text-md rounded-md flex gap-2 text-white max-w-[50%]":
+                "ml-auto bg-[#116D6E] px-2 py-1 text-md rounded-md flex-wrap gap-2 text-white max-w-[50%]":
                   message.from === user?.id,
+              },
+              {
+                "mr-auto": message.from !== user?.id,
               }
             )}
           >

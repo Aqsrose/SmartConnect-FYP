@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Dialog,
@@ -8,46 +8,46 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogClose,
-} from "@/components/ui/dialog"
-import { toast } from "@/components/ui/use-toast"
-import { trpc } from "@/server/trpc/client"
-import { useUser } from "@clerk/nextjs"
-import { StringDecoder } from "string_decoder"
+} from "@/components/ui/dialog";
+import { toast } from "@/components/ui/use-toast";
+import { trpc } from "@/server/trpc/client";
+import { useUser } from "@clerk/nextjs";
+import { StringDecoder } from "string_decoder";
 
 interface Props {
-  userId: string
+  userId: string;
 }
 
 function ProfileFriendsPage({ userId }: Props) {
-  const utils = trpc.useUtils()
-  const {user} = useUser()
+  const utils = trpc.useUtils();
+  const { user } = useUser();
 
   const { data, isLoading, isError } =
-    trpc.profileRouter.fetchFriends.useQuery()
+    trpc.profileRouter.fetchFriends.useQuery();
 
   const {
     data: requests,
     isLoading: loadingRequests,
     isError: errorLoadingRequests,
-  } = trpc.profileRouter.fetchCompleteFriendRequests.useQuery()
+  } = trpc.profileRouter.fetchCompleteFriendRequests.useQuery();
 
   const {
     mutate: acceptFriendRequest,
     isLoading: acceptingFriendRequest,
     isError: errorAcceptingRequest,
-  } = trpc.profileRouter.acceptFriendRequest.useMutation()
+  } = trpc.profileRouter.acceptFriendRequest.useMutation();
 
   const {
     mutate: rejectFriendRequest,
     isLoading: rejectingFriendRequest,
     isError: errorRejectingRequest,
-  } = trpc.profileRouter.rejectRequest.useMutation()
+  } = trpc.profileRouter.rejectRequest.useMutation();
 
   const {
     mutate: removeFriend,
     isLoading: removingFriend,
     isError: errorRemovingFriend,
-  } = trpc.profileRouter.removeFriend.useMutation()
+  } = trpc.profileRouter.removeFriend.useMutation();
 
   return (
     <div className="absolute top-2 left-4 border border-gray-100  w-[260px] sb:w-[300px] sbb:w-[350px] tb:w-[330px] tbbb:w-[350px] tbb:w-[500px] md:w-[520px] lgg:w-[400px] lggg:w-[500px]">
@@ -107,10 +107,10 @@ function ProfileFriendsPage({ userId }: Props) {
                                         title: "Success",
                                         description:
                                           "This user has been removed as a friend",
-                                      })
+                                      });
 
-                                      utils.profileRouter.fetchCompleteFriendRequests.invalidate()
-                                      utils.profileRouter.fetchFriends.invalidate()
+                                      utils.profileRouter.fetchCompleteFriendRequests.invalidate();
+                                      utils.profileRouter.fetchFriends.invalidate();
                                     },
                                     onError: () => {
                                       toast({
@@ -118,10 +118,10 @@ function ProfileFriendsPage({ userId }: Props) {
                                         title: "Error",
                                         description:
                                           "The request could not be processed at the moment. Please try again",
-                                      })
+                                      });
                                     },
                                   }
-                                )
+                                );
                               }}
                             >
                               Yes
@@ -178,9 +178,9 @@ function ProfileFriendsPage({ userId }: Props) {
                   </p>
                 </div>
                 {user && user.id === userId && (
-                  <div className="sb:ml-3 sbb:absolute sbb:top-5 sbb:right-8">
+                  <div className="sb:ml-3 sbb:absolute sbb:top-5 sbb:right-8 ">
                     <button
-                      className="text-sm px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors"
+                      className="text-sm px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors mr-2 "
                       onClick={() => {
                         acceptFriendRequest(
                           { senderId: request.otherUser.id },
@@ -191,10 +191,10 @@ function ProfileFriendsPage({ userId }: Props) {
                                 title: "Success",
                                 description:
                                   "This user has been added as a friend",
-                              })
+                              });
 
-                              utils.profileRouter.fetchCompleteFriendRequests.invalidate()
-                              utils.profileRouter.fetchFriends.invalidate()
+                              utils.profileRouter.fetchCompleteFriendRequests.invalidate();
+                              utils.profileRouter.fetchFriends.invalidate();
                             },
                             onError: () => {
                               toast({
@@ -202,17 +202,17 @@ function ProfileFriendsPage({ userId }: Props) {
                                 title: "Error",
                                 description:
                                   "The request could not be accepted. Please try again",
-                              })
+                              });
                             },
                           }
-                        )
+                        );
                       }}
                     >
                       Accept
                     </button>
 
                     <button
-                      className="text-sm px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors"
+                      className="text-sm px-3 py-2 bg-purple-600 text-white rounded hover:bg-blue-700 transition-colors"
                       onClick={() => {
                         rejectFriendRequest(
                           { userId: request.otherUser.id },
@@ -222,10 +222,10 @@ function ProfileFriendsPage({ userId }: Props) {
                                 variant: "default",
                                 title: "Success",
                                 description: "The friend request was rejected",
-                              })
+                              });
 
-                              utils.profileRouter.fetchCompleteFriendRequests.invalidate()
-                              utils.profileRouter.fetchFriends.invalidate()
+                              utils.profileRouter.fetchCompleteFriendRequests.invalidate();
+                              utils.profileRouter.fetchFriends.invalidate();
                             },
                             onError: () => {
                               toast({
@@ -233,10 +233,10 @@ function ProfileFriendsPage({ userId }: Props) {
                                 title: "Error",
                                 description:
                                   "Couldn't reject at this time. Please try again",
-                              })
+                              });
                             },
                           }
-                        )
+                        );
                       }}
                     >
                       Reject
@@ -248,6 +248,6 @@ function ProfileFriendsPage({ userId }: Props) {
           ))}
       </div>
     </div>
-  )
+  );
 }
-export default ProfileFriendsPage
+export default ProfileFriendsPage;

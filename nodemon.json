@@ -1,7 +1,7 @@
+
 {
-  "watch": ["src", "server"],
-  "exec": "pnpm exec ts-node --project tsconfig.server.json src/server/server.ts",
-  "ext": "js,ts,tsx",
-  "ignore": ["src/public", "node_modules"],
+  "watch": ["server.ts", "src/trpc/index.js"],
+  "exec": "pnpm exec ts-node --project tsconfig.server.json src/server/server.ts -- -I",
+  "ext": "js ts",
   "stdin": false
 }

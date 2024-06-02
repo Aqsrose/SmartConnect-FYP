@@ -282,7 +282,7 @@ export const profileRouter = router({
     const { id } = ctx.user
 
     const rawRequests = await ctx.prisma.friendRequests.findMany({
-      where: { OR: [{ receiverId: id }, { senderId: id }], status: "PENDING" },
+      where: {  receiverId: id , status: "PENDING" },
     })
 
     const otherUserIds = [
@@ -348,7 +348,7 @@ export const profileRouter = router({
           },
         },
       })
-
+console.log(request)
       if (!request || request.status !== "PENDING") {
         throw new Error("Friend request not found or already processed")
       }

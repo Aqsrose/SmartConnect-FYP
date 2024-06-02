@@ -5,12 +5,9 @@ import { filterUsersForClient } from "../../helpers/filterUserForClient"
 import clerk from "@clerk/clerk-sdk-node"
 import { observable } from "@trpc/server/observable"
 import { Message } from "@prisma/client"
-import { text } from "stream/consumers"
 
 export const chatRouter = router({
-  //make a subscription router here which actives whenever a new message is sent
-  //and then sends the message (or notification) to the client
-  //this will be a separate router from the chat router
+  // Subscription for new message notifications
   onMessageCreated: publicProcedure
     .input(
       z.object({
@@ -87,6 +84,22 @@ export const chatRouter = router({
     )
     .query(async ({ ctx, input }) => {
       const { chatId } = input
+
+      // Ensure the current user is a participant in the chat
+      const chat = await ctx.prisma.chat.findFirst({
+        where: {
+          id: chatId,
+          OR: [{ userA: ctx.user.id }, { userB: ctx.user.id }],
+        },
+      })
+
+      if (!chat) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not authorized to view these messages",
+        })
+      }
+
       const messages = await ctx.prisma.message.findMany({
         where: {
           chatId,
@@ -156,23 +169,29 @@ export const chatRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { chatId, text } = input
 
+      // Ensure the current user is a participant in the chat
       const chat = await ctx.prisma.chat.findFirst({
         where: {
           id: chatId,
+          OR: [{ userA: ctx.user.id }, { userB: ctx.user.id }],
         },
       })
 
-      let sentMessage
-      if (chat) {
-        sentMessage = await ctx.prisma.message.create({
-          data: {
-            from: ctx.user.id,
-            to: chat.userA === ctx.user.id ? chat.userB : chat.userA,
-            text,
-            chatId,
-          },
+      if (!chat) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not authorized to send messages in this chat",
         })
       }
+
+      const sentMessage = await ctx.prisma.message.create({
+        data: {
+          from: ctx.user.id,
+          to: chat.userA === ctx.user.id ? chat.userB : chat.userA,
+          text,
+          chatId,
+        },
+      })
 
       ctx.ee.emit("onMessageCreatedInChat", sentMessage)
 
