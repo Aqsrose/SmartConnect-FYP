@@ -1,26 +1,18 @@
 "use client";
-import Navbar from "@/components/Navbar";
-import { UserProfile, useClerk, useUser } from "@clerk/nextjs";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useUser } from "@clerk/nextjs";
 import { trpc } from "@/server/trpc/client";
-import Post from "@/components/Post";
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import StoryModal from "@/components/story/storyModal";
 import Modal from "@/components/Modal";
-import { cn } from "@/lib/utils";
 import {
   Camera,
-  Loader2,
   Pencil,
-  ChevronDown,
   MoreHorizontal,
   Trash2,
 } from "lucide-react";
 import useNFTMarketplace from "@/web3/useMarketplace";
-import NFTCard from "@/components/marketpalce/NFTCard";
-import { Button } from "@/components/ui/button";
 import getSignedUrls from "@/app/actions/getSignedUrls";
 import { toast } from "@/components/ui/use-toast";
 import Layoutpage from "@/components/Navbar/Layout";
@@ -41,7 +33,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
-import EditProfileModal from "@/components/Profile/editProfileModal";
+import EditProfileModal from "@/components/Profile/EditProfileModal";
 
 interface PageProps {
   params: {
@@ -74,9 +66,11 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
 
   const coverImageElement = useRef<HTMLInputElement | null>(null);
 
-  const { data: userFromBackend } = trpc.profileRouter.fetchUserInfo.useQuery({
+  const { data: userFromBackend, isLoading: loadingUser, isError: errorLoadingUser } = trpc.profileRouter.fetchUserInfo.useQuery({
     userId,
   });
+
+  console.log("userFromBackend: ", userFromBackend);
 
   const {
     data: requests,
@@ -475,12 +469,7 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
           />
           {userId === user?.id && (
             <>
-              <div className="absolute right-0 bottom-0 p-1 border-4 border-white rounded-full bg-gray-50">
-                <Pencil
-                  className="cursor-pointer"
-                  onClick={() => triggerFileInput(profilePhotoInputRef)}
-                />
-              </div>
+              
               <input
                 type="file"
                 accept="image/*"
@@ -557,7 +546,7 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
         profilePageUserId={userId}
         loggedInUserId={user.id}
       />
-      <ProfileDetails activeLink={activeLink} userId={userId} />
+      <ProfileDetails activeLink={activeLink} userId={userId} userFromBackend={userFromBackend} isLoading={loadingUser} errorLoadingUser={errorLoadingUser} />
     </Layoutpage>
   );
 };

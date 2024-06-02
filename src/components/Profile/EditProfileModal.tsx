@@ -1,44 +1,65 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Modal from "@/components/Modal";
-import { Loader2 } from "lucide-react";
+import React, { useState } from "react"
+import { useForm, SubmitHandler } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import Modal from "@/components/Modal"
+import { Loader2 } from "lucide-react"
+import { trpc } from "@/server/trpc/client"
 
 const eventSchema = z.object({
-  accountname: z.string(),
-  username: z.string(),
+  // accountname: z.string(),
+  // username: z.string(),
   bio: z.string(),
-});
+})
 
-type EventSchema = z.infer<typeof eventSchema>;
+type EventSchema = z.infer<typeof eventSchema>
 
 interface EditModalProps {
-  close: () => void;
+  close: () => void
 }
 
 const EditProfileModal: React.FC<EditModalProps> = ({ close }) => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false)
+
+  const utils = trpc.useUtils()
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<EventSchema>({
     resolver: zodResolver(eventSchema),
-  });
+  })
 
+  const {
+    mutate: updateUserBio,
+    isLoading: updatingUserBio,
+    isError: errorUpdatingUserBio,
+  } = trpc.profileRouter.updateUserBio.useMutation()
+
+  //this is exactly what I wanted
   const handleEditProfile: SubmitHandler<EventSchema> = async (data) => {
-   
-  };
+    console.log("data: ", data)
+    const { bio } = data
+    updateUserBio(
+      { bio },
+      {
+        onSuccess: () => {
+          utils.profileRouter.fetchUserInfo.invalidate()
+          close()
+        },
+      }
+    )
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
         <h2 className="text-xl font-semibold mb-4">Edit Profile</h2>
         <form onSubmit={handleSubmit(handleEditProfile)}>
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <label className="block text-sm font-medium mb-1" htmlFor="AccountName">
               Account Name
             </label>
@@ -66,7 +87,7 @@ const EditProfileModal: React.FC<EditModalProps> = ({ close }) => {
             {errors.username && (
               <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>
             )}
-          </div>
+          </div> */}
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1" htmlFor="Bio">
               Bio
@@ -94,7 +115,7 @@ const EditProfileModal: React.FC<EditModalProps> = ({ close }) => {
               type="submit"
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center"
             >
-              {loading ? (
+              {updatingUserBio ? (
                 <Loader2 className="animate-spin w-4 h-4" />
               ) : (
                 "Save"
@@ -104,7 +125,7 @@ const EditProfileModal: React.FC<EditModalProps> = ({ close }) => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default EditProfileModal;
+export default EditProfileModal
