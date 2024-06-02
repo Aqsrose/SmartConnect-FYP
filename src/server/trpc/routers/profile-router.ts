@@ -131,7 +131,7 @@ export const profileRouter = router({
 
     // this will get users by matching this key with userId, emailAddress, phoneNumber, username, web3Wallet, firstName and lastName
 
-    let friendsWithUserInfo: User[] = []
+    let friendsWithUserInfo
     if (friends.length > 0) {
       const users = await clerk.users.getUserList({
         userId: userIds,
@@ -481,5 +481,40 @@ export const profileRouter = router({
       }
 
       return { success: true }
+    }),
+
+  updateUserBio: privateProcedure
+    .input(z.object({ bio: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { bio } = input
+      const user = await clerk.users.updateUser(ctx.user.id, {
+        publicMetadata: { bio },
+      })
+
+      return { success: true, user }
+    }),
+
+  editProfile: privateProcedure
+    .input(
+      z.object({
+        university: z.string(),
+        from: z.string(),
+        relationshipStatus: z.string(),
+        isPublic: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { university, from, relationshipStatus, isPublic } = input
+
+      const user = await clerk.users.updateUser(ctx.user.id, {
+        privateMetadata: {
+          university,
+          from,
+          relationshipStatus,
+          isPublic: isPublic === "public" ?? false,
+        },
+      })
+
+      return { success: true, user }
     }),
 })

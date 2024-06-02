@@ -1,29 +1,31 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ImagePlus, Loader2, Trash2, X } from "lucide-react";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { trpc } from "@/server/trpc/client";
+import React, { useState } from "react"
+import { useForm, SubmitHandler } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { ImagePlus, Loader2, Trash2, X } from "lucide-react"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { trpc } from "@/server/trpc/client"
+import { toast } from "../ui/use-toast"
 
 const bioSchema = z.object({
-  university: z.string().optional(),
-  location: z.string().optional(),
-  status: z.string().optional(),
-  account: z.string().optional(),
-});
+  university: z.string(),
+  from: z.string(),
+  relationshipStatus: z.string(),
+  isPublic: z.string(),
+})
 
-type BioSchema = z.infer<typeof bioSchema>;
+type BioSchema = z.infer<typeof bioSchema>
 
 interface BioModalProps {
-  close: () => void;
+  close: () => void
 }
 
 const EditBioModal: React.FC<BioModalProps> = ({ close }) => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [loading, setLoading] = useState<boolean>(false)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const utils = trpc.useUtils()
 
   const {
     register,
@@ -31,21 +33,35 @@ const EditBioModal: React.FC<BioModalProps> = ({ close }) => {
     formState: { errors },
   } = useForm<BioSchema>({
     resolver: zodResolver(bioSchema),
-  });
+  })
 
-  const { mutate, isLoading } = trpc.postRouter.createPost.useMutation();
 
   const handleAdPostModal: SubmitHandler<BioSchema> = async (data) => {
-    setLoading(true);
-   
-  };
+    editProfile(data, {
+      onSuccess: () => {
+        utils.profileRouter.fetchUserInfo.invalidate()
+        toast({
+          variant: "default",
+          title: "Success",
+          description: "Profile updated successfully",
+        })
+        close()
+      },
+      onError: () => {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "An error occurred while updating profile",
+        })
+      },
+    })
+  }
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      setSelectedFiles((prevFiles) => [...prevFiles, ...Array.from(files)]);
-    }
-  };
+  const {
+    mutate: editProfile,
+    isLoading: editingProfile,
+    isError: errorEditingProfile,
+  } = trpc.profileRouter.editProfile.useMutation()
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center p-4">
@@ -59,7 +75,10 @@ const EditBioModal: React.FC<BioModalProps> = ({ close }) => {
         <h2 className="text-xl font-semibold mb-4">Edit Bio</h2>
         <form onSubmit={handleSubmit(handleAdPostModal)}>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1" htmlFor="university">
+            <label
+              className="block text-sm font-medium mb-1"
+              htmlFor="university"
+            >
               University
             </label>
             <input
@@ -69,22 +88,29 @@ const EditBioModal: React.FC<BioModalProps> = ({ close }) => {
               {...register("university")}
             />
             {errors.university && (
-              <p className="text-red-500 text-sm mt-1">{errors.university.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.university.message}
+              </p>
             )}
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1" htmlFor="location">
+            <label
+              className="block text-sm font-medium mb-1"
+              htmlFor="from"
+            >
               Location
             </label>
             <input
               id="location"
               type="text"
               className="form-input w-full border border-gray-500"
-              {...register("location")}
+              {...register("from")}
             />
-            {errors.location && (
-              <p className="text-red-500 text-sm mt-1">{errors.location.message}</p>
+            {errors.from && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.from.message}
+              </p>
             )}
           </div>
 
@@ -96,18 +122,49 @@ const EditBioModal: React.FC<BioModalProps> = ({ close }) => {
               id="status"
               type="text"
               className="form-input w-full border border-gray-500"
-              {...register("status")}
+              {...register("relationshipStatus")}
             />
-            {errors.status && (
-              <p className="text-red-500 text-sm mt-1">{errors.status.message}</p>
+            {errors.relationshipStatus && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.relationshipStatus.message}
+              </p>
             )}
           </div>
-        
+          <div className="mb-4">
+            <label
+              className="block text-sm font-medium mb-1"
+              htmlFor="isPublic"
+            >
+              Account Visibility
+            </label>
+            <label htmlFor=""> Public</label>
+            <input
+              id="isPublic"
+              type="radio"
+              value="public"
+              className="form-input w-fit border border-gray-500"
+              {...register("isPublic")}
+            />
+            <label htmlFor=""> Private</label>
+            <input
+              id="isPublic"
+              type="radio"
+              value="private"
+              className="form-input w-fit border border-gray-500"
+              {...register("isPublic")}
+            />
+            {errors.isPublic && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.isPublic.message}
+              </p>
+            )}
+          </div>
+
           <button
             type="submit"
             className="bg-[#6F8AE1] hover:bg-[#349E8D] px-4 py-2 text-white rounded transition duration-200"
           >
-            {loading || isLoading ? (
+            {editingProfile ? (
               <Loader2 className="animate-spin" />
             ) : (
               "Save Changes"
@@ -116,7 +173,7 @@ const EditBioModal: React.FC<BioModalProps> = ({ close }) => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default EditBioModal;
+export default EditBioModal

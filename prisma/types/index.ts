@@ -1,14 +1,18 @@
 import { Prisma } from "@prisma/client"
-import { EmailAddress } from "@clerk/clerk-sdk-node";
+import { EmailAddress } from "@clerk/clerk-sdk-node"
 
 export type PostWithRelations = Prisma.PostGetPayload<{
-  include: { _count: {select: {comments: true, postLikes: true}}; postLikes: true; media: true }
+  include: {
+    _count: { select: { comments: true; postLikes: true } }
+    postLikes: true
+    media: true
+  }
 }> & {
   isLikedByUser?: boolean
 }
 
 export type StoryWithRelations = Prisma.UserStoryGetPayload<{
-  include: {storyViews: true}
+  include: { storyViews: true }
 }>
 
 export type ParentCommentsWithReplyCount = Prisma.CommentGetPayload<{
@@ -30,6 +34,12 @@ export type User = {
   emailAddresses: EmailAddress[]
   fullname: string
   bio: {}
+  info: {
+    university: string
+    from: string
+    relationshipStatus: string
+    isPublic: boolean
+  }
 }
 
 // I will probably do something this, maybe I won't I really don't know REALLY
@@ -55,7 +65,7 @@ export type NFT = {
 
 //add more fields here like category, type (img|video), etc...
 export type NFTMetadata = {
-  name: string,
+  name: string
   description: string
   imageUrl: string
 }
