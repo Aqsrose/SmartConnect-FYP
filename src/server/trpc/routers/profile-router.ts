@@ -27,7 +27,7 @@ export const profileRouter = router({
       })
 
       if (friends.length === 0) {
-        return { sucess: true, message: "NO_FRIENDS" }
+        return { sucess: true, users: [] }
       }
 
       // get all the userIds into a flat array and then take all except the user that's making the request

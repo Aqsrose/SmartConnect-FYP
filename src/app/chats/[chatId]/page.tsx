@@ -164,7 +164,7 @@ function ChatPage({ params: { chatId } }: PageProps) {
                 />
               </div>
               <div className="ml-4">
-                <div className="text-sm font-semibold">Muhammad Ali</div>
+                <div className="text-sm font-semibold">anya_forger</div>
                 <div className="text-xs text-green-500">Active now</div>
               </div>
               <div className="flex absolute right-3  ">
@@ -174,7 +174,7 @@ function ChatPage({ params: { chatId } }: PageProps) {
           </header>
 
           {/* Messages part */}
-          <div className="flex-grow p-4   tb:max-h-[450px] overflow-y-auto">
+          <div className=" tb:max-h-[450px] overflow-y-auto">
             <MessagesPage messages={data?.messages} />
           </div>
 
