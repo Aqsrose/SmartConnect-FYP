@@ -1,37 +1,38 @@
-"use client"
-import { trpc } from "@/server/trpc/client"
-import { Loader2 } from "lucide-react"
-import React, { useState } from "react"
-import { User } from "../../../prisma/types"
-import { useRouter } from "next/navigation"
-import { toast } from "@/components/ui/use-toast"
+"use client";
+import { trpc } from "@/server/trpc/client";
+import { Loader2 } from "lucide-react";
+import React, { useState } from "react";
+import { User } from "../../../prisma/types";
+import { useRouter } from "next/navigation";
+import { toast } from "@/components/ui/use-toast";
 
 const SearchBar = () => {
-  const [searchKey, setSearchKey] = useState<string>("")
+  const [searchKey, setSearchKey] = useState<string>("");
 
   const {
     data: friends,
     refetch,
     isLoading,
     isError,
-  } = trpc.profileRouter.fetchFriendsForChat.useQuery({ key: searchKey })
+  } = trpc.profileRouter.fetchFriendsForChat.useQuery({ key: searchKey });
   const {
     mutate: createChat,
     isLoading: creatingChat,
     isError: errorCreatingChat,
-  } = trpc.chatRouter.createChat.useMutation()
+  } = trpc.chatRouter.createChat.useMutation();
 
-  const router = useRouter()
+  const router = useRouter();
 
-  const [openDropDown, setOpenDropDown] = useState(false)
+  const [openDropDown, setOpenDropDown] = useState(false);
 
   const handleCreateChat = (user: User) => {
+    console.log("working");
     createChat(
       { userId: user.id },
       {
         onSuccess: (response) => {
           if (response.success) {
-            router.push(`/message/chat/${response.chat.id}`)
+            router.push(`/message/chat/${response.chat.id}`);
           }
         },
         onError: () => {
@@ -39,11 +40,11 @@ const SearchBar = () => {
             variant: "destructive",
             title: "Server Error",
             description: "An error occurred creating a chat",
-          })
+          });
         },
       }
-    )
-  }
+    );
+  };
 
   return (
     <div className="relative">
@@ -53,10 +54,9 @@ const SearchBar = () => {
         className="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
         value={searchKey}
         onChange={(e) => {
-          setSearchKey(e.currentTarget.value)
+          setSearchKey(e.currentTarget.value);
         }}
         onInput={() => setOpenDropDown(true)}
-        onBlur={() => setOpenDropDown(false)}
         onFocus={(e) => (e.target.value ? setOpenDropDown(true) : null)}
       />
       {openDropDown && (
@@ -82,7 +82,7 @@ const SearchBar = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default SearchBar
+export default SearchBar;

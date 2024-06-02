@@ -170,7 +170,7 @@ function Header() {
                           <img
                             src={notification.user?.imageUrl}
                             alt="user img"
-                            className="object-cover rounded-full w-12"
+                            className="object-cover rounded-full w-12 h-12"
                           />
                         )}
                         <div>
