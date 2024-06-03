@@ -119,7 +119,7 @@ function Header() {
       </div>
 
       <div className="lggg:ml-[800px]   mt-4 flex space-x-2">
-        <Link href="/createads">
+        {/* <Link href="/createads">
           <button
             className=" hover:from-[#6F8AE1] hover:to-[#4D3BE6] px-4 py-2  text-white rounded transition duration-200 flex"
             style={{
@@ -129,7 +129,7 @@ function Header() {
           >
             <Megaphone className="w-5 text-white mr-2" /> Ad
           </button>
-        </Link>
+        </Link> */}
         <Link href="/chats">
           <div className="w-10 h-10 border border-[#ced1d1]  rounded pt-2 pl-2  ">
             <Send className="w-5 text-[#10676B]" />

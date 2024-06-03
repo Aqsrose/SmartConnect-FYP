@@ -59,7 +59,12 @@ const Landingpage_nav: React.FC<LandingPageNavProps> = (props) => {
   };
 
   return (
-    <header className="min-w-[26rem] tb:mr-[-100px] mr-[-100px] lg:mr-0">
+    <header
+      className="min-w-[26rem] tb:mr-[-100px] mr-[-100px] lg:mr-0 "
+      style={{
+        backgroundImage: "linear-gradient(to right,#FFFBF5,#CEE6F3, #B9F3E4)",
+      }}
+    >
       <div
         className={
           header
