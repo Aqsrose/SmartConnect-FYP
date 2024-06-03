@@ -6,8 +6,13 @@ import { useUser } from "@clerk/nextjs";
 function GetStarted() {
   const { isSignedIn } = useUser();
   return (
-    <main className="grid gap-8 ml-10 lg:ml-44 xl:ml-52 lg:bg-red xd:border-x-red-950">
-      <div className="main md:flex">
+    <main
+      className="grid gap-8 min-h-screen "
+      style={{
+        backgroundImage: "linear-gradient(to right,#FFFBF5,#CEE6F3, #B9F3E4)",
+      }}
+    >
+      <div className="main md:flex  ml-10 lg:ml-44 xl:ml-52">
         <div className="mb-6 ">
           <h1 className="bg-gradient-to-r from-[#98D1CF] to-[#1F7074] animate-gradient bg-clip-text text-transparent ml-10 mb-4 text-3xl lg:text-5xl mt-16 md:mt-44 md:ml-14 lg:ml-5">
             Welcome to SmartConnect
