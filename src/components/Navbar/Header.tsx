@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Logo from "../landingpage/Logo";
 import { SmallLogo } from "../landingpage/Logo";
 import {
@@ -22,12 +22,34 @@ function Header() {
   const [searchKey, setSearchKey] = useState<string>("");
   const router = useRouter();
   const utils = trpc.useUtils();
+  const searchDropdownRef = useRef<HTMLDivElement>(null);
 
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      searchDropdownRef.current &&
+      !searchDropdownRef.current.contains(event.target as Node)
+    ) {
+      setOpenDropDown(false);
+    }
+    if (
+      notificationDropdownRef.current &&
+      !notificationDropdownRef.current.contains(event.target as Node)
+    ) {
+      setOpenNotificationDropdown(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   const { data } = trpc.notificaitonRouter.fetchNotifcations.useQuery();
 
   const [openNotificationDropdown, setOpenNotificationDropdown] =
     useState(false);
-
+  const notificationDropdownRef = useRef<HTMLDivElement>(null);
   const getNotificationDestinationUrl = (
     type: string,
     entityID: string | null
@@ -92,7 +114,10 @@ function Header() {
                 onFocus={(e) => (e.target.value ? setOpenDropDown(true) : null)}
               />
               {openDropDown && (
-                <div className="absolute bg-white w-[341px] z-50 top-8 -left-12 border-black border-solid border shadow-sm p-2 flex gap-2 flex-col">
+                <div
+                  ref={searchDropdownRef}
+                  className="absolute bg-white w-[341px] z-50 top-8 -left-12 border-gray-50 border-solid border shadow-sm p-2 flex gap-2 flex-col max-h-96 overflow-y-auto "
+                >
                   {loadingUsers ? (
                     <Loader2 className="animate-spin m-auto" />
                   ) : (
@@ -105,7 +130,7 @@ function Header() {
                         <img
                           src={user.imageUrl}
                           alt="user img"
-                          className="object-cover rounded-full w-12"
+                          className="object-cover rounded-full w-12 h-12"
                         />
                         <p>{user.username}</p>
                       </div>
@@ -135,7 +160,10 @@ function Header() {
             <Send className="w-5 text-[#10676B]" />
           </div>
         </Link>
-        <div className="w-10 h-10 border border-[#ced1d1]  rounded pt-2 pl-2 relative">
+        <div
+          ref={notificationDropdownRef}
+          className="w-10 h-10 border border-[#ced1d1]  rounded pt-2 pl-2 relative"
+        >
           <Bell
             className="w-5 text-[#10676B] cursor-pointer"
             onClick={() => {

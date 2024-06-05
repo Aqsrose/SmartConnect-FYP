@@ -68,6 +68,12 @@ function ChatPage({ params: { chatId } }: PageProps) {
   };
 
   const {
+    data: chat,
+    isLoading: loadingChat,
+    isError: errorFetchingChat,
+  } = trpc.chatRouter.getChat.useQuery({ chatId });
+
+  const {
     mutate,
     isLoading: sendingMessage,
     isError: messageError,
@@ -153,7 +159,11 @@ function ChatPage({ params: { chatId } }: PageProps) {
             <div className="flex flex-grow items-center border border-gray-100 p-4 relative">
               <div className="flex-shrink-0 w-10 h-10 md:w-16 md:h-16 bg-white rounded-full overflow-hidden border-2 border-[#003C43]">
                 <Image
-                  src="/Images/Ai.jpg"
+                  src={
+                    chat?.chat.userA?.imageUrl ??
+                    chat?.chat.userB?.imageUrl ??
+                    ""
+                  }
                   alt="Profile"
                   width={100}
                   height={100}
@@ -161,7 +171,11 @@ function ChatPage({ params: { chatId } }: PageProps) {
                 />
               </div>
               <div className="ml-4">
-                <div className="text-sm font-semibold">anya_forger</div>
+                <div className="text-sm font-semibold">
+                  {chat?.chat.userA?.username ??
+                    chat?.chat.userB?.username ??
+                    ""}
+                </div>`
                 <div className="text-xs text-green-500">Active now</div>
               </div>
               <div className="flex absolute right-3">

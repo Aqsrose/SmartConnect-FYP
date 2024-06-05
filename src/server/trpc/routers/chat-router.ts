@@ -159,6 +159,58 @@ export const chatRouter = router({
     return { success: true, chats: chatsWithUsers }
   }),
 
+  getChat: privateProcedure
+  .input(z.object({ chatId: z.string() }))
+  .query(async ({ ctx, input }) => {
+    // Fetch the chat involving the current user by chatId
+    const chat = await ctx.prisma.chat.findUnique({
+      where: {
+        id: input.chatId,
+      },
+      include: {
+        message: true,
+      },
+    });
+
+    if (!chat) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Chat not found",
+      });
+    }
+
+    // Ensure the current user is involved in the chat
+    if (chat.userA !== ctx.user.id && chat.userB !== ctx.user.id) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "You are not authorized to view this chat",
+      });
+    }
+
+    // Extract the user IDs involved in the chat
+    const userIds = [chat.userA, chat.userB].filter((id) => id !== ctx.user.id);
+
+    // Fetch user details from Clerk
+    const users = await clerk.users.getUserList({
+      userId: userIds,
+    });
+
+    // Function to filter users for the client
+    const filteredUsers = filterUsersForClient(users);
+
+    // Create a map of userId to user details for easy lookup
+    const userMap = new Map(filteredUsers.map((user) => [user.id, user]));
+
+    // Attach user details to the chat
+    const chatWithUsers = {
+      ...chat,
+      userA: userMap.get(chat.userA),
+      userB: userMap.get(chat.userB),
+    };
+
+    return { success: true, chat: chatWithUsers };
+  }),
+
   sendMessage: privateProcedure
     .input(
       z.object({
@@ -175,6 +227,9 @@ export const chatRouter = router({
           id: chatId,
           OR: [{ userA: ctx.user.id }, { userB: ctx.user.id }],
         },
+        include: {
+          message: true
+        }
       })
 
       if (!chat) {

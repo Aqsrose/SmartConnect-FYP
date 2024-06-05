@@ -1,31 +1,31 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import { useForm, SubmitHandler } from "react-hook-form"
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { ImagePlus, Loader2, Trash2, X } from "lucide-react"
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
-import { trpc } from "@/server/trpc/client"
-import { toast } from "../ui/use-toast"
+import React, { useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ImagePlus, Loader2, Trash2, X } from "lucide-react";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { trpc } from "@/server/trpc/client";
+import { toast } from "../ui/use-toast";
 
 const bioSchema = z.object({
   university: z.string(),
   from: z.string(),
   relationshipStatus: z.string(),
   isPublic: z.string(),
-})
+});
 
-type BioSchema = z.infer<typeof bioSchema>
+type BioSchema = z.infer<typeof bioSchema>;
 
 interface BioModalProps {
-  close: () => void
+  close: () => void;
 }
 
 const EditBioModal: React.FC<BioModalProps> = ({ close }) => {
-  const [loading, setLoading] = useState<boolean>(false)
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
-  const utils = trpc.useUtils()
+  const [loading, setLoading] = useState<boolean>(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const utils = trpc.useUtils();
 
   const {
     register,
@@ -33,35 +33,34 @@ const EditBioModal: React.FC<BioModalProps> = ({ close }) => {
     formState: { errors },
   } = useForm<BioSchema>({
     resolver: zodResolver(bioSchema),
-  })
-
+  });
 
   const handleAdPostModal: SubmitHandler<BioSchema> = async (data) => {
     editProfile(data, {
       onSuccess: () => {
-        utils.profileRouter.fetchUserInfo.invalidate()
+        utils.profileRouter.fetchUserInfo.invalidate();
         toast({
           variant: "default",
           title: "Success",
           description: "Profile updated successfully",
-        })
-        close()
+        });
+        close();
       },
       onError: () => {
         toast({
           variant: "destructive",
           title: "Error",
           description: "An error occurred while updating profile",
-        })
+        });
       },
-    })
-  }
+    });
+  };
 
   const {
     mutate: editProfile,
     isLoading: editingProfile,
     isError: errorEditingProfile,
-  } = trpc.profileRouter.editProfile.useMutation()
+  } = trpc.profileRouter.editProfile.useMutation();
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center p-4">
@@ -95,10 +94,7 @@ const EditBioModal: React.FC<BioModalProps> = ({ close }) => {
           </div>
 
           <div className="mb-4">
-            <label
-              className="block text-sm font-medium mb-1"
-              htmlFor="from"
-            >
+            <label className="block text-sm font-medium mb-1" htmlFor="from">
               Location
             </label>
             <input
@@ -108,9 +104,7 @@ const EditBioModal: React.FC<BioModalProps> = ({ close }) => {
               {...register("from")}
             />
             {errors.from && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.from.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.from.message}</p>
             )}
           </div>
 
@@ -142,7 +136,7 @@ const EditBioModal: React.FC<BioModalProps> = ({ close }) => {
               id="isPublic"
               type="radio"
               value="public"
-              className="form-input w-fit border border-gray-500"
+              className="form-input w-fit border border-gray-500 ml-3 mr-2"
               {...register("isPublic")}
             />
             <label htmlFor=""> Private</label>
@@ -150,7 +144,7 @@ const EditBioModal: React.FC<BioModalProps> = ({ close }) => {
               id="isPublic"
               type="radio"
               value="private"
-              className="form-input w-fit border border-gray-500"
+              className="form-input w-fit border border-gray-500 ml-3"
               {...register("isPublic")}
             />
             {errors.isPublic && (
@@ -173,7 +167,7 @@ const EditBioModal: React.FC<BioModalProps> = ({ close }) => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default EditBioModal
+export default EditBioModal;

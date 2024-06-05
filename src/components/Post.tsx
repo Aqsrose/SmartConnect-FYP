@@ -1,5 +1,5 @@
-"use client"
-import { cn, formatRelativeTime } from "@/lib/utils"
+"use client";
+import { cn, formatRelativeTime } from "@/lib/utils";
 import {
   Bookmark,
   Heart,
@@ -8,8 +8,8 @@ import {
   Users,
   MoreVertical,
   MessageCircle,
-} from "lucide-react"
-import React, { useEffect, useRef, useState } from "react"
+} from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -17,64 +17,64 @@ import {
   CarouselNext,
   CarouselPrevious,
   type CarouselApi,
-} from "@/components/ui/carousel"
-import { trpc } from "@/server/trpc/client"
-import { toast } from "./ui/use-toast"
-import { useUser } from "@clerk/nextjs"
-import { Comment as CommentType, Media, PostLikes } from "@prisma/client"
+} from "@/components/ui/carousel";
+import { trpc } from "@/server/trpc/client";
+import { toast } from "./ui/use-toast";
+import { useUser } from "@clerk/nextjs";
+import { Comment as CommentType, Media, PostLikes } from "@prisma/client";
 import {
   Dialog,
   DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "./ui/dialog"
-import { ScrollArea } from "./ui/scroll-area"
-import CommentList from "./CommentList"
+} from "./ui/dialog";
+import { ScrollArea } from "./ui/scroll-area";
+import CommentList from "./CommentList";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import Link from "next/link"
+} from "./ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 type MediaWithStringDate = Omit<Media, "createdAt"> & {
-  createdAt: string // Modified type
+  createdAt: string; // Modified type
   moderation:
     | {
-        moderationLabel: string
-        confidence: number
-        id: string
-        mediaId: string
+        moderationLabel: string;
+        confidence: number;
+        id: string;
+        mediaId: string;
       }[]
-    | undefined
+    | undefined;
   labels:
     | {
-        label: string
-        confidence: number
-        id: string
-        mediaId: string
+        label: string;
+        confidence: number;
+        id: string;
+        mediaId: string;
       }[]
-    | undefined
-}
+    | undefined;
+};
 
 interface PostProps {
-  id: string
-  userImageUrl: string
-  userDisplayName: string | undefined
-  createdAt: string
-  caption: string
-  likes: number
-  media?: MediaWithStringDate[]
-  commentCount: number
-  postLikes?: PostLikes[]
-  userId: string
-  isLikedByUser: boolean
-  groupId: string
+  id: string;
+  userImageUrl: string;
+  userDisplayName: string | undefined;
+  createdAt: string;
+  caption: string;
+  likes: number;
+  media?: MediaWithStringDate[];
+  commentCount: number;
+  postLikes?: PostLikes[];
+  userId: string;
+  isLikedByUser: boolean;
+  groupId: string;
 }
 
 const Post = ({
@@ -91,121 +91,121 @@ const Post = ({
   isLikedByUser,
   groupId,
 }: PostProps) => {
-  const { user } = useUser()
+  const { user } = useUser();
 
-  const [isCopied, setIsCopied] = useState(false)
-  const copyElement = useRef<HTMLInputElement | null>(null)
+  const [isCopied, setIsCopied] = useState(false);
+  const copyElement = useRef<HTMLInputElement | null>(null);
 
-  const [api, setApi] = React.useState<CarouselApi>()
-  const [mediaLoaded, setMediaLoaded] = useState<boolean>(false)
-  const [optimisticLikeCount, setOptimisticLikeCount] = useState<number>(likes)
+  const [api, setApi] = React.useState<CarouselApi>();
+  const [mediaLoaded, setMediaLoaded] = useState<boolean>(false);
+  const [optimisticLikeCount, setOptimisticLikeCount] = useState<number>(likes);
   const [optimisticLikeStatus, setOptimisticLikeStatus] =
-    useState<boolean>(isLikedByUser)
-  const [invalidatingQuery, setInvalidatingQuery] = useState<boolean>(false)
-  const utils = trpc.useUtils()
+    useState<boolean>(isLikedByUser);
+  const [invalidatingQuery, setInvalidatingQuery] = useState<boolean>(false);
+  const utils = trpc.useUtils();
 
   const { mutate: likePost, isLoading: isLikingPost } =
-    trpc.postRouter.likePost.useMutation()
+    trpc.postRouter.likePost.useMutation();
 
   const { mutate: unlikePost, isLoading: isUnlikingPost } =
-    trpc.postRouter.unlikePost.useMutation()
+    trpc.postRouter.unlikePost.useMutation();
 
   const {
     mutate: savePost,
     isLoading: savingPost,
     isError: errorSavingPost,
-  } = trpc.postRouter.savePost.useMutation()
+  } = trpc.postRouter.savePost.useMutation();
 
   const {
     mutate: deletePost,
     isLoading: deletingPost,
     isError: errorDeletingPost,
-  } = trpc.postRouter.deletePost.useMutation()
+  } = trpc.postRouter.deletePost.useMutation();
 
   useEffect(() => {
     if (!api) {
-      return
+      return;
     }
 
     const setCarouselHeight = () => {
-      const currentSlide = api.selectedScrollSnap()
-      const slideList: HTMLElement[] = api.slideNodes()
+      const currentSlide = api.selectedScrollSnap();
+      const slideList: HTMLElement[] = api.slideNodes();
 
       if (slideList.length > 1) {
-        const slide: ChildNode | null = slideList[currentSlide].firstChild
+        const slide: ChildNode | null = slideList[currentSlide].firstChild;
 
-        const rootCarouselDiv: HTMLElement = api.containerNode()
+        const rootCarouselDiv: HTMLElement = api.containerNode();
         if ((slide as HTMLElement).offsetHeight !== 0 && mediaLoaded) {
-          const height = (slide as HTMLElement).offsetHeight
-          rootCarouselDiv.style.height = `${height}px`
+          const height = (slide as HTMLElement).offsetHeight;
+          rootCarouselDiv.style.height = `${height}px`;
         }
       }
-    }
-    setCarouselHeight()
-    api.on("slidesInView", setCarouselHeight)
-    api.on("select", setCarouselHeight)
-  }, [api, mediaLoaded])
+    };
+    setCarouselHeight();
+    api.on("slidesInView", setCarouselHeight);
+    api.on("select", setCarouselHeight);
+  }, [api, mediaLoaded]);
 
   const updateLikeStatus = () => {
-    setInvalidatingQuery((prev) => !prev)
-    setOptimisticLikeStatus((prev) => !prev)
+    setInvalidatingQuery((prev) => !prev);
+    setOptimisticLikeStatus((prev) => !prev);
     if (isLikedByUser) {
-      setOptimisticLikeCount((prev) => prev - 1)
+      setOptimisticLikeCount((prev) => prev - 1);
       unlikePost(
         { postId: id },
         {
           onError: () => {
-            setOptimisticLikeCount((prev) => prev + 1)
-            setOptimisticLikeStatus((prev) => !prev)
-            setInvalidatingQuery((prev) => !prev)
+            setOptimisticLikeCount((prev) => prev + 1);
+            setOptimisticLikeStatus((prev) => !prev);
+            setInvalidatingQuery((prev) => !prev);
             toast({
               variant: "destructive",
               title: "Couldn't unlike post.",
               description: "Something went wrong. Please try again later.",
-            })
+            });
           },
           onSuccess: async () => {
             utils.postRouter.fetchAllPosts
               .invalidate()
-              .then(() => setInvalidatingQuery((prev) => !prev))
+              .then(() => setInvalidatingQuery((prev) => !prev));
             toast({
               title: "Success",
               description: "Post unliked successfully",
-            })
+            });
           },
         }
-      )
+      );
     } else {
-      setOptimisticLikeCount((prev) => prev + 1)
+      setOptimisticLikeCount((prev) => prev + 1);
       likePost(
         { postId: id },
         {
           onError: () => {
-            setOptimisticLikeCount((prev) => prev - 1)
-            setOptimisticLikeStatus((prev) => !prev)
-            setInvalidatingQuery((prev) => !prev)
+            setOptimisticLikeCount((prev) => prev - 1);
+            setOptimisticLikeStatus((prev) => !prev);
+            setInvalidatingQuery((prev) => !prev);
             toast({
               variant: "destructive",
               title: "Couldn't like post.",
               description: "Something went wrong. Please try again later.",
-            })
+            });
           },
           onSuccess: async () => {
             utils.postRouter.fetchAllPosts
               .invalidate()
-              .then(() => setInvalidatingQuery((prev) => !prev))
+              .then(() => setInvalidatingQuery((prev) => !prev));
             toast({
               title: "Success",
               description: "Post liked successfully",
-            })
+            });
           },
         }
-      )
+      );
     }
-  }
+  };
 
   const parseCaption = (caption: string) => {
-    const regex = /(\#[a-zA-Z0-9_]+)/g
+    const regex = /(\#[a-zA-Z0-9_]+)/g;
     return caption
       .split(regex)
       .filter(Boolean)
@@ -221,28 +221,28 @@ const Post = ({
                 {segment}
               </Link>
             </strong>
-          )
+          );
         } else {
           // Similarly, ensure the key is unique
-          return <span key={`text-${index}`}>{segment}</span>
+          return <span key={`text-${index}`}>{segment}</span>;
         }
-      })
-  }
+      });
+  };
 
   const [showMedia, setShowMedia] = useState(
     media!.map((_, index) => ({ show: false, index }))
-  )
+  );
   const handleShowContent = (index: number) => {
     setShowMedia((prev) =>
       prev.map((item) =>
         item.index === index ? { ...item, show: true } : item
       )
-    )
-  }
+    );
+  };
 
   useEffect(() => {
-    setShowMedia(media!.map((_, index) => ({ show: false, index })))
-  }, [media])
+    setShowMedia(media!.map((_, index) => ({ show: false, index })));
+  }, [media]);
 
   return (
     <div className="bg-white p-3 m-3 rounded-lg shadow-md max-w-lg  mt-2 sbb:p-5 md:ml-[20px]   mddd:ml-[20px]  lgg:ml-[20px] ">
@@ -309,7 +309,7 @@ const Post = ({
                               toast({
                                 title: "Success",
                                 description: "Post saved successfully",
-                              })
+                              });
                             },
                             onError: () => {
                               toast({
@@ -317,10 +317,10 @@ const Post = ({
                                 title: "Couldn't save post",
                                 description:
                                   "Something went wrong. Please try again later.",
-                              })
+                              });
                             },
                           }
-                        )
+                        );
                       }
                     }}
                   >
@@ -337,11 +337,11 @@ const Post = ({
                           { postId: id },
                           {
                             onSuccess: () => {
-                              utils.postRouter.fetchAllPosts.invalidate()
+                              utils.postRouter.fetchAllPosts.invalidate();
                               toast({
                                 title: "Success",
                                 description: "Post deleted successfully",
-                              })
+                              });
                             },
                             onError: () => {
                               toast({
@@ -349,10 +349,10 @@ const Post = ({
                                 title: "Couldn't delete post",
                                 description:
                                   "Something went wrong. Please try again later.",
-                              })
+                              });
                             },
                           }
-                        )
+                        );
                       }}
                     >
                       Delete Post
@@ -510,16 +510,11 @@ const Post = ({
               </DialogTrigger>
               <DialogContent>
                 <div>
-                  <div>
-                    <Button className="text-sm leading-none" variant="ghost">
-                      Share
-                    </Button>
-                  </div>
                   <div className="max-w-sm">
-                    <div>
-                      <div>Share Post</div>
-                      <div>Share the post with others.</div>
+                    <div className="text-gray-500">
+                      Share the post with others.
                     </div>
+
                     <div>
                       <div className="flex items-center space-x-2">
                         <Label className="sr-only" htmlFor="link">
@@ -537,17 +532,17 @@ const Post = ({
                           size="sm"
                           onClick={() => {
                             if (copyElement.current) {
-                              const link = copyElement.current.value
+                              const link = copyElement.current.value;
                               if (navigator.clipboard) {
                                 navigator.clipboard.writeText(link).then(() => {
-                                  setIsCopied(true)
-                                  setTimeout(() => setIsCopied(false), 3000)
-                                  return
-                                })
-                                copyElement.current.select()
-                                document.execCommand("copy")
-                                setIsCopied(true)
-                                setTimeout(() => setIsCopied(false), 3000)
+                                  setIsCopied(true);
+                                  setTimeout(() => setIsCopied(false), 3000);
+                                  return;
+                                });
+                                copyElement.current.select();
+                                document.execCommand("copy");
+                                setIsCopied(true);
+                                setTimeout(() => setIsCopied(false), 3000);
                               }
                             }
                           }}
@@ -565,7 +560,7 @@ const Post = ({
         <hr className="mt-2 mb-2" />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Post
+export default Post;

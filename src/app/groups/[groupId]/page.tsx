@@ -252,16 +252,11 @@ const Page = ({ params: { groupId } }: PageProps) => {
               </DialogTrigger>
               <DialogContent>
                 <div>
-                  <div>
-                    <Button className="text-sm leading-none" variant="ghost">
-                      Share
-                    </Button>
-                  </div>
                   <div className="max-w-sm">
-                    <div>
-                      <div>Share Group</div>
-                      <div>Share the group with others.</div>
+                    <div className="p-2 text-gray-500 text-md">
+                      Share the group with others.
                     </div>
+
                     <div>
                       <div className="flex items-center space-x-2">
                         <Label className="sr-only" htmlFor="link">
