@@ -142,6 +142,41 @@ export const profileRouter = router({
     // so now, we technically should have the users that we want to return
     return { success: true, friendsWithUserInfo }
   }),
+  fetchFriendsForProfile: privateProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const {userId} = input
+
+      const friends = await ctx.prisma.friend.findMany({
+        where: {
+          OR: [{ userId: userId }, { friendId: userId }],
+        },
+      })
+
+      console.log("friends: ", friends)
+
+      const userIds = friends
+        .map((friend) => [friend.userId, friend.friendId])
+        .flat()
+        .filter((id) => id !== userId)
+
+      // this will get users by matching this key with userId, emailAddress, phoneNumber, username, web3Wallet, firstName and lastName
+
+      let friendsWithUserInfo
+      if (friends.length > 0) {
+        const users = await clerk.users.getUserList({
+          userId: userIds,
+        })
+        friendsWithUserInfo = filterUsersForClient(users)
+      }
+
+      // so now, we technically should have the users that we want to return
+      return { success: true, friendsWithUserInfo }
+    }),
 
   fetchNonFriends: privateProcedure.query(async ({ ctx }) => {
     const user = ctx.user
@@ -282,7 +317,7 @@ export const profileRouter = router({
     const { id } = ctx.user
 
     const rawRequests = await ctx.prisma.friendRequests.findMany({
-      where: {  receiverId: id , status: "PENDING" },
+      where: { receiverId: id, status: "PENDING" },
     })
 
     const otherUserIds = [
@@ -348,7 +383,7 @@ export const profileRouter = router({
           },
         },
       })
-console.log(request)
+      console.log(request)
       if (!request || request.status !== "PENDING") {
         throw new Error("Friend request not found or already processed")
       }

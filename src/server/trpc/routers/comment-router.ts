@@ -215,15 +215,17 @@ export const commentRouter = router({
           },
         })
 
-        const notification = await ctx.prisma.notification.create({
-          data: {
-            type: "POST_COMMENT",
-            userId: comment.post.userId,
-            content: `${ctx.user.username} commented on your post`,
-            senderId: ctx.user.id,
-            entityId: comment.postId,
-          },
-        })
+        if (comment.userId !== ctx.user.id) {
+          const notification = await ctx.prisma.notification.create({
+            data: {
+              type: "POST_COMMENT",
+              userId: comment.post.userId,
+              content: `${ctx.user.username} commented on your post`,
+              senderId: ctx.user.id,
+              entityId: comment.postId,
+            },
+          })
+        }
 
         if (parentCommentId) {
           const parentComment = await ctx.prisma.comment.findFirst({
@@ -232,7 +234,7 @@ export const commentRouter = router({
             },
           })
 
-          if (parentComment) {
+          if (parentComment && comment.userId !== ctx.user.id) {
             const nofitication = await ctx.prisma.notification.create({
               data: {
                 type: "COMMENT_REPLY",
@@ -373,15 +375,17 @@ export const commentRouter = router({
           },
         })
 
-        const notification = await ctx.prisma.notification.create({
-          data: {
-            type: "COMMENT_LIKE",
-            userId: comment.userId,
-            content: `${ctx.user.username} liked your comment`,
-            senderId: ctx.user.id,
-            entityId: comment.postId,
-          },
-        })
+        if (comment.userId !== ctx.user.id) {
+          const notification = await ctx.prisma.notification.create({
+            data: {
+              type: "COMMENT_LIKE",
+              userId: comment.userId,
+              content: `${ctx.user.username} liked your comment`,
+              senderId: ctx.user.id,
+              entityId: comment.postId,
+            },
+          })
+        }
       } catch (error) {
         console.log("🔴 Prisma Error: ", error)
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" })

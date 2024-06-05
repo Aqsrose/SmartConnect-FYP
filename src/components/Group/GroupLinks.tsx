@@ -3,9 +3,13 @@ import { usePathname } from "next/navigation"
 
 interface GroupLinksProps {
   setActiveLink: (link: string) => void
+  isAdmin: boolean
 }
 
-const GroupPageLinks: React.FC<GroupLinksProps> = ({ setActiveLink }) => {
+const GroupPageLinks: React.FC<GroupLinksProps> = ({
+  setActiveLink,
+  isAdmin,
+}) => {
   const pathname = usePathname()
   const isActive = (path: string): boolean =>
     pathname === `/GroupPageLinks/${path}`
@@ -21,18 +25,20 @@ const GroupPageLinks: React.FC<GroupLinksProps> = ({ setActiveLink }) => {
     >
       <nav>
         <ul className="flex justify-around w-full text-sm space-x-1 sbb:space-x-2  tb:space-x-0 tbbb:space-x-4 tbb:space-x-6 md:space-x-4 lggg:space-x-7  p-3 left-7 top-3 ">
-          {["Discussion", "Events", "Members", "Media","Requests"].map((link) => (
-            <li key={link}>
-              <div
-                className={`${linkClass} ${
-                  isActive(link) ? activeLinkClass : ""
-                }`}
-                onClick={() => setActiveLink(link)}
-              >
-                {link}
-              </div>
-            </li>
-          ))}
+          {["Discussion", "Events", "Members", "Media"]
+            .concat(isAdmin ? ["Requests"] : [])
+            .map((link) => (
+              <li key={link}>
+                <div
+                  className={`${linkClass} ${
+                    isActive(link) ? activeLinkClass : ""
+                  }`}
+                  onClick={() => setActiveLink(link)}
+                >
+                  {link}
+                </div>
+              </li>
+            ))}
         </ul>
       </nav>
     </section>

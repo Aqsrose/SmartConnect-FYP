@@ -72,6 +72,9 @@ export const eventRouter = router({
           },
         },
       },
+      include: {
+        EventMedia: true,
+      },
     })
 
     return { sucecss: true, recommendedEvents }
@@ -124,7 +127,7 @@ export const eventRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { eventId } = input
 
-      const deletedEvent = await ctx.prisma.event.deleteMany({
+      const deletedEvent = await ctx.prisma.event.delete({
         where: {
           organizerId: ctx.user.id,
           id: eventId,

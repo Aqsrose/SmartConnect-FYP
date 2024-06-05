@@ -1,24 +1,19 @@
-"use client";
-import { useUser } from "@clerk/nextjs";
-import { trpc } from "@/server/trpc/client";
-import { useInView } from "react-intersection-observer";
-import { useEffect } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import StoryModal from "@/components/story/storyModal";
-import Modal from "@/components/Modal";
-import {
-  Camera,
-  Pencil,
-  MoreHorizontal,
-  Trash2,
-} from "lucide-react";
-import useNFTMarketplace from "@/web3/useMarketplace";
-import getSignedUrls from "@/app/actions/getSignedUrls";
-import { toast } from "@/components/ui/use-toast";
-import Layoutpage from "@/components/Navbar/Layout";
-import React, { useState, useRef, ChangeEvent } from "react";
-import ProfilePageLinks from "@/components/Profile/profilePageLinks";
-import ProfileDetails from "@/components/Profile/profileDetails";
+"use client"
+import { useUser } from "@clerk/nextjs"
+import { trpc } from "@/server/trpc/client"
+import { useInView } from "react-intersection-observer"
+import { useEffect } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
+import StoryModal from "@/components/story/storyModal"
+import Modal from "@/components/Modal"
+import { Camera, Pencil, MoreHorizontal, Trash2 } from "lucide-react"
+import useNFTMarketplace from "@/web3/useMarketplace"
+import getSignedUrls from "@/app/actions/getSignedUrls"
+import { toast } from "@/components/ui/use-toast"
+import Layoutpage from "@/components/Navbar/Layout"
+import React, { useState, useRef, ChangeEvent } from "react"
+import ProfilePageLinks from "@/components/Profile/profilePageLinks"
+import ProfileDetails from "@/components/Profile/profileDetails"
 import {
   Dialog,
   DialogContent,
@@ -26,69 +21,73 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
-import EditProfileModal from "@/components/Profile/EditProfileModal";
+} from "@radix-ui/react-dropdown-menu"
+import EditProfileModal from "@/components/Profile/EditProfileModal"
 
 interface PageProps {
   params: {
-    userId: string;
-  };
+    userId: string
+  }
 }
 
 const UserProfilePage = ({ params: { userId } }: PageProps) => {
-  const [showModal, setShowModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
- 
+  const [showModal, setShowModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+
   const handleOpenEditModal = () => {
-    setShowEditModal(true);
-  };
+    setShowEditModal(true)
+  }
 
   const handleCloseEditModal = () => {
-    setShowEditModal(false);
-  };
+    setShowEditModal(false)
+  }
 
   const handleOpenModal = () => {
-    setShowModal(true);
-  };
+    setShowModal(true)
+  }
 
   const handleCloseModal = () => {
-    setShowModal(false);
-  };
-  const { user } = useUser();
-  const utils = trpc.useUtils();
-  const [activeLink, setActiveLink] = useState<string>("");
+    setShowModal(false)
+  }
+  const { user } = useUser()
+  const utils = trpc.useUtils()
+  const [activeLink, setActiveLink] = useState<string>("")
 
-  const coverImageElement = useRef<HTMLInputElement | null>(null);
+  const coverImageElement = useRef<HTMLInputElement | null>(null)
 
-  const { data: userFromBackend, isLoading: loadingUser, isError: errorLoadingUser } = trpc.profileRouter.fetchUserInfo.useQuery({
+  const {
+    data: userFromBackend,
+    isLoading: loadingUser,
+    isError: errorLoadingUser,
+  } = trpc.profileRouter.fetchUserInfo.useQuery({
     userId,
-  });
+  })
 
-  console.log("userFromBackend: ", userFromBackend);
+  console.log("userFromBackend: ", userFromBackend)
 
   const {
     data: requests,
     isLoading: loadingRequests,
     isError: requestsError,
-  } = trpc.profileRouter.fetchFriendRequests.useQuery();
+  } = trpc.profileRouter.fetchFriendRequests.useQuery()
 
   const { data: friends, isFetched: friendsFetched } =
-    trpc.profileRouter.fetchFriendsForRequest.useQuery({ userId });
+    trpc.profileRouter.fetchFriendsForRequest.useQuery({ userId })
 
   const [requestButtonState, setRequestButtonState] = useState({
     showCancel: false,
     showRequest: false,
     showRespond: false,
-  });
+  })
 
   useEffect(() => {
-    if (!friendsFetched || loadingRequests) return;
+    if (!friendsFetched || loadingRequests) return
 
     const isFriend =
       user &&
@@ -98,30 +97,30 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
         return (
           (friend.userId === user.id && friend.friendId === userId) ||
           (friend.userId === userId && friend.friendId === user.id)
-        );
-      });
+        )
+      })
     const friendRequest = requests?.requests.find((request) => {
       return (
         (request.senderId === user?.id && request.receiverId === userId) ||
         (request.senderId === userId && request.receiverId === user?.id)
-      );
-    });
-    let showCancel = false;
-    let showRespond = false;
-    let showRequest = false;
+      )
+    })
+    let showCancel = false
+    let showRespond = false
+    let showRequest = false
 
     if (friendRequest) {
       if (friendRequest.senderId === user?.id) {
-        showCancel = true;
+        showCancel = true
       } else if (friendRequest.receiverId === user?.id) {
-        showRespond = true;
+        showRespond = true
       }
     } else if (!isFriend && userId !== user?.id) {
-      showRequest = true;
+      showRequest = true
     }
 
-    setRequestButtonState({ showCancel, showRespond, showRequest });
-  }, [user, userId, friendsFetched, loadingRequests, friends, requests]);
+    setRequestButtonState({ showCancel, showRespond, showRequest })
+  }, [user, userId, friendsFetched, loadingRequests, friends, requests])
 
   const {
     data: coverImageResponse,
@@ -129,10 +128,10 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
     isError: coverImageError,
   } = trpc.profileRouter.fetchCoverImage.useQuery({
     userId,
-  });
+  })
 
   const { mutate: updateCoverImage, isLoading: updatingCoverImage } =
-    trpc.profileRouter.updateCoverImage.useMutation();
+    trpc.profileRouter.updateCoverImage.useMutation()
 
   const {
     data,
@@ -147,7 +146,7 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
       getNextPageParam: (lastPageResponse) => lastPageResponse.nextCursor,
       enabled: userId ? true : false,
     }
-  );
+  )
 
   const {
     data: savedPosts,
@@ -161,49 +160,49 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
       getNextPageParam: (lastPageResponse) => lastPageResponse.nextCursor,
       enabled: userId ? true : false,
     }
-  );
+  )
 
   const {
     mutate: sendFriendRequest,
     isLoading: sendingRequest,
     isError: errorSendingRequest,
-  } = trpc.profileRouter.sendFriendRequest.useMutation();
+  } = trpc.profileRouter.sendFriendRequest.useMutation()
 
   const {
     mutate: cancelRequest,
     isLoading: cancellingRequest,
     isError: errorCancelling,
-  } = trpc.profileRouter.cancelRequest.useMutation();
+  } = trpc.profileRouter.cancelRequest.useMutation()
 
-  const { ownedNfts } = useNFTMarketplace();
+  const { ownedNfts } = useNFTMarketplace()
 
-  const { ref, inView, entry } = useInView();
+  const { ref, inView, entry } = useInView()
 
   useEffect(() => {
     if (inView && hasNextPage) {
-      fetchNextPage();
+      fetchNextPage()
     }
-  }, [fetchNextPage, inView]);
+  }, [fetchNextPage, inView])
 
   const handleCoverImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (!event.target.files || !event.target.files[0]) {
-      return;
+      return
     }
-    const selectedFile = event.target.files[0];
+    const selectedFile = event.target.files[0]
 
-    const checksum = await computeSHA256(selectedFile);
+    const checksum = await computeSHA256(selectedFile)
 
     const response = await getSignedUrls(
       [selectedFile.type],
       [selectedFile.size],
       [checksum],
       userId
-    );
+    )
 
     if (response) {
-      const [first] = response.signedUrls;
+      const [first] = response.signedUrls
 
       const res = await fetch(first, {
         method: "PUT",
@@ -211,8 +210,8 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
           "Content-Type": selectedFile.type,
         },
         body: selectedFile,
-      });
-      const url = first.split("?")[0];
+      })
+      const url = first.split("?")[0]
       updateCoverImage(
         { imageUrl: url },
         {
@@ -221,59 +220,65 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
               variant: "destructive",
               title: "Uh oh! Something went wrong",
               description: `An internal server error occurred. Please try again later.`,
-            });
+            })
           },
           onSuccess: () => {
             toast({
               title: "Success.",
               description: "Cover image updated successfully.",
-            });
+            })
           },
         }
-      );
+      )
     }
-  };
+  }
 
   //MOVE THIS TO A SEPARATE FILE LATER AND IMPORT FROM THERE "helpers.ts"
   const computeSHA256 = async (file: File) => {
     //do this for media array
-    const buffer = await file.arrayBuffer();
-    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const buffer = await file.arrayBuffer()
+    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
     const hashHex = hashArray
       .map((byte) => byte.toString(16).padStart(2, "0"))
-      .join("");
-    return hashHex;
-  };
-  const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
-  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
-  const coverPhotoInputRef = useRef<HTMLInputElement>(null);
-  const profilePhotoInputRef = useRef<HTMLInputElement>(null);
+      .join("")
+    return hashHex
+  }
+  const [coverPhoto, setCoverPhoto] = useState<string | null>(null)
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null)
+  const coverPhotoInputRef = useRef<HTMLInputElement>(null)
+  const profilePhotoInputRef = useRef<HTMLInputElement>(null)
 
   const handleProfilePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const file = event.target.files?.[0]
     if (file) {
-      const fileURL = URL.createObjectURL(file);
-      setProfilePhoto(fileURL);
-      localStorage.setItem("profilePhoto", fileURL);
+      const fileURL = URL.createObjectURL(file)
+      setProfilePhoto(fileURL)
+      localStorage.setItem("profilePhoto", fileURL)
     }
-  };
+  }
 
   const {
     mutate: acceptFriendRequest,
     isLoading: accpetingFriendRequest,
     isError: errorAcceptingFriendRequest,
-  } = trpc.profileRouter.acceptFriendRequest.useMutation();
+  } = trpc.profileRouter.acceptFriendRequest.useMutation()
 
   const {
     mutate: rejectRequest,
     isLoading: rejectingRequest,
     isError: errorRejectingRequest,
-  } = trpc.profileRouter.rejectRequest.useMutation();
+  } = trpc.profileRouter.rejectRequest.useMutation()
 
   const triggerFileInput = (inputRef: React.RefObject<HTMLInputElement>) => {
-    inputRef.current?.click();
-  };
+    inputRef.current?.click()
+  }
+
+  const {
+    data: otherUserFriends,
+    isLoading: loadingOtherUserFriends,
+    isError: errorLoadingOtherUserFriends,
+  } = trpc.profileRouter.fetchFriendsForProfile.useQuery({ userId })
 
   if (!user) {
     return (
@@ -303,7 +308,7 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
           </div>
         </div>
       </Layoutpage>
-    );
+    )
   }
   const showRequestButton = () => {
     if (requestButtonState.showCancel) {
@@ -315,16 +320,16 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
               { userId },
               {
                 onSuccess: () => {
-                  utils.profileRouter.fetchFriendRequests.invalidate();
-                  utils.profileRouter.fetchFriends.invalidate();
+                  utils.profileRouter.fetchFriendRequests.invalidate()
+                  utils.profileRouter.fetchFriends.invalidate()
                 },
               }
-            );
+            )
           }}
         >
           {!cancellingRequest ? "Cancel Request" : "loading..."}
         </button>
-      );
+      )
     } else if (requestButtonState.showRespond) {
       return (
         <Dialog>
@@ -348,9 +353,9 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
                               title: "Request Accepted",
                               description:
                                 "The friend request has been accepted",
-                            });
-                            utils.profileRouter.fetchFriendRequests.invalidate();
-                            utils.profileRouter.fetchFriends.invalidate();
+                            })
+                            utils.profileRouter.fetchFriendRequests.invalidate()
+                            utils.profileRouter.fetchFriends.invalidate()
                           },
                           onError: () => {
                             toast({
@@ -358,10 +363,10 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
                               title: "Error Accepting Request",
                               description:
                                 "The friend request was not accepted due to a server error",
-                            });
+                            })
                           },
                         }
-                      );
+                      )
                     }}
                   >
                     {accpetingFriendRequest ? "loading..." : "Accept"}
@@ -378,9 +383,9 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
                               title: "Request Rejected",
                               description:
                                 "The friend request has been rejected",
-                            });
-                            utils.profileRouter.fetchFriendRequests.invalidate();
-                            utils.profileRouter.fetchFriends.invalidate();
+                            })
+                            utils.profileRouter.fetchFriendRequests.invalidate()
+                            utils.profileRouter.fetchFriends.invalidate()
                           },
                           onError: () => {
                             toast({
@@ -388,10 +393,10 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
                               title: "Error Rejecting Request",
                               description:
                                 "The friend request was not rejecting due to a server error",
-                            });
+                            })
                           },
                         }
-                      );
+                      )
                     }}
                   >
                     {rejectingRequest ? "loading..." : "Reject"}
@@ -401,7 +406,7 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
             </DialogContent>
           </DialogTrigger>
         </Dialog>
-      );
+      )
     } else if (requestButtonState.showRequest) {
       return (
         <button
@@ -411,27 +416,27 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
               { receiverId: userId },
               {
                 onSuccess: () => {
-                  utils.profileRouter.fetchFriendRequests.invalidate();
-                  utils.profileRouter.fetchFriends.invalidate();
+                  utils.profileRouter.fetchFriendRequests.invalidate()
+                  utils.profileRouter.fetchFriends.invalidate()
                 },
                 onError: () => {
                   toast({
                     variant: "destructive",
                     title: "Server Error",
                     description: "An error occurred sending request",
-                  });
+                  })
                 },
               }
-            );
+            )
           }}
         >
           {!sendingRequest ? "Request +" : "loading..."}
         </button>
-      );
+      )
     }
 
-    return null;
-  };
+    return null
+  }
 
   return (
     <Layoutpage>
@@ -469,7 +474,6 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
           />
           {userId === user?.id && (
             <>
-              
               <input
                 type="file"
                 accept="image/*"
@@ -492,19 +496,26 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
           </p>
         </div>
         <div className="text-sm text-gray-700 mt-7 tb:ml-[65px] ml-12">
-          <p> {userFromBackend?.friendCount ?? 0} friends</p>
+          {userId === user?.id ? (
+            <p> {userFromBackend?.friendCount ?? 0} friends</p>
+          ) : (
+            <p>
+              {(otherUserFriends?.friendsWithUserInfo &&
+                otherUserFriends?.friendsWithUserInfo.length) ??
+                0}{" "}
+              friends
+            </p>
+          )}
         </div>
         <div className="flex absolute right-3 bottom-32 ">
-          <DropdownMenu >
+          <DropdownMenu>
             <DropdownMenuTrigger>
               <MoreHorizontal size={20} />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-40 shadow-lg mr-32">
               <DropdownMenuItem className="flex gap-2 items-center cursor-pointer p-2">
                 <Trash2 className="w-4 h-4 text-red-500" />
-                <button className="text-sm font-medium">
-                  Delete Account
-                </button>
+                <button className="text-sm font-medium">Delete Account</button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -525,8 +536,9 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
               </button>
             )}
             {userId === user?.id && (
-              <button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-[11px] sbb:text-sm text-white px-3 py-1 sb:px-2 sbb:px-4 sbb:py-2 rounded transition duration-200"
-              onClick={handleOpenEditModal}
+              <button
+                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-[11px] sbb:text-sm text-white px-3 py-1 sb:px-2 sbb:px-4 sbb:py-2 rounded transition duration-200"
+                onClick={handleOpenEditModal}
               >
                 Edit profile
               </button>
@@ -546,9 +558,15 @@ const UserProfilePage = ({ params: { userId } }: PageProps) => {
         profilePageUserId={userId}
         loggedInUserId={user.id}
       />
-      <ProfileDetails activeLink={activeLink} userId={userId} userFromBackend={userFromBackend} isLoading={loadingUser} errorLoadingUser={errorLoadingUser} />
+      <ProfileDetails
+        activeLink={activeLink}
+        userId={userId}
+        userFromBackend={userFromBackend}
+        isLoading={loadingUser}
+        errorLoadingUser={errorLoadingUser}
+      />
     </Layoutpage>
-  );
-};
+  )
+}
 
-export default UserProfilePage;
+export default UserProfilePage

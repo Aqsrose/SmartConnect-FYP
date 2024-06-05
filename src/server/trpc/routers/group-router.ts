@@ -478,6 +478,7 @@ export const groupRouter = router({
       const joinRequests = await ctx.prisma.groupJoinRequests.findMany({
         where: {
           groupId,
+          status: "PENDING",
         },
       })
 

@@ -10,9 +10,10 @@ import GroupRequestsPage from "@/app/groups/groupRequests/page";
 interface LinkDetailsProps {
   activeLink?: string;
   groupId:string
+  isUserAMember: boolean | undefined
 }
 
-const Link: React.FC<LinkDetailsProps> = ({ activeLink = 'Discussion' , groupId}) => {
+const Link: React.FC<LinkDetailsProps> = ({ activeLink = 'Discussion' , groupId, isUserAMember = true}) => {
   const [currentLink, setCurrentLink] = useState<string>(activeLink);
   const [Component, setComponent] = useState<React.FC | null>(null);
 
@@ -25,7 +26,7 @@ const Link: React.FC<LinkDetailsProps> = ({ activeLink = 'Discussion' , groupId}
   const loadComponent = ()=>{
     switch (currentLink) {
       case 'Discussion':
-        return <GroupDiscussion groupId={groupId}/>
+        return <GroupDiscussion groupId={groupId} isUserAMember={isUserAMember}/>
         break;
       case 'Members':
         return <GroupMembers groupId={groupId}/>
@@ -40,7 +41,7 @@ const Link: React.FC<LinkDetailsProps> = ({ activeLink = 'Discussion' , groupId}
           return <GroupRequestsPage groupId={groupId}/>
           break;
       default:
-        return <GroupDiscussion groupId={groupId}/>
+        return <GroupDiscussion groupId={groupId} isUserAMember={isUserAMember}/>
         break;
     }
   }

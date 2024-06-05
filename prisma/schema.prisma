@@ -258,7 +258,7 @@ model EventMedia {
   id  String @id @default(uuid())
   url String
 
-  event   Event  @relation(fields: [eventId], references: [id])
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId String @unique @map("event_id")
 
   @@map("event_media")
@@ -268,7 +268,7 @@ model EventUsers {
   userId  String @map("user_id")
   eventId String @map("event_id")
 
-  event Event @relation(fields: [eventId], references: [id])
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@id([userId, eventId])
   @@map("event_users")

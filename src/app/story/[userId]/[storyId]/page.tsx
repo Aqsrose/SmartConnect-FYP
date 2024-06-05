@@ -136,13 +136,13 @@ function ViewStory() {
                 {formatRelativeTime(currentStory.story.createdAt)}
               </p>
             </div>
-            <Trash2
+            {/* <Trash2
               aria-label="hidden"
               className="h-5 w-5 text-red-500 absolute top-5 right-12"
-            />
-            <div className="absolute top-5 right-4">
+            /> */}
+            {/* <div className="absolute top-5 right-4">
               <MoreHorizontal />
-            </div>
+            </div> */}
           </div>
 
           {/*main story image*/}
@@ -179,14 +179,14 @@ function ViewStory() {
               <ChevronRight />
             </div>
           )}
-          <div className="flex absolute bottom-3 left-1/2 transform -translate-x-1/2">
+          {/* <div className="flex absolute bottom-3 left-1/2 transform -translate-x-1/2">
             <div className="mr-2">
               <Eye />
             </div>
             <div>
               <p>{currentStory.story.views}</p>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 

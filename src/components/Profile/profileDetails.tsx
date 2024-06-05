@@ -1,5 +1,5 @@
-"use client";
-import React, { useEffect, useState } from "react";
+"use client"
+import React, { useEffect, useState } from "react"
 import {
   Map,
   GraduationCap,
@@ -7,24 +7,25 @@ import {
   Heart,
   Lock,
   LucideUnlock,
-} from "lucide-react";
-import ProfilePostsPage from "@/app/Profile_folder/profile_posts/page";
-import ProfileNFTsPage from "@/app/Profile_folder/profile_NFTs/page";
-import ProfileMediaPage from "@/app/Profile_folder/profile_media/page";
-import ProfileFriendsPage from "@/app/Profile_folder/profile_friends/page";
-import ProfileAboutPage from "@/app/Profile_folder/profile_about/page";
-import SavedPostPage from "@/app/Profile_folder/saved_posts/page";
-import EditBioModal from "@/components/Profile/editBioModal";
-import Modal from "../Modal";
-import { User } from "../../../prisma/types";
-import { trpc } from "@/server/trpc/client";
+} from "lucide-react"
+import ProfilePostsPage from "@/app/Profile_folder/profile_posts/page"
+import ProfileNFTsPage from "@/app/Profile_folder/profile_NFTs/page"
+import ProfileMediaPage from "@/app/Profile_folder/profile_media/page"
+import ProfileFriendsPage from "@/app/Profile_folder/profile_friends/page"
+import ProfileAboutPage from "@/app/Profile_folder/profile_about/page"
+import SavedPostPage from "@/app/Profile_folder/saved_posts/page"
+import EditBioModal from "@/components/Profile/editBioModal"
+import Modal from "../Modal"
+import { User } from "../../../prisma/types"
+import { trpc } from "@/server/trpc/client"
+import { useUser } from "@clerk/nextjs"
 
 interface LinkDetailsProps {
-  activeLink?: string;
-  userId: string;
-  userFromBackend: { user: User } | undefined;
-  isLoading: boolean;
-  errorLoadingUser: boolean;
+  activeLink?: string
+  userId: string
+  userFromBackend: { user: User } | undefined
+  isLoading: boolean
+  errorLoadingUser: boolean
 }
 
 const ProfileDetails: React.FC<LinkDetailsProps> = ({
@@ -34,51 +35,53 @@ const ProfileDetails: React.FC<LinkDetailsProps> = ({
   isLoading,
   errorLoadingUser,
 }) => {
-  console.log("userFromBackend inside profileDetails: ", userFromBackend);
+  console.log("userFromBackend inside profileDetails: ", userFromBackend)
 
-  const [currentLink, setCurrentLink] = useState<string>(activeLink);
-  const [Component, setComponent] = useState<React.FC | null>(null);
-  const [showEditBioModal, setShowEditBioModal] = useState(false);
+  const { user } = useUser()
+
+  const [currentLink, setCurrentLink] = useState<string>(activeLink)
+  const [Component, setComponent] = useState<React.FC | null>(null)
+  const [showEditBioModal, setShowEditBioModal] = useState(false)
 
   const handleOpenEditBioModal = () => {
-    setShowEditBioModal(true);
-  };
+    setShowEditBioModal(true)
+  }
 
   const handleCloseEditBioModal = () => {
-    setShowEditBioModal(false);
-  };
+    setShowEditBioModal(false)
+  }
 
   useEffect(() => {
     if (activeLink) {
-      setCurrentLink(activeLink);
+      setCurrentLink(activeLink)
     }
-  }, [activeLink]);
+  }, [activeLink])
 
   const loadComponent = () => {
     switch (currentLink) {
       case "Posts":
-        return <ProfilePostsPage userId={userId} />;
-        break;
+        return <ProfilePostsPage userId={userId} />
+        break
       case "NFTs":
-        return <ProfileNFTsPage />;
-        break;
+        return <ProfileNFTsPage />
+        break
       case "Media":
-        return <ProfileMediaPage userId={userId} />;
-        break;
+        return <ProfileMediaPage userId={userId} />
+        break
       case "Friends":
-        return <ProfileFriendsPage userId={userId} />;
-        break;
+        return <ProfileFriendsPage userId={userId} />
+        break
       case "Saved":
-        return <SavedPostPage userId={userId} />;
-        break;
+        return <SavedPostPage userId={userId} />
+        break
       case "About":
-        return <ProfileAboutPage />;
-        break;
+        return <ProfileAboutPage />
+        break
       default:
-        return <ProfilePostsPage userId={userId} />;
-        break;
+        return <ProfilePostsPage userId={userId} />
+        break
     }
-  };
+  }
 
   return (
     <section className="flex flex-col md:flex-row">
@@ -122,14 +125,16 @@ const ProfileDetails: React.FC<LinkDetailsProps> = ({
               </h4>
             </div>
 
-            <div className="ml-9 mt-8">
-              <button
-                onClick={handleOpenEditBioModal}
-                className="bg-gradient-to-r flex from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-white px-14 lggg:px-24 py-2 rounded transition duration-200"
-              >
-                Edit Bio <Pencil className="w-5 ml-1" />
-              </button>
-            </div>
+            {user?.id === userId && (
+              <div className="ml-9 mt-8">
+                <button
+                  onClick={handleOpenEditBioModal}
+                  className="bg-gradient-to-r flex from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-white px-14 lggg:px-24 py-2 rounded transition duration-200"
+                >
+                  Edit Bio <Pencil className="w-5 ml-1" />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -137,7 +142,7 @@ const ProfileDetails: React.FC<LinkDetailsProps> = ({
         <EditBioModal close={handleCloseEditBioModal} />
       </Modal>
     </section>
-  );
-};
+  )
+}
 
-export default ProfileDetails;
+export default ProfileDetails
