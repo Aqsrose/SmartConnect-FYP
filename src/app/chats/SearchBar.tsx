@@ -1,7 +1,7 @@
 "use client";
 import { trpc } from "@/server/trpc/client";
 import { Loader2 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { User } from "../../../prisma/types";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/use-toast";
@@ -24,6 +24,7 @@ const SearchBar = () => {
   const router = useRouter();
 
   const [openDropDown, setOpenDropDown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleCreateChat = (user: User) => {
     console.log("working");
@@ -46,6 +47,23 @@ const SearchBar = () => {
     );
   };
 
+  // Function to handle click outside the dropdown
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(event.target as Node)
+    ) {
+      setOpenDropDown(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="relative">
       <input
@@ -60,7 +78,10 @@ const SearchBar = () => {
         onFocus={(e) => (e.target.value ? setOpenDropDown(true) : null)}
       />
       {openDropDown && (
-        <div className="absolute bg-white w-[280px] z-50 top-10 -left-6 border-black border-solid border shadow-sm p-2 flex gap-2">
+        <div
+          className="absolute bg-white w-[280px] z-50 top-10 -left-6 border-black border-solid border shadow-sm p-2 flex gap-2"
+          ref={dropdownRef}
+        >
           {isLoading ? (
             <Loader2 className="animate-spin m-auto" />
           ) : friends && friends.users.length > 0 ? (
